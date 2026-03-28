@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
-import DashboardTool from "./Tool/DashboardTool";
+import DashboardContent from "./Tool/DashboardContent";
 
 const Dashboard = () => {
   return (
     <Box sx={{ width: "100%" }}>
-      <DashboardTool />
+      <DashboardContent />
     </Box>
   );
 };

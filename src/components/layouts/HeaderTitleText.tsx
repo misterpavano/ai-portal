@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { IconLogout, IconSettings, IconUser } from "@tabler/icons-react";
-import { useState } from "react";
+import { MouseEvent, ReactNode, useState } from "react";
 import { useAtom } from "jotai";
 import {
   userAtom,
@@ -22,9 +22,15 @@ import { useAuthenticator } from "@aws-amplify/ui-react";
 
 type HeaderTitleProps = {
   title: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   subtitle?: string;
   selectedModel?: string;
+};
+
+const clearSummaryStorage = () => {
+  localStorage.removeItem("assistantIdMeetingSummary");
+  localStorage.removeItem("vectorStoreIdMeetingSummary");
+  localStorage.removeItem("assistantModelMeetingSummary");
 };
 
 const HeaderTitle = ({
@@ -42,12 +48,8 @@ const HeaderTitle = ({
   const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
   const { signOut } = useAuthenticator((context) => [context.user]);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (anchorEl) {
-      handleMenuClose();
-    } else {
-      setAnchorEl(event.currentTarget);
-    }
+  const handleMenuOpen = (event: MouseEvent<HTMLDivElement>) => {
+    setAnchorEl((current) => (current ? null : event.currentTarget));
   };
 
   const handleMenuClose = () => {
@@ -57,29 +59,13 @@ const HeaderTitle = ({
   const handleLogout = async () => {
     try {
       handleMenuClose();
-
       await logout().unwrap();
-
-      // Clear interview summary assistant data from localStorage
-      localStorage.removeItem("assistantIdMeetingSummary");
-      localStorage.removeItem("vectorStoreIdMeetingSummary");
-      localStorage.removeItem("assistantModelMeetingSummary");
-
+    } catch (_error) {
+      // Keep local auth cleanup resilient even if the API call fails.
+    } finally {
+      clearSummaryStorage();
       setUser(null);
       setIsAuthenticated(false);
-
-      // Sign out from AWS Amplify authentication
-      signOut();
-    } catch (error) {
-      // Clear interview summary assistant data from localStorage even on error
-      localStorage.removeItem("assistantIdMeetingSummary");
-      localStorage.removeItem("vectorStoreIdMeetingSummary");
-      localStorage.removeItem("assistantModelMeetingSummary");
-
-      setUser(null);
-      setIsAuthenticated(false);
-
-      // Sign out from AWS Amplify authentication even on error
       signOut();
     }
   };
@@ -91,15 +77,16 @@ const HeaderTitle = ({
   return (
     <CardHeader
       sx={{
-        backgroundColor: "white",
-        color: "black",
-        height: "66px",
-        padding: "15px 40px 15px 40px",
+        backgroundColor: "common.white",
+        color: "text.primary",
+        minHeight: 66,
+        px: { xs: 2, md: 5 },
+        py: 2,
         borderRadius: 0,
         position: "sticky",
         top: 0,
         zIndex: 1,
-        borderBottom: 2,
+        borderBottom: "2px solid",
         borderColor: "neutral.200",
       }}
       title={
@@ -108,13 +95,14 @@ const HeaderTitle = ({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            gap: 2,
           }}
         >
           <Box
             sx={{
               display: "flex",
-              flexDirection: "row",
               alignItems: subtitle ? "flex-start" : "center",
+              minWidth: 0,
             }}
           >
             <Box
@@ -127,18 +115,17 @@ const HeaderTitle = ({
                 justifyContent: "center",
                 display: "flex",
                 mr: 1.5,
+                flexShrink: 0,
               }}
             >
               {icon}
             </Box>
-            <Stack gap={0.2}>
-              <Typography
-                sx={{ fontSize: 20, fontWeight: "bold", lineHeight: 1.2 }}
-              >
+            <Stack gap={0.2} sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>
                 {title}
               </Typography>
               {subtitle && (
-                <Typography sx={{ fontSize: 14, lineHeight: 1.2 }}>
+                <Typography variant="body" sx={{ lineHeight: 1.4, color: "text.secondary" }}>
                   {subtitle}
                 </Typography>
               )}
@@ -146,16 +133,15 @@ const HeaderTitle = ({
                 <Box
                   sx={{
                     backgroundColor: "error.main",
-                    borderRadius: "4px",
-                    paddingX: 1,
+                    borderRadius: 1,
+                    px: 1,
+                    py: 0.25,
+                    alignSelf: "flex-start",
                   }}
                 >
                   <Typography
-                    sx={{
-                      fontSize: 12,
-                      color: "white",
-                      fontWeight: 600,
-                    }}
+                    variant="xsmall_bold"
+                    sx={{ color: "common.white" }}
                   >
                     Selected model: {selectedModel}
                   </Typography>
@@ -164,26 +150,25 @@ const HeaderTitle = ({
             </Stack>
           </Box>
 
-          {/* Right content */}
           <Box
-            onClick={(event: any) => handleMenuOpen(event)}
+            onClick={handleMenuOpen}
             sx={{
               cursor: "pointer",
-              display: "flex",
-              flexDirection: "row",
+              display: { xs: "none", sm: "flex" },
               alignItems: "center",
               gap: 1,
-              padding: 1,
-              borderRadius: 30,
+              p: 1,
+              borderRadius: 999,
               backgroundColor: "neutral.300",
+              flexShrink: 0,
             }}
           >
             <Avatar
               sx={{
                 backgroundColor: "primary.900",
                 width: 30,
-                fontSize: 14,
                 height: 30,
+                fontSize: 14,
               }}
             >
               {userInitials}
@@ -194,41 +179,22 @@ const HeaderTitle = ({
                 "& .MuiPaper-root": {
                   borderRadius: 4,
                   minWidth: 310,
-                  marginTop: 1,
-                  padding: "8px 0 12px 0",
-                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                  mt: 1,
+                  py: 1,
+                  boxShadow: theme.customShadows.elevated,
                 },
               }}
               anchorEl={anchorEl}
               open={isMenuOpen}
               onClose={handleMenuClose}
             >
-              <MenuItem
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "10px 16px",
-                  fontSize: "14px",
-                  color: "text.primary",
-                }}
-              >
-                <Typography sx={{ fontWeight: 900, fontSize: "16px" }}>
+              <MenuItem sx={{ px: 2, py: 1.25, color: "text.primary" }}>
+                <Typography sx={{ fontWeight: 900, fontSize: 16 }}>
                   Hello, {displayName}
                 </Typography>
               </MenuItem>
-              <Divider
-                sx={{ margin: "4px 16px", borderColor: "neutral.400" }}
-              />
-              <MenuItem
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "10px 16px",
-                  fontSize: "14px",
-                  color: "text.primary",
-                  mt: 1,
-                }}
-              >
+              <Divider sx={{ mx: 2, borderColor: "neutral.400" }} />
+              <MenuItem sx={{ px: 2, py: 1.25, color: "text.primary", mt: 1 }}>
                 <IconUser
                   width={22}
                   height={22}
@@ -236,21 +202,11 @@ const HeaderTitle = ({
                 />
                 Profile
               </MenuItem>
-              <Divider
-                sx={{ margin: "4px 16px", borderColor: "neutral.400" }}
-              />
-
+              <Divider sx={{ mx: 2, borderColor: "neutral.400" }} />
               <MenuItem
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "10px 16px",
-                  fontSize: "14px",
-                  color: "text.primary",
-                  mt: 1,
-                }}
+                sx={{ px: 2, py: 1.25, color: "text.primary", mt: 1 }}
               >
                 <IconLogout
                   width={22}

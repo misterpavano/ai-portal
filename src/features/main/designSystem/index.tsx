@@ -20,7 +20,7 @@ import {
   IconComponents,
 } from "@tabler/icons-react";
 import * as React from "react";
-import { useTheme } from "@mui/material/styles";
+import { useTheme, Theme } from "@mui/material/styles";
 import DefaultButton from "../../../components/layouts/DefaultButton";
 import HeaderTitle from "../../../components/layouts/HeaderTitleText";
 import TextInput from "../../../components/layouts/TextInput";
@@ -28,111 +28,98 @@ import Dropdown from "../../../components/layouts/Select";
 import TextArea from "../../../components/layouts/TextArea";
 import Toast from "../../../components/layouts/Toast";
 import Tooltip from "../../../components/layouts/Tooltip";
+import { colors } from "../../../theme/colors";
 
-// ── Color Palette Data ───────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Simple relative-luminance check to decide if text on a colored
+ * background should be dark (true) or light (false).
+ */
+const shouldUseDarkText = (hex: string): boolean => {
+  if (!hex.startsWith("#") || hex.length < 7) return false;
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55;
+};
+
+// ── Dynamic palette from theme/colors.ts ─────────────────────────────────────
 
 type SwatchGroup = {
   label: string;
-  swatches: { name: string; value: string; textDark?: boolean }[];
+  swatches: { name: string; value: string; textDark: boolean }[];
 };
 
-const paletteGroups: SwatchGroup[] = [
-  {
-    label: "Coral / Accent",
-    swatches: [
-      { name: "50", value: "#FEF2F0", textDark: true },
-      { name: "100", value: "#FDCFC7", textDark: true },
-      { name: "200", value: "#F9A99C", textDark: true },
-      { name: "300", value: "#F09484" },
-      { name: "400 — main", value: "#E86D5A" },
-      { name: "500 — hover", value: "#D4553F" },
-      { name: "600", value: "#B84432" },
-    ],
-  },
-  {
-    label: "Neutral",
-    swatches: [
-      { name: "100", value: "#FAFAF9", textDark: true },
-      { name: "200", value: "#F5F5F4", textDark: true },
-      { name: "300", value: "#E7E5E4", textDark: true },
-      { name: "400", value: "#D6D3D1", textDark: true },
-      { name: "500", value: "#A8A29E", textDark: true },
-      { name: "600", value: "#78716C" },
-      { name: "700", value: "#57534E" },
-      { name: "800", value: "#44403C" },
-      { name: "900", value: "#292524" },
-      { name: "1000", value: "#1C1917" },
-      { name: "1100", value: "#0C0A09" },
-    ],
-  },
-  {
-    label: "Gold",
-    swatches: [
-      { name: "50", value: "#FDF8ED", textDark: true },
-      { name: "100", value: "#F8EDCC", textDark: true },
-      { name: "200", value: "#EDDA9E", textDark: true },
-      { name: "300", value: "#D4B76E", textDark: true },
-      { name: "400 — main", value: "#C4A35A" },
-      { name: "500", value: "#A8884A" },
-    ],
-  },
-  {
-    label: "Success",
-    swatches: [
-      { name: "100", value: "#E8F5EE", textDark: true },
-      { name: "200", value: "#A8DBBB", textDark: true },
-      { name: "300 — main", value: "#3D9A5C" },
-      { name: "400", value: "#2E7A46" },
-      { name: "500", value: "#1F5A30" },
-    ],
-  },
-  {
-    label: "Warning",
-    swatches: [
-      { name: "100", value: "#FDF8ED", textDark: true },
-      { name: "200", value: "#F8EDCC", textDark: true },
-      { name: "300 — main", value: "#D4A03E", textDark: true },
-      { name: "400", value: "#B8862E" },
-      { name: "500", value: "#926A20" },
-    ],
-  },
-  {
-    label: "Error",
-    swatches: [
-      { name: "100", value: "#FDECEC", textDark: true },
-      { name: "200", value: "#F5C4C4", textDark: true },
-      { name: "300 — main", value: "#DC5E5E" },
-      { name: "400", value: "#C04444" },
-      { name: "500", value: "#9E3333" },
-    ],
-  },
+/** Keys in the colors object we want to display as scales, in order. */
+const PALETTE_CONFIG: { key: keyof typeof colors; label: string }[] = [
+  { key: "coral", label: "Coral / Accent" },
+  { key: "neutral", label: "Neutral" },
+  { key: "gold", label: "Gold" },
+  { key: "success", label: "Success" },
+  { key: "warning", label: "Warning" },
+  { key: "error", label: "Error" },
 ];
 
-// ── Typography variants ──────────────────────────────────────────────────────
+const buildPaletteGroups = (): SwatchGroup[] =>
+  PALETTE_CONFIG.map(({ key, label }) => {
+    const scale = colors[key] as Record<string, string>;
+    return {
+      label,
+      swatches: Object.entries(scale)
+        .filter(([, v]) => typeof v === "string" && v.startsWith("#"))
+        .map(([name, value]) => ({
+          name,
+          value,
+          textDark: shouldUseDarkText(value),
+        })),
+    };
+  });
 
-const typographyVariants = [
-  { variant: "h1" as const, label: "h1", sample: "Heading 1 — 24px / 700" },
-  { variant: "h2" as const, label: "h2", sample: "Heading 2 — 20px / 600" },
-  { variant: "h3" as const, label: "h3", sample: "Heading 3 — 16px / 600" },
-  { variant: "h4" as const, label: "h4", sample: "Heading 4 — 14px / 600" },
+const paletteGroups = buildPaletteGroups();
+
+// ── Dynamic typography specs ─────────────────────────────────────────────────
+
+type TypoSpec = {
+  variant: string;
+  label: string;
+};
+
+const HEADING_VARIANTS: TypoSpec[] = [
+  { variant: "h1", label: "h1" },
+  { variant: "h2", label: "h2" },
+  { variant: "h3", label: "h3" },
+  { variant: "h4", label: "h4" },
 ];
 
-const customVariants = [
-  { variant: "body" as const, label: "body", sample: "Body — 14px / 400. The quick brown fox jumps over the lazy dog." },
-  { variant: "body_bold" as const, label: "body_bold", sample: "Body Bold — 14px / 500. The quick brown fox jumps over the lazy dog." },
-  { variant: "small" as const, label: "small", sample: "Small — 13px / 400. The quick brown fox jumps over the lazy dog." },
-  { variant: "small_bold" as const, label: "small_bold", sample: "Small Bold — 13px / 600. The quick brown fox jumps over the lazy dog." },
-  { variant: "xsmall" as const, label: "xsmall", sample: "XSmall — 12px / 500. The quick brown fox jumps over the lazy dog." },
-  { variant: "xsmall_bold" as const, label: "xsmall_bold", sample: "XSmall Bold — 12px / 600. The quick brown fox jumps over the lazy dog." },
-  { variant: "tiny" as const, label: "tiny", sample: "TINY — 10px / 600. THE QUICK BROWN FOX" },
+const BODY_VARIANTS: TypoSpec[] = [
+  { variant: "body", label: "body" },
+  { variant: "body_bold", label: "body_bold" },
+  { variant: "small", label: "small" },
+  { variant: "small_bold", label: "small_bold" },
+  { variant: "xsmall", label: "xsmall" },
+  { variant: "xsmall_bold", label: "xsmall_bold" },
+  { variant: "tiny", label: "tiny" },
 ];
+
+/** Extract fontSize and fontWeight from the live theme for a given variant. */
+const getTypoMeta = (
+  theme: Theme,
+  variant: string
+): { size: string; weight: string | number } => {
+  const spec = (theme.typography as Record<string, any>)[variant];
+  if (!spec) return { size: "—", weight: "—" };
+  return {
+    size: String(spec.fontSize ?? "—"),
+    weight: spec.fontWeight ?? "—",
+  };
+};
 
 // ── Color Swatch ─────────────────────────────────────────────────────────────
 
 const ColorSwatch = ({
   name,
   value,
-  textDark,
 }: {
   name: string;
   value: string;
@@ -151,14 +138,80 @@ const ColorSwatch = ({
       <Typography sx={{ fontSize: 11, fontWeight: 600, color: "text.primary" }}>
         {name}
       </Typography>
-      <Typography sx={{ fontSize: 10, color: "neutral.600", fontFamily: "monospace" }}>
+      <Typography
+        sx={{ fontSize: 10, color: "neutral.600", fontFamily: "monospace" }}
+      >
         {value}
       </Typography>
     </Box>
   </Box>
 );
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// ── Typography Row ───────────────────────────────────────────────────────────
+
+const TypographyRow = ({
+  variant,
+  label,
+  isLast,
+}: {
+  variant: string;
+  label: string;
+  isLast: boolean;
+}) => {
+  const theme = useTheme();
+  const { size, weight } = getTypoMeta(theme, variant);
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "baseline",
+        gap: 3,
+        px: 3,
+        py: variant.startsWith("h") ? 2.5 : 2,
+        borderBottom: isLast ? "none" : "1px solid",
+        borderColor: "neutral.200",
+        bgcolor: "white",
+      }}
+    >
+      <Typography
+        sx={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: "neutral.500",
+          fontFamily: "monospace",
+          minWidth: variant.startsWith("h") ? 60 : 80,
+          flexShrink: 0,
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography variant={variant as any}>
+        {label} — {size} / {weight}. The quick brown fox jumps over the lazy
+        dog.
+      </Typography>
+    </Box>
+  );
+};
+
+// ── Section Label ────────────────────────────────────────────────────────────
+
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <Typography
+    sx={{
+      fontSize: 13,
+      fontWeight: 600,
+      color: "neutral.700",
+      textTransform: "uppercase",
+      letterSpacing: "0.06em",
+      mb: 2,
+    }}
+  >
+    {children}
+  </Typography>
+);
+
+// ── Main Component ───────────────────────────────────────────────────────────
 
 const DesignSystem = () => {
   const theme = useTheme();
@@ -370,7 +423,9 @@ const DesignSystem = () => {
                     value=""
                     disabled
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
                       <IconNotebook
                         width={18}
                         height={18}
@@ -456,18 +511,7 @@ const DesignSystem = () => {
           <TabPanel value="colors" sx={{ p: 0 }}>
             {paletteGroups.map((group) => (
               <Box key={group.label} sx={{ mb: 4 }}>
-                <Typography
-                  sx={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "neutral.700",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    mb: 1.5,
-                  }}
-                >
-                  {group.label}
-                </Typography>
+                <SectionLabel>{group.label}</SectionLabel>
                 <Grid container spacing={1.5}>
                   {group.swatches.map((swatch) => (
                     <Grid item xs={6} sm={4} md={3} lg={2} key={swatch.name}>
@@ -482,24 +526,26 @@ const DesignSystem = () => {
               </Box>
             ))}
 
+            {/* Accent semantic tokens */}
+            <Divider sx={{ borderColor: "neutral.200", mb: 3 }} />
+            <SectionLabel>Accent (Semantic)</SectionLabel>
+            <Grid container spacing={1.5} sx={{ mb: 4 }}>
+              {Object.entries(colors.accent)
+                .filter(([, v]) => v.startsWith("#"))
+                .map(([name, value]) => (
+                  <Grid item xs={6} sm={4} md={3} lg={2} key={name}>
+                    <ColorSwatch name={name} value={value} />
+                  </Grid>
+                ))}
+            </Grid>
+
             {/* Special tokens */}
             <Divider sx={{ borderColor: "neutral.200", mb: 3 }} />
-            <Typography
-              sx={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: "neutral.700",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                mb: 1.5,
-              }}
-            >
-              Special
-            </Typography>
+            <SectionLabel>Special</SectionLabel>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               {[
-                { label: "White", value: "#FFFFFF" },
-                { label: "Black", value: "#000000" },
+                { label: "White", value: colors.common.white },
+                { label: "Black", value: colors.common.black },
                 { label: "Transparent", value: "transparent" },
               ].map((c) => (
                 <Box
@@ -518,13 +564,17 @@ const DesignSystem = () => {
                       bgcolor: c.value,
                       backgroundImage:
                         c.value === "transparent"
-                          ? "repeating-conic-gradient(#E7E5E4 0% 25%, transparent 0% 50%) 0 / 12px 12px"
+                          ? `repeating-conic-gradient(${colors.neutral[300]} 0% 25%, transparent 0% 50%) 0 / 12px 12px`
                           : undefined,
                     }}
                   />
                   <Box sx={{ px: 1.5, py: 1, bgcolor: "white" }}>
                     <Typography
-                      sx={{ fontSize: 11, fontWeight: 600, color: "text.primary" }}
+                      sx={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: "text.primary",
+                      }}
                     >
                       {c.label}
                     </Typography>
@@ -556,36 +606,13 @@ const DesignSystem = () => {
                 mb: 4,
               }}
             >
-              {typographyVariants.map((t, i) => (
-                <Box
+              {HEADING_VARIANTS.map((t, i) => (
+                <TypographyRow
                   key={t.variant}
-                  sx={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: 3,
-                    px: 3,
-                    py: 2.5,
-                    borderBottom:
-                      i < typographyVariants.length - 1
-                        ? "1px solid"
-                        : "none",
-                    borderColor: "neutral.200",
-                    bgcolor: "white",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "neutral.500",
-                      fontFamily: "monospace",
-                      minWidth: 60,
-                    }}
-                  >
-                    {t.label}
-                  </Typography>
-                  <Typography variant={t.variant}>{t.sample}</Typography>
-                </Box>
+                  variant={t.variant}
+                  label={t.label}
+                  isLast={i === HEADING_VARIANTS.length - 1}
+                />
               ))}
             </Box>
 
@@ -600,35 +627,13 @@ const DesignSystem = () => {
                 mb: 4,
               }}
             >
-              {customVariants.map((t, i) => (
-                <Box
+              {BODY_VARIANTS.map((t, i) => (
+                <TypographyRow
                   key={t.variant}
-                  sx={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: 3,
-                    px: 3,
-                    py: 2,
-                    borderBottom:
-                      i < customVariants.length - 1 ? "1px solid" : "none",
-                    borderColor: "neutral.200",
-                    bgcolor: "white",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "neutral.500",
-                      fontFamily: "monospace",
-                      minWidth: 80,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {t.label}
-                  </Typography>
-                  <Typography variant={t.variant}>{t.sample}</Typography>
-                </Box>
+                  variant={t.variant}
+                  label={t.label}
+                  isLast={i === BODY_VARIANTS.length - 1}
+                />
               ))}
             </Box>
 
@@ -650,7 +655,7 @@ const DesignSystem = () => {
                   color: "neutral.800",
                 }}
               >
-                'Plus Jakarta Sans', system-ui, -apple-system, sans-serif
+                {(theme.typography as any).fontFamily || "—"}
               </Typography>
             </Box>
           </TabPanel>
@@ -659,22 +664,5 @@ const DesignSystem = () => {
     </Box>
   );
 };
-
-// ── Sub-components ───────────────────────────────────────────────────────────
-
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <Typography
-    sx={{
-      fontSize: 13,
-      fontWeight: 600,
-      color: "neutral.700",
-      textTransform: "uppercase",
-      letterSpacing: "0.06em",
-      mb: 2,
-    }}
-  >
-    {children}
-  </Typography>
-);
 
 export default DesignSystem;

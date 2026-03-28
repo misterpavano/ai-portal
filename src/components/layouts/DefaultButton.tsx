@@ -21,31 +21,25 @@ const backgroundColor = (
   if (disabled && type === "primary") {
     return theme.palette.neutral[300];
   }
+
   if (disabled || type === "secondary") {
     return "transparent";
   }
-  if (type === "primary") {
-    return theme.palette.primary.main;
-  }
-  return "none";
+
+  return theme.palette.primary.main;
 };
 
-const borderColor = (
+const border = (
   theme: Theme,
   type: "primary" | "secondary",
   disabled: boolean
 ) => {
-  if (disabled && type === "secondary") {
-    return `1px solid ${theme.palette.neutral[400]}`;
-  }
-
   if (type === "secondary") {
-    return `1px solid ${theme.palette.neutral[400]}`;
+    return `1px solid ${
+      disabled ? theme.palette.neutral[400] : theme.palette.neutral[400]
+    }`;
   }
 
-  if (type === "primary") {
-    return "none";
-  }
   return "none";
 };
 
@@ -55,7 +49,7 @@ const textColor = (
   disabled: boolean
 ) => {
   if (disabled && type === "primary") {
-    return "black";
+    return theme.palette.text.secondary;
   }
 
   if (disabled && type === "secondary") {
@@ -63,17 +57,17 @@ const textColor = (
   }
 
   if (type === "secondary") {
-    return "black";
+    return theme.palette.text.primary;
   }
 
-  return "white";
+  return theme.palette.common.white;
 };
 
 const DefaultButton = ({
   title,
   onClick,
   type,
-  disabled,
+  disabled = false,
   style,
   id,
   textStyle,
@@ -84,24 +78,28 @@ const DefaultButton = ({
 
   const styles = {
     borderRadius: "8px",
-    backgroundColor: backgroundColor(theme, type, disabled || false),
-    border: borderColor(theme, type, disabled || false),
-    color: type === "primary" ? "white" : "black",
+    backgroundColor: backgroundColor(theme, type, disabled),
+    border: border(theme, type, disabled),
+    color: textColor(theme, type, disabled),
     textTransform: "none",
     alignItems: "center",
     justifyContent: "center",
     "&:hover": {
       backgroundColor:
-        type === "primary" ? theme.palette.primary.dark : "transparent",
-      color: type === "primary" ? "white" : theme.palette.neutral[600],
+        type === "primary" ? theme.palette.primary.dark : theme.palette.neutral[100],
+      color:
+        type === "primary"
+          ? theme.palette.common.white
+          : theme.palette.text.secondary,
+      borderColor: theme.palette.neutral[500],
     },
     ...style,
   };
 
   const textStyles = {
-    color: textColor(theme, type, disabled || false),
+    color: textColor(theme, type, disabled),
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
     letterSpacing: "0.02em",
     ...textStyle,
   };

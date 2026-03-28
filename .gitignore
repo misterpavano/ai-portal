@@ -46,3 +46,4 @@ amplifytools.xcconfig
 node_modules/
 .DS_Store
 .env
+.vercel
