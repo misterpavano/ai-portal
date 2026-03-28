@@ -18,7 +18,7 @@ import {
   userDisplayNameAtom,
 } from "../../atoms/userAtom";
 import { useLogoutMutation } from "../../api/slices/authApiSlice";
-import { useAuthenticator } from "@aws-amplify/ui-react";
+import { useOptionalAuth } from "../../hooks/useOptionalAuth";
 
 type HeaderTitleProps = {
   title: string;
@@ -46,7 +46,7 @@ const HeaderTitle = ({
   const [, setIsAuthenticated] = useAtom(isAuthenticatedAtom);
   const [displayName] = useAtom(userDisplayNameAtom);
   const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
-  const { signOut } = useAuthenticator((context) => [context.user]);
+  const { signOut } = useOptionalAuth();
 
   const handleMenuOpen = (event: MouseEvent<HTMLDivElement>) => {
     setAnchorEl((current) => (current ? null : event.currentTarget));

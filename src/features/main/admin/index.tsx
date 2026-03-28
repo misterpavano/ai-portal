@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import DefaultButton from "../../../components/layouts/DefaultButton";
 import useCognito from "../../../hooks/useCognito";
 import Toast from "../../../components/layouts/Toast";
-import { useAuthenticator } from "@aws-amplify/ui-react";
+import { useOptionalAuth } from "../../../hooks/useOptionalAuth";
 import {
   ListUsersResponse,
   UserType,
@@ -42,8 +42,8 @@ const Admin = () => {
   const [errorToast, setErrorToast] = useState("");
   const [successToast, setSuccessToast] = useState("");
   const [users, setUsers] = useState<UserType[] | undefined>(undefined);
-  const { user } = useAuthenticator((context) => [context.user]);
-  const email = user.signInDetails?.loginId;
+  const { user } = useOptionalAuth();
+  const email = (user as any)?.signInDetails?.loginId;
 
   const handleGetUsers = useCallback(() => {
     getUsers()
