@@ -84,22 +84,42 @@
   text-decoration: underline !important;
 }
 
+/* Password field group — seamless input + toggle */
+.amplify-field-group {
+  border: 1.5px solid #E7E5E4 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.amplify-field-group:focus-within {
+  border-color: #E86D5A !important;
+  box-shadow: 0 0 0 3px rgba(232, 109, 90, 0.1) !important;
+}
+
+.amplify-field-group .amplify-input {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.amplify-field-group .amplify-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
 /* Password toggle button */
 .amplify-field__show-password {
-  border-radius: 0 8px 8px 0 !important;
-  border: 1.5px solid #E7E5E4 !important;
-  border-left: none !important;
+  border: none !important;
+  border-left: 1px solid #E7E5E4 !important;
+  border-radius: 0 !important;
   color: #78716C !important;
+  background: transparent !important;
 }
 
 .amplify-field__show-password:hover {
   background: #F5F5F4 !important;
   color: #44403C !important;
-}
-
-/* Password field group */
-.amplify-field-group .amplify-input {
-  border-radius: 8px 0 0 8px !important;
 }
 
 /* Error/alert messages */
@@ -120,9 +140,14 @@
   border-color: #E86D5A !important;
 }
 
-/* Field group spacing */
-.amplify-flex {
+/* Field group spacing — only auth form fields, not all flex containers */
+[data-amplify-authenticator] .amplify-flex {
   gap: 16px !important;
+}
+
+/* Prevent amplify form from adding its own container width */
+[data-amplify-authenticator] form {
+  width: 100% !important;
 }
 
 /* Footer area */

@@ -57,12 +57,13 @@ const LOGIN_STYLES = {
     flexDirection: "column" as const,
     justifyContent: "center",
     alignItems: "center",
-    padding: "48px 32px",
+    padding: "48px 40px",
     backgroundColor: "#FAFAF9",
+    minHeight: "100vh",
   },
   formContainer: {
     width: "100%",
-    maxWidth: "400px",
+    maxWidth: "420px",
   },
 } as const;
 
