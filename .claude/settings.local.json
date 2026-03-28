@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(codex exec:*)",
+      "Bash(open:*)",
+      "Bash(git init:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(yarn install:*)",
+      "Bash(npm install:*)",
+      "Bash(npm start:*)",
+      "Bash(grep -o \"''#507DA0''\\\\|''#AAAAAA''\\\\|''#2563eb''\\\\|''rgba\\(255,255,255,0.5\\)''\" /Users/wallymo/Desktop/aiportal_routingvalidator/src/constants/routes.tsx)",
+      "Bash(npx tsc:*)",
+      "Bash(codex --version)",
+      "Bash(grep -A30 ^codex$ /private/tmp/claude-501/-Users-wallymo-Desktop-aiportal-routingvalidator/7ced1eb9-3869-43f6-a6b7-0b6fcd373e49/tasks/bmsb5em3a.output)",
+      "Bash(python3:*)",
+      "Bash(npm run:*)",
+      "Bash(grep -r \"#[0-9a-fA-F]\\\\{3,6\\\\}\" /Users/wallymo/Desktop/aiportal_routingvalidator/src/features/main --include=\"*.tsx\")",
+      "Bash(for file:*)",
+      "Bash(do)",
+      "Bash(sed -i '' -e 's/border: \"\"1px solid #727272\"\"/border: \"\"1px solid #78716C\"\"/g' -e 's/color: \"\"#727272\"\"/color: \"\"#78716C\"\"/g' -e 's/backgroundColor: \"\"#727272\"\"/backgroundColor: \"\"#78716C\"\"/g' -e 's/border: \"\"1px solid #5f5f5f\"\"/border: \"\"1px solid #57534E\"\"/g' -e 's/color: \"\"#666\"\"/color: \"\"#57534E\"\"/g' -e 's/color=\"\"#666\"\"/color=\"\"#57534E\"\"/g' -e 's/color: \"\"#333\"\"/color: \"\"#1C1917\"\"/g' \"$file\")",
+      "Bash(echo \"Processed: $file\")",
+      "Bash(done)"
+    ]
+  }
+}

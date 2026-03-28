@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-aiportal-dev-f7e04-authRole",
+      "UnauthRoleArn": "arn:aws:iam::754190598073:role/amplify-aiportal-dev-f7e04-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::754190598073:role/amplify-aiportal-dev-f7e04-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-aiportal-dev-f7e04-deployment",
+      "UnauthRoleName": "amplify-aiportal-dev-f7e04-unauthRole",
+      "StackName": "amplify-aiportal-dev-f7e04",
+      "StackId": "arn:aws:cloudformation:us-east-1:754190598073:stack/amplify-aiportal-dev-f7e04/54d0e740-08be-11ef-a650-0affe10cdd43",
+      "AmplifyAppId": "d2z6vj99ybqyt1"
+    },
+    "categories": {
+      "auth": {
+        "aiportal": {}
+      }
+    }
+  }
+}
