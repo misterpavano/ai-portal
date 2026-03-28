@@ -1,0 +1,131 @@
+/* Kalabria Login — Amplify Authenticator Overrides */
+
+/* Remove default Amplify container styling */
+[data-amplify-authenticator] {
+  --amplify-components-authenticator-router-box-shadow: none;
+  --amplify-components-authenticator-router-border-width: 0;
+  --amplify-components-authenticator-form-padding: 0;
+  --amplify-fonts-default-variable: 'Plus Jakarta Sans', sans-serif;
+  --amplify-fonts-default-static: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Form container */
+[data-amplify-authenticator] [data-amplify-router] {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 0;
+}
+
+/* Input fields */
+.amplify-input {
+  border-radius: 8px !important;
+  border: 1.5px solid #E7E5E4 !important;
+  padding: 12px 14px !important;
+  font-size: 14px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  background: #FFFFFF !important;
+}
+
+.amplify-input:focus {
+  border-color: #E86D5A !important;
+  box-shadow: 0 0 0 3px rgba(232, 109, 90, 0.1) !important;
+  outline: none !important;
+}
+
+.amplify-input::placeholder {
+  color: #A8A29E !important;
+}
+
+/* Labels */
+.amplify-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #44403C !important;
+  margin-bottom: 6px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* Primary button (Sign In) */
+.amplify-button--primary {
+  background-color: #1C1917 !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  letter-spacing: 0.01em !important;
+  transition: background-color 0.15s ease, transform 0.1s ease !important;
+  border: none !important;
+}
+
+.amplify-button--primary:hover {
+  background-color: #292524 !important;
+  transform: translateY(-1px) !important;
+}
+
+.amplify-button--primary:active {
+  background-color: #0C0A09 !important;
+  transform: translateY(0) !important;
+}
+
+/* Link buttons (Forgot password, etc.) */
+.amplify-button--link {
+  color: #E86D5A !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  text-decoration: none !important;
+}
+
+.amplify-button--link:hover {
+  color: #D4553F !important;
+  text-decoration: underline !important;
+}
+
+/* Password toggle button */
+.amplify-field__show-password {
+  border-radius: 0 8px 8px 0 !important;
+  border: 1.5px solid #E7E5E4 !important;
+  border-left: none !important;
+  color: #78716C !important;
+}
+
+.amplify-field__show-password:hover {
+  background: #F5F5F4 !important;
+  color: #44403C !important;
+}
+
+/* Password field group */
+.amplify-field-group .amplify-input {
+  border-radius: 8px 0 0 8px !important;
+}
+
+/* Error/alert messages */
+.amplify-alert {
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* Tab styling (if sign up is ever enabled) */
+.amplify-tabs__item {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.amplify-tabs__item--active {
+  color: #E86D5A !important;
+  border-color: #E86D5A !important;
+}
+
+/* Field group spacing */
+.amplify-flex {
+  gap: 16px !important;
+}
+
+/* Footer area */
+[data-amplify-authenticator] [data-amplify-footer] {
+  padding-top: 8px !important;
+}
