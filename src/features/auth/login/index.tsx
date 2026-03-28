@@ -57,13 +57,12 @@ const LOGIN_STYLES = {
     flexDirection: "column" as const,
     justifyContent: "center",
     alignItems: "center",
-    padding: "48px 40px",
+    padding: "0 56px",
     backgroundColor: "#FAFAF9",
-    minHeight: "100vh",
   },
   formContainer: {
     width: "100%",
-    maxWidth: "420px",
+    maxWidth: "380px",
   },
 } as const;
 
@@ -213,17 +212,17 @@ export default function LoginPage() {
           >
             <AuthRedirect />
           </Authenticator>
-        </Box>
 
-        <Box sx={{ mt: 6, textAlign: "center" }}>
-          <Typography
-            sx={{
-              fontSize: "12px",
-              color: "#A8A29E",
-            }}
-          >
-            Powered by Hedgehox &middot; hedgehox.com
-          </Typography>
+          <Box sx={{ mt: 5, textAlign: "center" }}>
+            <Typography
+              sx={{
+                fontSize: "12px",
+                color: "#A8A29E",
+              }}
+            >
+              Powered by Hedgehox &middot; hedgehox.com
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>

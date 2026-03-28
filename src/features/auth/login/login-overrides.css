@@ -1,15 +1,23 @@
 /* Kalabria Login — Amplify Authenticator Overrides */
 
-/* Remove default Amplify container styling */
+/* ── Reset Amplify chrome ─────────────────────────────────── */
 [data-amplify-authenticator] {
   --amplify-components-authenticator-router-box-shadow: none;
   --amplify-components-authenticator-router-border-width: 0;
   --amplify-components-authenticator-form-padding: 0;
+  --amplify-components-fieldcontrol-border-color: #E7E5E4;
+  --amplify-components-fieldcontrol-focus-border-color: #E86D5A;
+  --amplify-components-fieldcontrol-focus-box-shadow: 0 0 0 3px rgba(232, 109, 90, 0.1);
   --amplify-fonts-default-variable: 'Plus Jakarta Sans', sans-serif;
   --amplify-fonts-default-static: 'Plus Jakarta Sans', sans-serif;
+  --amplify-components-button-primary-background-color: #1C1917;
+  --amplify-components-button-primary-hover-background-color: #292524;
+  --amplify-components-button-primary-active-background-color: #0C0A09;
+  --amplify-components-button-link-color: #E86D5A;
+  --amplify-components-button-link-hover-color: #D4553F;
+  width: 100%;
 }
 
-/* Form container */
 [data-amplify-authenticator] [data-amplify-router] {
   background: transparent;
   box-shadow: none;
@@ -17,15 +25,34 @@
   padding: 0;
 }
 
-/* Input fields */
+/* ── Form layout ──────────────────────────────────────────── */
+[data-amplify-authenticator] form {
+  width: 100% !important;
+}
+
+[data-amplify-authenticator] form > .amplify-flex {
+  gap: 20px !important;
+}
+
+/* ── Labels ───────────────────────────────────────────────── */
+.amplify-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #44403C !important;
+  margin-bottom: 4px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* ── Standalone inputs (email) ────────────────────────────── */
 .amplify-input {
   border-radius: 8px !important;
   border: 1.5px solid #E7E5E4 !important;
-  padding: 12px 14px !important;
+  padding: 11px 14px !important;
   font-size: 14px !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
   background: #FFFFFF !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
 }
 
 .amplify-input:focus {
@@ -36,60 +63,18 @@
 
 .amplify-input::placeholder {
   color: #A8A29E !important;
-}
-
-/* Labels */
-.amplify-label {
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  color: #44403C !important;
-  margin-bottom: 6px !important;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-}
-
-/* Primary button (Sign In) */
-.amplify-button--primary {
-  background-color: #1C1917 !important;
-  border-radius: 8px !important;
-  padding: 12px 24px !important;
   font-size: 14px !important;
-  font-weight: 600 !important;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-  letter-spacing: 0.01em !important;
-  transition: background-color 0.15s ease, transform 0.1s ease !important;
-  border: none !important;
 }
 
-.amplify-button--primary:hover {
-  background-color: #292524 !important;
-  transform: translateY(-1px) !important;
-}
-
-.amplify-button--primary:active {
-  background-color: #0C0A09 !important;
-  transform: translateY(0) !important;
-}
-
-/* Link buttons (Forgot password, etc.) */
-.amplify-button--link {
-  color: #E86D5A !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-  text-decoration: none !important;
-}
-
-.amplify-button--link:hover {
-  color: #D4553F !important;
-  text-decoration: underline !important;
-}
-
-/* Password field group — seamless input + toggle */
+/* ── Password field group (input + eye button) ────────────── */
 .amplify-field-group {
+  display: flex !important;
   border: 1.5px solid #E7E5E4 !important;
   border-radius: 8px !important;
   overflow: hidden !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  background: #FFFFFF !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
 }
 
 .amplify-field-group:focus-within {
@@ -101,6 +86,8 @@
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  height: 100% !important;
+  flex: 1 !important;
 }
 
 .amplify-field-group .amplify-input:focus {
@@ -108,13 +95,22 @@
   box-shadow: none !important;
 }
 
-/* Password toggle button */
+.amplify-field-group__outer-end {
+  display: flex !important;
+  align-items: center !important;
+}
+
 .amplify-field__show-password {
   border: none !important;
   border-left: 1px solid #E7E5E4 !important;
   border-radius: 0 !important;
   color: #78716C !important;
   background: transparent !important;
+  height: 100% !important;
+  padding: 0 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
 }
 
 .amplify-field__show-password:hover {
@@ -122,35 +118,53 @@
   color: #44403C !important;
 }
 
-/* Error/alert messages */
+/* ── Sign In button ───────────────────────────────────────── */
+.amplify-button--primary {
+  background-color: #1C1917 !important;
+  border-radius: 8px !important;
+  padding: 0 24px !important;
+  height: 44px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  letter-spacing: 0.01em !important;
+  border: none !important;
+  width: 100% !important;
+  cursor: pointer !important;
+}
+
+.amplify-button--primary:hover {
+  background-color: #292524 !important;
+}
+
+.amplify-button--primary:active {
+  background-color: #0C0A09 !important;
+}
+
+/* ── Forgot password link ─────────────────────────────────── */
+.amplify-button--link {
+  color: #E86D5A !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  text-decoration: none !important;
+  text-align: center !important;
+}
+
+.amplify-button--link:hover {
+  color: #D4553F !important;
+  text-decoration: underline !important;
+}
+
+/* ── Error alerts ─────────────────────────────────────────── */
 .amplify-alert {
   border-radius: 8px !important;
   font-size: 13px !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
-/* Tab styling (if sign up is ever enabled) */
-.amplify-tabs__item {
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-  font-weight: 600 !important;
-}
-
-.amplify-tabs__item--active {
-  color: #E86D5A !important;
-  border-color: #E86D5A !important;
-}
-
-/* Field group spacing — only auth form fields, not all flex containers */
-[data-amplify-authenticator] .amplify-flex {
-  gap: 16px !important;
-}
-
-/* Prevent amplify form from adding its own container width */
-[data-amplify-authenticator] form {
-  width: 100% !important;
-}
-
-/* Footer area */
+/* ── Footer ───────────────────────────────────────────────── */
 [data-amplify-authenticator] [data-amplify-footer] {
-  padding-top: 8px !important;
+  padding-top: 4px !important;
+  text-align: center !important;
 }
