@@ -1,5 +1,4 @@
-import type { WithAuthenticatorProps } from "@aws-amplify/ui-react";
-import { withAuthenticator, useTheme as useAmplifyTheme } from "@aws-amplify/ui-react";
+import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import "./login-overrides.css";
 import { useEffect } from "react";
@@ -8,16 +7,15 @@ import { Box, Typography } from "@mui/material";
 import logo from "../../../assets/kalabria-logo.svg";
 
 const LOGIN_STYLES = {
-  // Page wrapper — split layout
   wrapper: {
     display: "flex",
     minHeight: "100vh",
     fontFamily: "'Plus Jakarta Sans', sans-serif",
   },
-  // Left panel — brand showcase
   leftPanel: {
     flex: "0 0 45%",
-    background: "linear-gradient(160deg, #1C1917 0%, #253A4B 50%, #507DA0 100%)",
+    background:
+      "linear-gradient(160deg, #1C1917 0%, #253A4B 50%, #507DA0 100%)",
     display: { xs: "none", md: "flex" },
     flexDirection: "column" as const,
     justifyContent: "center",
@@ -26,7 +24,6 @@ const LOGIN_STYLES = {
     position: "relative" as const,
     overflow: "hidden",
   },
-  // Decorative circles
   decorCircle1: {
     position: "absolute" as const,
     top: "-120px",
@@ -51,9 +48,9 @@ const LOGIN_STYLES = {
     left: 0,
     right: 0,
     height: "1px",
-    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
+    background:
+      "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
   },
-  // Right panel — form
   rightPanel: {
     flex: 1,
     display: "flex",
@@ -69,69 +66,9 @@ const LOGIN_STYLES = {
   },
 } as const;
 
-// Amplify theme override
-const amplifyTheme = {
-  name: "kalabria",
-  tokens: {
-    colors: {
-      brand: {
-        primary: {
-          10: { value: "#FEF2F0" },
-          20: { value: "#FDCFC7" },
-          40: { value: "#F9A99C" },
-          60: { value: "#F09484" },
-          80: { value: "#E86D5A" },
-          90: { value: "#D4553F" },
-          100: { value: "#B84432" },
-        },
-      },
-    },
-    components: {
-      authenticator: {
-        router: {
-          boxShadow: { value: "none" },
-          borderWidth: { value: "0" },
-        },
-      },
-      button: {
-        primary: {
-          backgroundColor: { value: "#1C1917" },
-          _hover: {
-            backgroundColor: { value: "#292524" },
-          },
-          _active: {
-            backgroundColor: { value: "#0C0A09" },
-          },
-          borderRadius: { value: "8px" },
-        },
-      },
-      fieldcontrol: {
-        borderRadius: { value: "8px" },
-        borderColor: { value: "#E7E5E4" },
-        _focus: {
-          borderColor: { value: "#E86D5A" },
-          boxShadow: { value: "0 0 0 2px rgba(232, 109, 90, 0.15)" },
-        },
-      },
-      tabs: {
-        item: {
-          _active: {
-            color: { value: "#E86D5A" },
-            borderColor: { value: "#E86D5A" },
-          },
-        },
-      },
-    },
-    fonts: {
-      default: {
-        variable: { value: "'Plus Jakarta Sans', sans-serif" },
-        static: { value: "'Plus Jakarta Sans', sans-serif" },
-      },
-    },
-  },
-};
-
-export function Login({ user }: WithAuthenticatorProps) {
+// Inner component that handles redirect after auth
+function AuthRedirect() {
+  const { user } = useAuthenticator((context) => [context.user]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -143,17 +80,15 @@ export function Login({ user }: WithAuthenticatorProps) {
   return null;
 }
 
-function LoginWrapper(props: WithAuthenticatorProps) {
+export default function LoginPage() {
   return (
     <Box sx={LOGIN_STYLES.wrapper}>
       {/* Left brand panel */}
       <Box sx={LOGIN_STYLES.leftPanel}>
-        {/* Decorative elements */}
         <Box sx={LOGIN_STYLES.decorCircle1} />
         <Box sx={LOGIN_STYLES.decorCircle2} />
         <Box sx={LOGIN_STYLES.decorLine} />
 
-        {/* Content */}
         <Box sx={{ position: "relative", zIndex: 1, textAlign: "center" }}>
           <img
             src={logo}
@@ -193,7 +128,6 @@ function LoginWrapper(props: WithAuthenticatorProps) {
             development for marketing teams.
           </Typography>
 
-          {/* Feature pills */}
           <Box
             sx={{
               display: "flex",
@@ -229,7 +163,7 @@ function LoginWrapper(props: WithAuthenticatorProps) {
       {/* Right form panel */}
       <Box sx={LOGIN_STYLES.rightPanel}>
         <Box sx={LOGIN_STYLES.formContainer}>
-          {/* Mobile logo (hidden on desktop) */}
+          {/* Mobile logo */}
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
@@ -261,11 +195,25 @@ function LoginWrapper(props: WithAuthenticatorProps) {
             Sign in to your Kalabria account
           </Typography>
 
-          {/* Amplify authenticator renders here via HOC */}
-          <Login {...props} />
+          <Authenticator
+            hideSignUp={true}
+            formFields={{
+              signIn: {
+                username: {
+                  placeholder: "Enter your email",
+                  label: "Email",
+                },
+                password: {
+                  placeholder: "Enter your password",
+                  label: "Password",
+                },
+              },
+            }}
+          >
+            <AuthRedirect />
+          </Authenticator>
         </Box>
 
-        {/* Footer */}
         <Box sx={{ mt: 6, textAlign: "center" }}>
           <Typography
             sx={{
@@ -280,22 +228,3 @@ function LoginWrapper(props: WithAuthenticatorProps) {
     </Box>
   );
 }
-
-export default withAuthenticator(LoginWrapper, {
-  hideSignUp: true,
-  components: {
-    Header: () => null,
-  },
-  formFields: {
-    signIn: {
-      username: {
-        placeholder: "Enter your email",
-        label: "Email",
-      },
-      password: {
-        placeholder: "Enter your password",
-        label: "Password",
-      },
-    },
-  },
-});
