@@ -4,7 +4,7 @@ import { TextContentBlock } from "openai/resources/beta/threads/messages";
 import { useCallback } from "react";
 
 const openai = new OpenAI({
-  apiKey: process.env["REACT_APP_OPENAI_API_KEY"],
+  apiKey: process.env["REACT_APP_OPENAI_API_KEY"] || "placeholder",
   dangerouslyAllowBrowser: true,
 });
 
