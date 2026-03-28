@@ -1,18 +1,25 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { List } from "@mui/material";
-import { IconHome2 } from "@tabler/icons-react";
+import { Box, List } from "@mui/material";
+import {
+  IconHome2,
+  IconChevronLeft,
+  IconChevronRight,
+} from "@tabler/icons-react";
 import { prototypeRoutes } from "../../constants/routes";
 import useCognito from "../../hooks/useCognito";
 import { useEffect, useCallback } from "react";
 import logo from "../../assets/kalabria-logo-white.svg";
 import S from "./LeftSideMenu/LeftSideMenu.style";
+import TopHeader from "./TopHeader";
 
 const SideMenu = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { fetchUserSession } = useCognito();
   const [isAdmin, setIsAdmin] = React.useState(false);
-  const isSidebarOpen = true; // Future: make this stateful for collapse
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const checkIfUserIsAdmin = useCallback(async () => {
     const isAdmin = await fetchUserSession();
@@ -40,6 +47,11 @@ const SideMenu = ({ children }: { children: React.ReactNode }) => {
           isActive={isActive}
           isHoverDisabled={false}
           onClick={() => navigate(path)}
+          sx={
+            !isSidebarOpen
+              ? { justifyContent: "center", px: 0 }
+              : undefined
+          }
         >
           <S.IconContainer>{icon}</S.IconContainer>
           {isSidebarOpen && (
@@ -58,7 +70,11 @@ const SideMenu = ({ children }: { children: React.ReactNode }) => {
         isSidebarOpen={isSidebarOpen}
       >
         <S.SidebarToolbar isSidebarOpen={isSidebarOpen}>
-          <S.Logo src={logo} alt="kalabria-logo" />
+          {isSidebarOpen ? (
+            <S.Logo src={logo} alt="kalabria-logo" />
+          ) : (
+            <S.LogoCollapsed src={logo} alt="kalabria-logo" />
+          )}
         </S.SidebarToolbar>
         <S.CustomDivider />
         <S.SidebarContainer disableGutters>
@@ -82,6 +98,7 @@ const SideMenu = ({ children }: { children: React.ReactNode }) => {
               }
             />
           </List>
+          <S.SectionDivider />
           <List>
             <S.SectionTitle isSidebarOpen={isSidebarOpen}>
               AI Tools
@@ -96,8 +113,27 @@ const SideMenu = ({ children }: { children: React.ReactNode }) => {
             ))}
           </List>
         </S.SidebarContainer>
+
+        <S.SidebarFooter isSidebarOpen={isSidebarOpen}>
+          <S.UserSection isSidebarOpen={isSidebarOpen}>
+            <S.UserAvatar>U</S.UserAvatar>
+            {isSidebarOpen && <S.UserName>User</S.UserName>}
+          </S.UserSection>
+          <S.CollapseToggle onClick={toggleSidebar} size="small">
+            {isSidebarOpen ? (
+              <IconChevronLeft size={16} stroke={2} />
+            ) : (
+              <IconChevronRight size={16} stroke={2} />
+            )}
+          </S.CollapseToggle>
+        </S.SidebarFooter>
+        <S.VersionText>v1.0</S.VersionText>
       </S.SidebarDrawer>
-      <S.MainContent>{children}</S.MainContent>
+
+      <S.MainContent>
+        <TopHeader />
+        <S.ContentBody>{children}</S.ContentBody>
+      </S.MainContent>
     </S.MainContainer>
   );
 };

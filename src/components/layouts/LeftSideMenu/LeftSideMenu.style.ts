@@ -13,6 +13,11 @@ import {
 } from "@mui/material";
 import { IconXboxXFilled } from "@tabler/icons-react";
 
+// ─── Layout Constants ──────────────────────────────────────────────────
+const SIDEBAR_EXPANDED = 240;
+const SIDEBAR_COLLAPSED = 64;
+const TRANSITION = "all 200ms ease-out";
+
 const MainContainer = styled(Box)({
   display: "flex",
   height: "100vh",
@@ -23,37 +28,39 @@ const ToggleButton = styled(IconButton)<{ isSidebarOpen: boolean }>(
   ({ isSidebarOpen }) => ({
     position: "fixed",
     top: 58,
-    left: isSidebarOpen ? 290 : 80,
-    backgroundColor: "white",
-    border: "1px solid #E7E5E4",
+    left: isSidebarOpen ? SIDEBAR_EXPANDED - 10 : SIDEBAR_COLLAPSED - 10,
+    backgroundColor: "#1C1917",
+    border: "1px solid #292524",
     borderRadius: "50%",
     zIndex: 2000,
-    width: 16,
+    width: 20,
     padding: 0,
-    height: 16,
-    boxShadow:
-      "0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12)",
-    transition: "left 0.3s",
+    height: 20,
+    boxShadow: "0px 2px 8px rgba(0,0,0,0.3)",
+    transition: "left 200ms ease-out, background-color 200ms ease-out",
+    color: "#A8A29E",
     "&:hover": {
-      backgroundColor: "#F5F5F4",
+      backgroundColor: "#292524",
+      color: "#FFFFFF",
     },
   })
 );
 
 const SidebarDrawer = styled(Drawer)<{ isSidebarOpen: boolean }>(
   ({ isSidebarOpen }) => ({
-    width: isSidebarOpen ? 300 : 90,
+    width: isSidebarOpen ? SIDEBAR_EXPANDED : SIDEBAR_COLLAPSED,
     flexShrink: 0,
     whiteSpace: "nowrap",
-    transition: "width 0.3s",
+    transition: TRANSITION,
     "& .MuiDrawer-paper": {
-      width: isSidebarOpen ? 300 : 90,
+      width: isSidebarOpen ? SIDEBAR_EXPANDED : SIDEBAR_COLLAPSED,
       boxSizing: "border-box",
       backgroundColor: "#0C0A09",
-      borderColor: "#292524",
-      borderWidth: 2,
-      transition: "width 0.3s",
+      borderRight: "1px solid #292524",
+      transition: "width 200ms ease-out",
       overflowX: "hidden",
+      display: "flex",
+      flexDirection: "column",
     },
   })
 );
@@ -61,8 +68,10 @@ const SidebarDrawer = styled(Drawer)<{ isSidebarOpen: boolean }>(
 const SidebarToolbar = styled(Toolbar)<{ isSidebarOpen: boolean }>(
   ({ isSidebarOpen }) => ({
     backgroundColor: "#0C0A09",
-    height: "66px",
+    height: 56,
+    minHeight: "56px !important",
     justifyContent: isSidebarOpen ? "flex-start" : "center",
+    padding: isSidebarOpen ? "0 16px !important" : "0 !important",
     position: "sticky",
     top: 0,
     zIndex: 1,
@@ -72,19 +81,35 @@ const SidebarToolbar = styled(Toolbar)<{ isSidebarOpen: boolean }>(
 const SidebarContainer = styled(Container)({
   backgroundColor: "#0C0A09",
   flex: 1,
-  padding: "10px 12px 0 12px",
+  padding: "8px 10px 0 10px !important",
+  overflowY: "auto",
+  overflowX: "hidden",
+  "&::-webkit-scrollbar": {
+    width: 4,
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "#292524",
+    borderRadius: 4,
+  },
 });
 
 const SectionTitle = styled(Typography)<{
   isSidebarOpen: boolean;
   isHelp?: boolean;
   isAdmin?: boolean;
-}>(({ isSidebarOpen, isHelp, isAdmin }) => ({
-  color: "#A8A29E",
-  fontSize: 16,
-  fontWeight: "600",
-  paddingLeft: isSidebarOpen ? 16 : isHelp ? 13.6 : isAdmin ? 6.4 : 0,
-  paddingBottom: 8,
+}>(({ isSidebarOpen }) => ({
+  color: "#78716C",
+  fontSize: 11,
+  fontWeight: 600,
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.05em",
+  paddingLeft: isSidebarOpen ? 12 : 0,
+  paddingBottom: 6,
+  textAlign: isSidebarOpen ? "left" : "center",
+  transition: TRANSITION,
+  opacity: isSidebarOpen ? 1 : 0,
+  height: isSidebarOpen ? "auto" : 0,
+  overflow: "hidden",
 }));
 
 const CustomListItemWrapper = styled(ListItem)({
@@ -97,15 +122,14 @@ const CustomListItemButton = styled(ListItemButton)<{
   isHoverDisabled: boolean;
 }>(({ isActive, disabled, isHoverDisabled }) => ({
   alignItems: "center",
-  paddingBottom: 12,
-  paddingTop: 12,
-  marginBottom: 8,
+  padding: "10px 12px",
+  marginBottom: 2,
   backgroundColor: isActive ? "rgba(232, 109, 90, 0.08)" : "transparent",
-  borderRadius: isActive ? "8px" : "0",
+  borderRadius: 6,
   borderLeft: isActive ? "3px solid #E86D5A" : "3px solid transparent",
-  boxShadow: isActive ? "0 1px 4px -1px rgba(0, 0, 0, 0.25)" : "none",
+  transition: TRANSITION,
+  minHeight: 40,
   "&:hover": {
-    borderRadius: "8px",
     backgroundColor: disabled
       ? isActive
         ? "rgba(232, 109, 90, 0.08)"
@@ -114,13 +138,17 @@ const CustomListItemButton = styled(ListItemButton)<{
       ? isActive
         ? "rgba(232, 109, 90, 0.08)"
         : "transparent"
-      : "rgba(255, 255, 255, 0.06)",
+      : "rgba(255, 255, 255, 0.04)",
+    borderRadius: 6,
   },
   cursor: disabled ? "not-allowed" : "pointer",
 }));
 
 const IconContainer = styled(Box)({
-  marginLeft: 4.8,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: 20,
 });
 
 const NavText = styled(Typography)<{
@@ -130,23 +158,57 @@ const NavText = styled(Typography)<{
   cursor: disabled ? "not-allowed" : "pointer",
   opacity: disabled ? 0.4 : 1,
   pointerEvents: disabled ? "none" : "auto",
-  fontSize: 14,
-  fontWeight: isActive ? "500" : "400",
-  paddingLeft: 16,
-  paddingTop: 1.6,
-  marginBottom: 4,
+  fontSize: 13,
+  fontWeight: isActive ? 500 : 400,
+  paddingLeft: 12,
   color: isActive ? "#FFFFFF" : "#A8A29E",
+  transition: TRANSITION,
+  whiteSpace: "nowrap",
   "&:hover": {
     color: "#E7E5E4",
   },
 }));
 
-const MainContent = styled(Box)(({ theme }) => ({
+const MainContent = styled(Box)({
   flexGrow: 1,
-  backgroundColor: theme.palette.background.default,
   display: "flex",
-  flexDirection: "column",
-}));
+  flexDirection: "column" as const,
+  backgroundColor: "#FAFAF9",
+  minHeight: "100vh",
+  overflow: "auto",
+});
+
+const ContentBody = styled(Box)({
+  flex: 1,
+  padding: "24px",
+  maxWidth: 1400,
+  width: "100%",
+  margin: "0 auto",
+  boxSizing: "border-box" as const,
+});
+
+const SidebarFooter = styled(Box)<{ isSidebarOpen: boolean }>(
+  ({ isSidebarOpen }) => ({
+    padding: isSidebarOpen ? "12px 16px" : "12px 8px",
+    borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: isSidebarOpen ? "flex-start" : "center",
+    gap: 10,
+    transition: TRANSITION,
+  })
+);
+
+const VersionText = styled(Typography)({
+  fontSize: 10,
+  fontWeight: 500,
+  color: "#57534E",
+  position: "absolute",
+  bottom: 4,
+  left: 0,
+  right: 0,
+  textAlign: "center",
+});
 
 const ModalDialog = styled(Dialog)({});
 
@@ -219,14 +281,81 @@ const CloseIcon = styled(IconXboxXFilled)({
   cursor: "pointer",
 });
 
+const SectionDivider = styled(Divider)({
+  borderColor: "rgba(255, 255, 255, 0.06)",
+  margin: "4px 12px 12px 12px",
+});
+
 const CustomDivider = styled(Divider)({
   borderColor: "rgba(255, 255, 255, 0.06)",
+  margin: "4px 10px",
+});
+
+const UserSection = styled(Box)<{ isSidebarOpen: boolean }>(
+  ({ isSidebarOpen }) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    flex: 1,
+    justifyContent: isSidebarOpen ? "flex-start" : "center",
+    cursor: "pointer",
+    borderRadius: 6,
+    padding: isSidebarOpen ? "6px 8px" : "6px 0",
+    transition: TRANSITION,
+    "&:hover": {
+      backgroundColor: "rgba(255, 255, 255, 0.04)",
+    },
+  })
+);
+
+const UserAvatar = styled(Box)({
+  width: 32,
+  height: 32,
+  borderRadius: "50%",
+  backgroundColor: "#E86D5A",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "#FFFFFF",
+  fontSize: 13,
+  fontWeight: 600,
+  flexShrink: 0,
+});
+
+const UserName = styled(Typography)({
+  color: "#E7E5E4",
+  fontSize: 13,
+  fontWeight: 500,
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+});
+
+const CollapseToggle = styled(IconButton)({
+  width: 28,
+  height: 28,
+  borderRadius: 6,
+  color: "#A8A29E",
+  padding: 0,
+  transition: "color 200ms ease-out, background-color 200ms ease-out",
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    color: "#E7E5E4",
+  },
 });
 
 const Logo = styled("img")<{ src: string; alt?: string }>(({ src }) => ({
-  width: 134,
+  width: 120,
   content: `url(${src})`,
+  transition: "width 200ms ease-out",
 }));
+
+const LogoCollapsed = styled("img")<{ src: string; alt?: string }>(
+  ({ src }) => ({
+    width: 28,
+    content: `url(${src})`,
+  })
+);
 
 export default {
   MainContainer,
@@ -235,11 +364,19 @@ export default {
   SidebarToolbar,
   SidebarContainer,
   SectionTitle,
+  SectionDivider,
   CustomListItemWrapper,
   CustomListItemButton,
   IconContainer,
   NavText,
   MainContent,
+  ContentBody,
+  SidebarFooter,
+  UserSection,
+  UserAvatar,
+  UserName,
+  CollapseToggle,
+  VersionText,
   ModalDialog,
   ModalContent,
   CloseIconWrapper,
@@ -252,4 +389,5 @@ export default {
   CloseIcon,
   CustomDivider,
   Logo,
+  LogoCollapsed,
 };
