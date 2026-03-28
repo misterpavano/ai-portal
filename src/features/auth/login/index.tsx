@@ -213,16 +213,17 @@ export default function LoginPage() {
             <AuthRedirect />
           </Authenticator>
 
-          <Box sx={{ mt: 5, textAlign: "center" }}>
-            <Typography
-              sx={{
-                fontSize: "12px",
-                color: "#A8A29E",
-              }}
-            >
-              Powered by Hedgehox &middot; hedgehox.com
-            </Typography>
-          </Box>
+          <Typography
+            sx={{
+              mt: 5,
+              fontSize: "12px",
+              color: "#A8A29E",
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
+            Powered by Hedgehox &middot; hedgehox.com
+          </Typography>
         </Box>
       </Box>
     </Box>
