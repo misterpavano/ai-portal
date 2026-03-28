@@ -225,7 +225,8 @@ export default function LoginPage() {
               mt: 5,
               fontSize: "12px",
               color: "#A8A29E",
-              textAlign: "center",
+              width: "100%",
+              textAlign: "left",
             }}
           >
             Powered by Hedgehox &middot; hedgehox.com
