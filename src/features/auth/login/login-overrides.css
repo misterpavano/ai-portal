@@ -168,3 +168,13 @@
   padding-top: 4px !important;
   text-align: center !important;
 }
+
+/* ── Constrain authenticator width to match form container ── */
+[data-amplify-authenticator] {
+  max-width: 100% !important;
+}
+
+[data-amplify-authenticator] [data-amplify-router] {
+  max-width: 100% !important;
+  width: 100% !important;
+}

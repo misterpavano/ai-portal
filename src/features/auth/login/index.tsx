@@ -195,23 +195,25 @@ export default function LoginPage() {
             Sign in to your Kalabria account
           </Typography>
 
-          <Authenticator
-            hideSignUp={true}
-            formFields={{
-              signIn: {
-                username: {
-                  placeholder: "Enter your email",
-                  label: "Email",
+          <Box sx={{ width: "100%", maxWidth: "100%" }}>
+            <Authenticator
+              hideSignUp={true}
+              formFields={{
+                signIn: {
+                  username: {
+                    placeholder: "Enter your email",
+                    label: "Email",
+                  },
+                  password: {
+                    placeholder: "Enter your password",
+                    label: "Password",
+                  },
                 },
-                password: {
-                  placeholder: "Enter your password",
-                  label: "Password",
-                },
-              },
-            }}
-          >
-            <AuthRedirect />
-          </Authenticator>
+              }}
+            >
+              <AuthRedirect />
+            </Authenticator>
+          </Box>
 
           <Typography
             sx={{
@@ -219,7 +221,6 @@ export default function LoginPage() {
               fontSize: "12px",
               color: "#A8A29E",
               textAlign: "center",
-              width: "100%",
             }}
           >
             Powered by Hedgehox &middot; hedgehox.com
