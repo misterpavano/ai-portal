@@ -63,6 +63,9 @@ const LOGIN_STYLES = {
   formContainer: {
     width: "100%",
     maxWidth: "380px",
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
   },
 } as const;
 
@@ -181,6 +184,7 @@ export default function LoginPage() {
               color: "#1C1917",
               mb: 0.5,
               letterSpacing: "-0.01em",
+              width: "100%",
             }}
           >
             Welcome back
@@ -190,12 +194,13 @@ export default function LoginPage() {
               fontSize: "14px",
               color: "#78716C",
               mb: 4,
+              width: "100%",
             }}
           >
             Sign in to your Kalabria account
           </Typography>
 
-          <Box sx={{ width: "100%", maxWidth: "100%" }}>
+          <Box sx={{ width: "100%" }}>
             <Authenticator
               hideSignUp={true}
               formFields={{
