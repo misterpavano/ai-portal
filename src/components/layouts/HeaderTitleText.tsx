@@ -8,6 +8,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { IconLogout, IconSettings, IconUser } from "@tabler/icons-react";
 import { useState } from "react";
 import { useAtom } from "jotai";
@@ -32,6 +33,7 @@ const HeaderTitle = ({
   icon,
   selectedModel,
 }: HeaderTitleProps) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
   const [user, setUser] = useAtom(userAtom);
@@ -186,7 +188,7 @@ const HeaderTitle = ({
             >
               {userInitials}
             </Avatar>
-            <IconSettings color={"#E86D5A"} width={24} height={24} />
+            <IconSettings color={theme.palette.accent.main} width={24} height={24} />
             <Menu
               sx={{
                 "& .MuiPaper-root": {
@@ -230,7 +232,7 @@ const HeaderTitle = ({
                 <IconUser
                   width={22}
                   height={22}
-                  style={{ marginRight: 10, color: "#1C1917" }}
+                  style={{ marginRight: 10, color: theme.palette.text.primary }}
                 />
                 Profile
               </MenuItem>
@@ -253,7 +255,7 @@ const HeaderTitle = ({
                 <IconLogout
                   width={22}
                   height={22}
-                  style={{ marginRight: 8, color: "#1C1917" }}
+                  style={{ marginRight: 8, color: theme.palette.text.primary }}
                 />
                 {isLoggingOut ? "Logging out..." : "Logout"}
               </MenuItem>

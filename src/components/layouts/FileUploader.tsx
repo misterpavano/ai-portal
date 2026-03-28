@@ -6,6 +6,7 @@ import {
   FormHelperText,
   Tooltip,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { IconFile, IconTrashFilled } from "@tabler/icons-react";
 import mammoth from "mammoth";
 
@@ -29,6 +30,7 @@ const FileUploader = ({
   dropzoneState,
   uploadProgress,
 }: FileUploadProps) => {
+  const theme = useTheme();
   const [files, setFiles] = useState<File[]>([]);
   const [, setFileContents] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,7 +94,7 @@ const FileUploader = ({
       case "default":
         return (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconFile color="#57534E" size={20} />
+            <IconFile color={theme.palette.neutral[700]} size={20} />
             <Typography sx={{ color: "neutral.700", fontSize: "14px" }}>
               Drop items here or{" "}
               <Box
@@ -110,7 +112,7 @@ const FileUploader = ({
           <Box
             sx={{ display: "flex", alignItems: "center", gap: 1, width: "40%" }}
           >
-            <IconFile color="#57534E" size={20} />
+            <IconFile color={theme.palette.neutral[700]} size={20} />
             <LinearProgress
               sx={{ width: "100%" }}
               color="info"
@@ -138,9 +140,9 @@ const FileUploader = ({
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <IconFile color="#57534E" size={16} />
+                    <IconFile color={theme.palette.neutral[700]} size={16} />
                     <Tooltip placement="right-start" title={file.name} arrow>
-                      <Typography sx={{ color: "#E86D5A", fontSize: "14px" }}>
+                      <Typography sx={{ color: "accent.main", fontSize: "14px" }}>
                         {shortName}
                       </Typography>
                     </Tooltip>
@@ -153,14 +155,14 @@ const FileUploader = ({
                       }}
                       style={{ cursor: "pointer" }}
                       size={16}
-                      color="#DC5E5E"
+                      color={theme.palette.error.main}
                     />
                   </Box>
                 </Box>
               );
             })}
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconFile color="#57534E" size={16} />
+              <IconFile color={theme.palette.neutral[700]} size={16} />
               <Typography sx={{ color: "neutral.700", fontSize: "14px" }}>
                 Drop items here or{" "}
                 <Box
@@ -192,7 +194,7 @@ const FileUploader = ({
                 width: "80%",
               }}
             >
-              <IconFile color="#DC5E5E" size={32} />
+              <IconFile color={theme.palette.error.main} size={32} />
               <Typography sx={{ color: "error.main", fontSize: "12px" }}>
                 An error occurred while uploading. Please try again.
               </Typography>
@@ -267,6 +269,7 @@ export const MeetingNotesFileUploader = ({
   dropzoneState,
   uploadProgress,
 }: FileUploadProps) => {
+  const theme = useTheme();
   const [files, setFiles] = useState<File[]>([]);
   const [, setFileContents] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -342,7 +345,7 @@ export const MeetingNotesFileUploader = ({
       case "default":
         return (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconFile color="#57534E" size={20} />
+            <IconFile color={theme.palette.neutral[700]} size={20} />
             <Typography sx={{ color: "neutral.700", fontSize: "14px" }}>
               Drop items here or{" "}
               <Box
@@ -360,7 +363,7 @@ export const MeetingNotesFileUploader = ({
           <Box
             sx={{ display: "flex", alignItems: "center", gap: 1, width: "40%" }}
           >
-            <IconFile color="#57534E" size={20} />
+            <IconFile color={theme.palette.neutral[700]} size={20} />
             <LinearProgress
               sx={{ width: "100%" }}
               color="info"
@@ -388,9 +391,9 @@ export const MeetingNotesFileUploader = ({
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <IconFile color="#57534E" size={16} />
+                    <IconFile color={theme.palette.neutral[700]} size={16} />
                     <Tooltip placement="right-start" title={file.name} arrow>
-                      <Typography sx={{ color: "#E86D5A", fontSize: "14px" }}>
+                      <Typography sx={{ color: "accent.main", fontSize: "14px" }}>
                         {shortName}
                       </Typography>
                     </Tooltip>
@@ -403,14 +406,14 @@ export const MeetingNotesFileUploader = ({
                       }}
                       style={{ cursor: "pointer" }}
                       size={16}
-                      color="#DC5E5E"
+                      color={theme.palette.error.main}
                     />
                   </Box>
                 </Box>
               );
             })}
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconFile color="#57534E" size={16} />
+              <IconFile color={theme.palette.neutral[700]} size={16} />
               <Typography sx={{ color: "neutral.700", fontSize: "14px" }}>
                 Drop items here or{" "}
                 <Box
@@ -442,7 +445,7 @@ export const MeetingNotesFileUploader = ({
                 width: "80%",
               }}
             >
-              <IconFile color="#DC5E5E" size={32} />
+              <IconFile color={theme.palette.error.main} size={32} />
               <Typography sx={{ color: "error.main", fontSize: "12px" }}>
                 An error occurred while uploading. Please try again.
               </Typography>
