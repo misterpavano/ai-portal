@@ -378,6 +378,15 @@ const TranscriptionPreview: React.FC = () => {
   ]);
 
   if (transcribing || isProcessingFile) {
+    const steps = [
+      { label: "Uploading audio", done: true },
+      { label: "Processing audio stream", done: jobState === "active" || jobState === "completed" },
+      { label: "Generating transcript", done: jobState === "completed" },
+      { label: "Finalizing output", done: false },
+    ];
+    const activeStep = steps.findIndex((s) => !s.done);
+    const progressPercent = Math.min(((activeStep < 0 ? steps.length : activeStep) / steps.length) * 100, 95);
+
     return (
       <Box
         sx={{
@@ -385,14 +394,121 @@ const TranscriptionPreview: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 2,
-          minHeight: "200px",
+          minHeight: "360px",
+          px: 4,
         }}
       >
-        <CircularProgress size={40} sx={{ color: "#2688ac" }} />
-        <Typography sx={{ color: "#2688ac", fontSize: "14px" }}>
-          {transcribing ? "Transcribing audio..." : "Processing file..."}
+        {/* Animated waveform visualization */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "3px",
+            mb: 4,
+            height: 48,
+          }}
+        >
+          {[...Array(12)].map((_, i) => (
+            <Box
+              key={i}
+              sx={{
+                width: 4,
+                borderRadius: "2px",
+                bgcolor: "#E86D5A",
+                opacity: 0.3 + Math.random() * 0.7,
+                animation: `waveBar 1.2s ease-in-out ${i * 0.1}s infinite alternate`,
+                height: `${12 + Math.random() * 36}px`,
+                "@keyframes waveBar": {
+                  "0%": { height: "12px", opacity: 0.3 },
+                  "100%": { height: `${20 + Math.random() * 28}px`, opacity: 1 },
+                },
+              }}
+            />
+          ))}
+        </Box>
+
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontWeight: 800,
+            color: "#1C1917",
+            letterSpacing: "-0.02em",
+            mb: 1,
+          }}
+        >
+          {transcribing ? "Transcribing..." : "Processing..."}
         </Typography>
+        <Typography sx={{ fontSize: 13, color: "#A8A29E", mb: 4 }}>
+          This may take a few minutes depending on file length
+        </Typography>
+
+        {/* Progress bar */}
+        <Box sx={{ width: "100%", maxWidth: 400, mb: 4 }}>
+          <Box
+            sx={{
+              width: "100%",
+              height: 4,
+              borderRadius: 2,
+              bgcolor: "#F5F5F4",
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                height: "100%",
+                borderRadius: 2,
+                bgcolor: "#E86D5A",
+                width: `${progressPercent}%`,
+                transition: "width 1s ease",
+              }}
+            />
+          </Box>
+        </Box>
+
+        {/* Step indicators */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, width: "100%", maxWidth: 300 }}>
+          {steps.map((step, i) => (
+            <Box
+              key={step.label}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: step.done ? "#E86D5A" : i === activeStep ? "#1C1917" : "#F5F5F4",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {step.done ? (
+                  <Box component="span" sx={{ color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}>✓</Box>
+                ) : i === activeStep ? (
+                  <CircularProgress size={10} sx={{ color: "#FFFFFF" }} />
+                ) : (
+                  <Box component="span" sx={{ color: "#D6D3D1", fontSize: 10, fontWeight: 600 }}>{i + 1}</Box>
+                )}
+              </Box>
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  fontWeight: step.done ? 600 : i === activeStep ? 600 : 400,
+                  color: step.done ? "#1C1917" : i === activeStep ? "#1C1917" : "#A8A29E",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {step.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       </Box>
     );
   }
@@ -406,10 +522,27 @@ const TranscriptionPreview: React.FC = () => {
           alignItems: "center",
           justifyContent: "center",
           gap: 2,
-          minHeight: "200px",
+          minHeight: "300px",
         }}
       >
-        <Typography sx={{ color: "error.main", fontSize: "14px" }}>
+        <Box
+          sx={{
+            width: 56,
+            height: 56,
+            borderRadius: "14px",
+            bgcolor: "#FEF2F0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 1,
+          }}
+        >
+          <Typography sx={{ fontSize: 24 }}>⚠</Typography>
+        </Box>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1C1917" }}>
+          Transcription Failed
+        </Typography>
+        <Typography sx={{ color: "#A8A29E", fontSize: 13, textAlign: "center", maxWidth: 320 }}>
           {transcriptionError}
         </Typography>
       </Box>
