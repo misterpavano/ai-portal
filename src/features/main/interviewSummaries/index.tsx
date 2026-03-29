@@ -24,11 +24,14 @@ interface InterviewSummariesProps {
 }
 
 const StyledTab = styled(Tab)(({ theme }) => ({
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: "#FFFFFF",
+  textTransform: "none",
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
   "&.Mui-selected": {
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.primary.main,
-    fontWeight: theme.typography.fontWeightMedium,
+    backgroundColor: "#FFFFFF",
+    color: "#1C1917",
+    fontWeight: 600,
+    borderBottom: "2px solid #1C1917",
   },
   "&:not(.Mui-selected)": {
     color: theme.palette.text.primary,
@@ -37,8 +40,11 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 
 const StyledTabs = styled(TabList)(() => ({
   paddingLeft: 8,
-  borderTopLeftRadius: "6px",
+  borderTopLeftRadius: "10px",
   borderBottom: "none",
+  "& .MuiTabs-indicator": {
+    display: "none",
+  },
 }));
 
 const InterviewSummaries: React.FC<InterviewSummariesProps> = ({
@@ -96,18 +102,18 @@ const InterviewSummaries: React.FC<InterviewSummariesProps> = ({
       <Box sx={{ typography: "body1", p: 5 }}>
         <Box
           sx={{
-            border: "1.8px solid",
+            border: "1px solid",
             borderColor: "neutral.200",
-            borderRadius: "8px",
-            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            borderRadius: "10px",
+            boxShadow: "0 1px 3px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04)",
           }}
         >
           <TabContext value={value}>
             <Box
               sx={{
-                borderBottom: 1.5,
-                borderTopLeftRadius: "6px",
-                borderColor: "primary.400",
+                borderBottom: "1px solid #E7E5E4",
+                borderTopLeftRadius: "10px",
+                borderColor: "#E7E5E4",
               }}
             >
               <StyledTabs onChange={handleChange} aria-label="tabs">

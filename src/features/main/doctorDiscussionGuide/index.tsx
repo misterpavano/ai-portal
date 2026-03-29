@@ -11,12 +11,13 @@ import HeaderTitle from "../../../components/layouts/HeaderTitleText";
 import { IconDirectionArrows, IconHelp, IconTool } from "@tabler/icons-react";
 
 const StyledTab = styled(Tab)(({ theme }) => ({
-  borderRight: `1.7px solid ${theme.palette.neutral[200]}`,
-  backgroundColor: theme.palette.neutral[100],
+  borderRight: "1px solid #E7E5E4",
+  backgroundColor: "#F5F5F4",
   "&.Mui-selected": {
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.primary.main,
-    fontWeight: theme.typography.fontWeightMedium,
+    backgroundColor: "#FFFFFF",
+    color: "#1C1917",
+    fontWeight: 600,
+    borderBottom: "2px solid #1C1917",
   },
   "&:not(.Mui-selected)": {
     color: theme.palette.text.primary,
@@ -24,7 +25,7 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 }));
 
 const StyledTabs = styled(TabList)(() => ({
-  borderTopLeftRadius: "6px",
+  borderTopLeftRadius: "10px",
   borderBottom: "none",
   "& .MuiTabs-indicator": {
     display: "none",
@@ -46,18 +47,18 @@ const DiscussionGuide = () => {
       />
       <Box
         sx={{
-          border: "1.8px solid",
+          border: "1px solid",
           borderColor: "neutral.200",
-          borderRadius: "8px",
+          borderRadius: "10px",
         }}
       >
         <TabContext value={value}>
           <Box
             sx={{
               backgroundColor: "neutral.100",
-              borderBottom: 1.5,
-              borderTopLeftRadius: "6px",
-              borderColor: "primary.400",
+              borderBottom: "1px solid #E7E5E4",
+              borderTopLeftRadius: "10px",
+              borderColor: "#E7E5E4",
             }}
           >
             <StyledTabs onChange={handleChange} aria-label="tabs">
