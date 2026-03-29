@@ -9,7 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { DropzoneState } from "../../../../../components/layouts/FileUploader";
 import { AudioToTextFlow } from "../../../../../types/audioToText";
-import { IconFile, IconTrashFilled } from "@tabler/icons-react";
+import { IconFile, IconTrashFilled, IconUpload } from "@tabler/icons-react";
 import ReplayIcon from "@mui/icons-material/Replay";
 import DefaultButton from "../../../../../components/layouts/DefaultButton";
 
@@ -195,18 +195,35 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
     switch (dropzoneState) {
       case "default":
         return (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconFile color="#57534E" size={20} />
-            <Typography sx={{ color: "neutral.700", fontSize: "14px" }}>
-              Drop items here or{" "}
-              <Box
-                component="span"
-                sx={{ fontWeight: "bold", textDecoration: "underline" }}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Browse files
-              </Box>
-            </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, py: 2 }}>
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: "12px",
+                backgroundColor: "#F5F5F4",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <IconUpload color="#78716C" size={20} />
+            </Box>
+            <Box sx={{ textAlign: "center" }}>
+              <Typography sx={{ color: "#1C1917", fontSize: 14, fontWeight: 600, mb: 0.5 }}>
+                Drop audio file here or{" "}
+                <Box
+                  component="span"
+                  sx={{ color: "#E86D5A", textDecoration: "underline", cursor: "pointer" }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  browse
+                </Box>
+              </Typography>
+              <Typography sx={{ color: "#A8A29E", fontSize: 12 }}>
+                MP3, MP4, WAV, and other audio/video formats
+              </Typography>
+            </Box>
           </Box>
         );
       case "loading":
@@ -219,11 +236,20 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
               paddingTop: 1,
               gap: 1,
               width: "90%",
+              mx: "auto",
             }}
           >
             <LinearProgress
-              sx={{ width: "100%", backgroundColor: "#E86D5A" }}
-              // color="error"
+              sx={{
+                width: "100%",
+                borderRadius: 4,
+                height: 4,
+                backgroundColor: "#F5F5F4",
+                "& .MuiLinearProgress-bar": {
+                  backgroundColor: "#E86D5A",
+                  borderRadius: 4,
+                },
+              }}
               variant="determinate"
               value={uploadProgress}
             />
@@ -241,9 +267,9 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <IconFile color="#57534E" size={16} />
+                <IconFile color="#78716C" size={16} />
                 <Tooltip placement="right-start" title={file?.name} arrow>
-                  <Typography sx={{ color: "#2688ac", fontSize: "14px" }}>
+                  <Typography sx={{ color: "#E86D5A", fontSize: 14, fontWeight: 500 }}>
                     {file?.name?.length! > 25
                       ? file?.name.substring(0, 25) + "..."
                       : file?.name}
@@ -285,7 +311,7 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
               }}
             >
               <IconFile color="#DC5E5E" size={32} />
-              <Typography sx={{ color: "error.main", fontSize: "12px" }}>
+              <Typography sx={{ color: "error.main", fontSize: 12 }}>
                 {uploadError ||
                   "An error occurred while uploading. Please try again."}
               </Typography>
@@ -318,28 +344,50 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
       }}
     >
       <Box sx={{ mt: 1, padding: 4 }}>
-        <Box sx={{ pb: 0.5 }}>
-          <Typography sx={{ fontSize: "11px", color: "neutral.600" }}>
-            You can either drag and drop the files into the section below or
-            browse to attach them.
+        {/* Section header: label + title pattern */}
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            sx={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: "#A8A29E",
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+              mb: 0.5,
+            }}
+          >
+            Upload
           </Typography>
-          <Typography sx={{ fontSize: "11px", color: "neutral.600", mt: 0.5 }}>
-            Audio-related files such as MP3, MP4, and other audio/video formats
-            are allowed to be uploaded.
+          <Typography
+            sx={{
+              fontSize: 20,
+              fontWeight: 700,
+              color: "#1C1917",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Audio File
           </Typography>
         </Box>
+
         <Box
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           sx={{
-            border: "1px dashed",
-            borderRadius: 2,
-            padding: 2,
+            border: "1px dashed #D6D3D1",
+            borderRadius: "10px",
+            padding: 2.5,
             display: "flex",
             minHeight: "10px",
-            width: "40%",
+            width: "50%",
             cursor: "pointer",
             flexDirection: "column",
+            backgroundColor: "#FAFAF9",
+            transition: "all 0.15s ease",
+            "&:hover": {
+              borderColor: "#E86D5A",
+              backgroundColor: "#FEF2F0",
+            },
           }}
           onClick={() => fileInputRef.current?.click()}
         >
@@ -352,70 +400,98 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
           />
           {renderContent()}
         </Box>
-        <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1 }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={initialValues.transcriptionOptions.provideSummary}
-                onChange={(e) => {
-                  setAudioToTextFormValues((prev) => ({
-                    ...prev,
-                    transcriptionOptions: {
-                      ...prev.transcriptionOptions,
-                      provideSummary: e.target.checked,
-                    },
-                  }));
-                }}
-              />
-            }
-            label="Provide Summary of Audio"
-            sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={initialValues.transcriptionOptions.includeTimestamps}
-                onChange={(e) => {
-                  setAudioToTextFormValues((prev) => ({
-                    ...prev,
-                    transcriptionOptions: {
-                      ...prev.transcriptionOptions,
-                      includeTimestamps: e.target.checked,
-                    },
-                  }));
-                }}
-              />
-            }
-            label="Include Timestamps"
-            sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={
-                  initialValues.transcriptionOptions.includeSpeakerIdentifier
-                }
-                onChange={(e) => {
-                  setAudioToTextFormValues((prev) => ({
-                    ...prev,
-                    transcriptionOptions: {
-                      ...prev.transcriptionOptions,
-                      includeSpeakerIdentifier: e.target.checked,
-                    },
-                  }));
-                }}
-              />
-            }
-            label="Include Speaker Identifier (Beta)"
-            sx={{ "& .MuiFormControlLabel-label": { fontSize: "14px" } }}
-          />
+
+        {/* Transcription options */}
+        <Box sx={{ mt: 4, mb: 3 }}>
+          <Typography
+            sx={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: "#A8A29E",
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+              mb: 1.5,
+            }}
+          >
+            Options
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={initialValues.transcriptionOptions.provideSummary}
+                  onChange={(e) => {
+                    setAudioToTextFormValues((prev) => ({
+                      ...prev,
+                      transcriptionOptions: {
+                        ...prev.transcriptionOptions,
+                        provideSummary: e.target.checked,
+                      },
+                    }));
+                  }}
+                  sx={{
+                    color: "#A8A29E",
+                    "&.Mui-checked": { color: "#E86D5A" },
+                  }}
+                />
+              }
+              label="Provide Summary of Audio"
+              sx={{ "& .MuiFormControlLabel-label": { fontSize: 14, color: "#1C1917" } }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={initialValues.transcriptionOptions.includeTimestamps}
+                  onChange={(e) => {
+                    setAudioToTextFormValues((prev) => ({
+                      ...prev,
+                      transcriptionOptions: {
+                        ...prev.transcriptionOptions,
+                        includeTimestamps: e.target.checked,
+                      },
+                    }));
+                  }}
+                  sx={{
+                    color: "#A8A29E",
+                    "&.Mui-checked": { color: "#E86D5A" },
+                  }}
+                />
+              }
+              label="Include Timestamps"
+              sx={{ "& .MuiFormControlLabel-label": { fontSize: 14, color: "#1C1917" } }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={
+                    initialValues.transcriptionOptions.includeSpeakerIdentifier
+                  }
+                  onChange={(e) => {
+                    setAudioToTextFormValues((prev) => ({
+                      ...prev,
+                      transcriptionOptions: {
+                        ...prev.transcriptionOptions,
+                        includeSpeakerIdentifier: e.target.checked,
+                      },
+                    }));
+                  }}
+                  sx={{
+                    color: "#A8A29E",
+                    "&.Mui-checked": { color: "#E86D5A" },
+                  }}
+                />
+              }
+              label="Include Speaker Identifier (Beta)"
+              sx={{ "& .MuiFormControlLabel-label": { fontSize: 14, color: "#1C1917" } }}
+            />
+          </Box>
         </Box>
+
         <DefaultButton
           style={{
             borderRadius: "8px",
-            height: 45,
-            marginBottom: 1.5,
-            marginTop: 1,
+            height: 44,
+            width: 160,
           }}
           type="primary"
           title="Transcribe"

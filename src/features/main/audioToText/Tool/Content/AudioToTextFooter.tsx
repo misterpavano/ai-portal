@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -50,69 +51,90 @@ const steps: Step[] = [
   { label: "Preview", desc: "Preview the output" },
 ];
 
-const ProgressList = styled("ul")(() => ({
+const ProgressList = styled("div")(() => ({
   padding: 0,
-  listStyleType: "none",
-  fontFamily: "arial",
-  fontSize: "12px",
-  clear: "both",
-  gap: 4,
-  lineHeight: "1em",
   display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "center",
   width: "100%",
 }));
 
-const ProgressItem = styled("div")<{
-  status: "UNSTART" | "PROGRESS" | "FINISH";
-  isLastStep: boolean;
-}>(({ status, isLastStep }) => ({
-  backgroundColor:
-    isLastStep && status === "UNSTART"
-      ? `#ffffff`
-      : isLastStep && status === "PROGRESS"
-        ? `#E86D5A`
-        : status === "UNSTART"
-          ? `#ffffff`
-          : status === "PROGRESS"
-            ? `#E86D5A`
-            : `#D6D3D1`,
-  color: status === "FINISH" ? "#1C1917" : "#ffffff",
-  backgroundSize: "contain",
-  backgroundRepeat: "no-repeat",
-  cursor: "pointer",
-  alignItems: "center",
-  flexDirection: "column",
+type StepStatus = "UNSTART" | "PROGRESS" | "FINISH";
+
+const StepCircle = styled("div")<{ status: StepStatus }>(({ status }) => ({
+  width: 20,
+  height: 20,
+  borderRadius: "50%",
   display: "flex",
-  padding: "6px 0",
-  borderRadius: "10px",
-  width: 200,
-}));
-
-const ProgressItemText = styled(Typography)<{
-  status: "UNSTART" | "PROGRESS" | "FINISH";
-  isLastStep: boolean;
-}>(({ status, isLastStep }) => ({
-  color:
-    isLastStep && status === "UNSTART"
-      ? `#1C1917`
-      : isLastStep && status === "PROGRESS"
-        ? `#ffffff`
-        : status === "UNSTART"
-          ? `#1C1917`
-          : status === "PROGRESS"
-            ? `#ffffff`
-            : `#A8A29E`,
-  fontSize: "14px",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+  fontSize: "11px",
   fontWeight: 600,
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
+  lineHeight: 1,
+  transition: "all 0.2s ease",
+  ...(status === "PROGRESS" && {
+    backgroundColor: "#1C1917",
+    color: "#FFFFFF",
+    border: "none",
+  }),
+  ...(status === "FINISH" && {
+    backgroundColor: "#E86D5A",
+    color: "#FFFFFF",
+    border: "none",
+  }),
+  ...(status === "UNSTART" && {
+    backgroundColor: "transparent",
+    color: "#A8A29E",
+    border: "1px solid #E7E5E4",
+  }),
 }));
 
-const ProgressItemDescriptionText = styled(Typography)<{
-  status: "UNSTART" | "PROGRESS" | "FINISH";
-}>(({ status }) => ({
-  color: status === "PROGRESS" ? "#ffffff" : "#A8A29E",
-  fontSize: "12px",
-  fontWeight: 400,
+const ConnectorLine = styled("div")<{ completed: boolean }>(
+  ({ completed }) => ({
+    height: "1px",
+    flex: 1,
+    minWidth: 32,
+    marginTop: 10,
+    backgroundColor: completed ? "#E86D5A" : "#E7E5E4",
+    transition: "background-color 0.2s ease",
+  }),
+);
+
+const StepItem = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "column" as const,
+  alignItems: "center",
+  cursor: "pointer",
+  minWidth: 120,
+  maxWidth: 160,
 }));
+
+const StepLabel = styled(Typography)<{ status: StepStatus }>(({ status }) => ({
+  fontSize: "13px",
+  fontWeight: 600,
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
+  marginTop: 8,
+  textAlign: "center" as const,
+  lineHeight: 1.3,
+  transition: "color 0.2s ease",
+  ...(status === "PROGRESS" && { color: "#1C1917" }),
+  ...(status === "FINISH" && { color: "#44403C" }),
+  ...(status === "UNSTART" && { color: "#A8A29E" }),
+}));
+
+const StepDescription = styled(Typography)<{ status: StepStatus }>(
+  ({ status }) => ({
+    fontSize: "11px",
+    fontWeight: 400,
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    marginTop: 2,
+    textAlign: "center" as const,
+    lineHeight: 1.3,
+    color: status === "PROGRESS" ? "#44403C" : "#A8A29E",
+  }),
+);
 
 const AudioToTextFooter = ({
   step,
@@ -310,40 +332,39 @@ const AudioToTextFooter = ({
     <>
       <Box
         sx={{
-          pt: 1,
-          pl: 2,
-          pr: 6,
+          pt: 3,
+          pb: 3,
+          pl: 4,
+          pr: 4,
           backgroundColor: "#FFFFFF",
           borderRadius: "10px",
-          borderColor: "primary.400",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
         <Grid container justifyContent="space-between" alignItems="center">
-          <Grid item>
+          <Grid item xs>
             <ProgressList>
               {steps.map((currStep, index) => {
-                const status =
+                const status: StepStatus =
                   index < step.currentStep
                     ? "FINISH"
                     : index === step.currentStep
                       ? "PROGRESS"
                       : "UNSTART";
                 const isLastStep = index === steps.length - 1;
+                const isLineCompleted = index < step.currentStep;
                 return (
-                  <ProgressItem
-                    onClick={() => handleStepClick(index)}
-                    key={index}
-                    status={status}
-                    isLastStep={isLastStep}
-                  >
-                    <ProgressItemText status={status} isLastStep={isLastStep}>
-                      {currStep.label}
-                    </ProgressItemText>
-                    <ProgressItemDescriptionText status={status}>
-                      {currStep.desc}
-                    </ProgressItemDescriptionText>
-                  </ProgressItem>
+                  <React.Fragment key={index}>
+                    <StepItem onClick={() => handleStepClick(index)}>
+                      <StepCircle status={status}>
+                        {status === "FINISH" ? "✓" : index + 1}
+                      </StepCircle>
+                      <StepLabel status={status}>{currStep.label}</StepLabel>
+                      <StepDescription status={status}>
+                        {currStep.desc}
+                      </StepDescription>
+                    </StepItem>
+                    {!isLastStep && <ConnectorLine completed={isLineCompleted} />}
+                  </React.Fragment>
                 );
               })}
             </ProgressList>
@@ -353,9 +374,8 @@ const AudioToTextFooter = ({
               <DefaultButton
                 style={{
                   width: 100,
-                  borderRadius: "15px",
-                  height: 45,
-                  marginBottom: 1.5,
+                  borderRadius: "6px",
+                  height: 40,
                 }}
                 disabled={isButtonDisabled()}
                 type="primary"
