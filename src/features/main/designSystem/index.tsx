@@ -7,7 +7,7 @@ import {
   Divider,
   Grid,
   MenuItem,
-  Paper,
+
   SelectChangeEvent,
   Tab,
   Typography,
@@ -72,32 +72,54 @@ const getScaleEntries = (scale: ThemeScale, featured: string[] = []) => {
     .map((key) => ({ token: key, value: scale[key] }));
 };
 
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <Typography
-    sx={{
-      fontSize: 13,
-      fontWeight: 600,
-      color: "neutral.700",
-      textTransform: "uppercase",
-      letterSpacing: "0.06em",
-      mb: 2,
-    }}
-  >
-    {children}
-  </Typography>
+const SectionLabel = ({ children, subtitle }: { children: React.ReactNode; subtitle?: string }) => (
+  <Box sx={{ mb: 2 }}>
+    <Typography
+      sx={{
+        fontSize: 11,
+        fontWeight: 700,
+        color: "#A8A29E",
+        textTransform: "uppercase",
+        letterSpacing: "0.12em",
+        mb: 0.5,
+      }}
+    >
+      Component
+    </Typography>
+    <Typography
+      sx={{
+        fontSize: 20,
+        fontWeight: 700,
+        color: "#1C1917",
+        letterSpacing: "-0.01em",
+      }}
+    >
+      {children}
+    </Typography>
+    {subtitle && (
+      <Typography sx={{ fontSize: 13, color: "#78716C", mt: 0.5 }}>
+        {subtitle}
+      </Typography>
+    )}
+  </Box>
 );
 
 const ColorSwatch = ({ token, value }: { token: string; value: string }) => {
   const isTransparent = value === "transparent";
 
   return (
-    <Paper
-      variant="outlined"
+    <Box
       sx={{
         overflow: "hidden",
-        borderColor: "neutral.300",
-        borderRadius: 3,
+        border: "1px solid #E7E5E4",
+        borderRadius: "10px",
         height: "100%",
+        transition: "all 0.15s ease",
+        "&:hover": {
+          borderColor: "#E86D5A",
+          transform: "translateY(-2px)",
+          boxShadow: "0 4px 12px rgba(28,25,23,0.08)",
+        },
       }}
     >
       <Box
@@ -110,18 +132,17 @@ const ColorSwatch = ({ token, value }: { token: string; value: string }) => {
           backgroundSize: isTransparent ? "14px 14px" : undefined,
         }}
       />
-      <Box sx={{ p: 1.5, bgcolor: "common.white" }}>
-        <Typography variant="small_bold" sx={{ color: "text.primary" }}>
+      <Box sx={{ p: 1.5, bgcolor: "#FFFFFF", borderTop: "1px solid #F5F5F4" }}>
+        <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1C1917" }}>
           {token}
         </Typography>
         <Typography
-          variant="xsmall"
-          sx={{ color: "neutral.600", fontFamily: "monospace", wordBreak: "break-all" }}
+          sx={{ fontSize: 11, color: "#78716C", fontFamily: "monospace", wordBreak: "break-all" }}
         >
           {value}
         </Typography>
       </Box>
-    </Paper>
+    </Box>
   );
 };
 
@@ -215,25 +236,37 @@ const DesignSystem = () => {
       <HeaderTitle
         title="Design System"
         icon={<IconBrandHeadlessui width={18} height={18} color={theme.palette.common.white} />}
-        subtitle="Reference actual theme tokens, typography scales, and component states used in the revamp."
+        subtitle="Reference actual theme tokens, typography scales, and component states."
       />
 
       <Box sx={{ px: { xs: 2, md: 3 }, pt: 2 }}>
-        <Paper
-          variant="outlined"
+        <Box
           sx={{
-            borderColor: "neutral.300",
-            borderRadius: 4,
+            border: "1px solid #E7E5E4",
+            borderRadius: "10px",
             overflow: "hidden",
-            bgcolor: "common.white",
+            bgcolor: "#FFFFFF",
+            boxShadow: "0 1px 3px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04)",
           }}
         >
-          <Box sx={{ px: { xs: 2, md: 3 }, pt: 2.5, pb: 2, borderBottom: "1px solid", borderColor: "neutral.200" }}>
-            <Typography variant="h2" sx={{ mb: 0.75 }}>
+          <Box sx={{ px: { xs: 2, md: 3 }, pt: 3, pb: 2.5, borderBottom: "1px solid #E7E5E4" }}>
+            <Typography
+              sx={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#A8A29E",
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                mb: 0.5,
+              }}
+            >
+              Reference
+            </Typography>
+            <Typography sx={{ fontSize: 20, fontWeight: 700, color: "#1C1917", letterSpacing: "-0.01em", mb: 1 }}>
               Theme Overview
             </Typography>
-            <Typography variant="small" sx={{ color: "neutral.600", maxWidth: 840 }}>
-              This page is wired to the current MUI theme so token changes are visible here immediately. Use it to validate hierarchy, surface contrast, and status treatments before shipping UI changes.
+            <Typography sx={{ fontSize: 13, color: "#78716C", maxWidth: 840 }}>
+              Wired to the current MUI theme. Token changes are visible here immediately. Use to validate hierarchy, surface contrast, and status treatments before shipping UI changes.
             </Typography>
           </Box>
 
@@ -333,8 +366,8 @@ const DesignSystem = () => {
               <Grid container spacing={2} sx={{ mb: 4 }}>
                 {tokenHighlights.map((group) => (
                   <Grid item xs={12} md={4} key={group.label}>
-                    <Paper variant="outlined" sx={{ p: 2, borderColor: "neutral.300", borderRadius: 3, height: "100%" }}>
-                      <Typography variant="small_bold" sx={{ color: "text.primary", mb: 1.5 }}>
+                    <Box sx={{ p: 2, border: "1px solid #E7E5E4", borderRadius: "10px", height: "100%", bgcolor: "#FAFAF9" }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}>
                         {group.label}
                       </Typography>
                       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
@@ -352,7 +385,7 @@ const DesignSystem = () => {
                           </Box>
                         ))}
                       </Box>
-                    </Paper>
+                    </Box>
                   </Grid>
                 ))}
               </Grid>
@@ -375,16 +408,16 @@ const DesignSystem = () => {
             </TabPanel>
 
             <TabPanel value="typography" sx={{ p: { xs: 2, md: 3 } }}>
-              <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, borderColor: "neutral.300", borderRadius: 3, mb: 3.5 }}>
-                <Typography variant="small_bold" sx={{ color: "text.primary", mb: 0.75 }}>
+              <Box sx={{ p: { xs: 2, md: 3 }, border: "1px solid #E7E5E4", borderRadius: "10px", mb: 3.5, bgcolor: "#FAFAF9" }}>
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 0.75 }}>
                   Font Stack
                 </Typography>
-                <Typography variant="xsmall" sx={{ color: "neutral.600", fontFamily: "monospace" }}>
+                <Typography sx={{ fontSize: 12, fontWeight: 500, color: "#78716C", fontFamily: "monospace" }}>
                   {theme.typography.fontFamily}
                 </Typography>
-              </Paper>
+              </Box>
 
-              <Paper variant="outlined" sx={{ borderColor: "neutral.300", borderRadius: 3, overflow: "hidden" }}>
+              <Box sx={{ border: "1px solid #E7E5E4", borderRadius: "10px", overflow: "hidden" }}>
                 {typographyVariants.map(([variant, usage], index) => (
                   <Box
                     key={variant}
@@ -409,10 +442,10 @@ const DesignSystem = () => {
                     </Typography>
                   </Box>
                 ))}
-              </Paper>
+              </Box>
             </TabPanel>
           </TabContext>
-        </Paper>
+        </Box>
       </Box>
     </Box>
   );
