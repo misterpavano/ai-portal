@@ -11,6 +11,7 @@ import { useAtom } from "jotai";
 import { routeValidatorStepAtom } from "../../../atoms/routeValidatorAtom";
 import RouteValidatorTool from "./Tool/Content/RouteValidatorTool";
 import RouteValidatorFooter from "./Tool/Content/RouteValidatorFooter";
+import RouteValidatorHelp from "./Help/RouteValidatorHelp";
 
 const StyledTab = styled(Tab)(() => ({
   backgroundColor: "#FFFFFF",
@@ -134,9 +135,7 @@ const RouteValidator = () => {
               <RouteValidatorTool />
             </TabPanel>
             <TabPanel id="Help_Route_Validator" sx={{ p: 0 }} value="Help">
-              <Box sx={{ p: 3 }}>
-                <Typography>Help content will be added here.</Typography>
-              </Box>
+              <RouteValidatorHelp />
             </TabPanel>
           </TabContext>
         </Box>

@@ -11,6 +11,7 @@ import { useAtom } from "jotai";
 import { audioToTextStepAtom } from "../../../atoms/audioToTextAtom";
 import AudioToTextFooter from "./Tool/Content/AudioToTextFooter";
 import AudioToTextTools from "./Tool/AudioToTextTool";
+import AudioToTextHelp from "./Help/AudioToTextHelp";
 
 interface AudioToTextProps {
   handleDownloadFile: (type: "Word" | "Powerpoint") => void;
@@ -139,11 +140,7 @@ const AudioToText: React.FC<AudioToTextProps> = ({ handleDownloadFile }) => {
               </Box>
             </TabPanel>
             <TabPanel sx={{ p: 0 }} value="Help">
-              <Box sx={{ p: 3 }}>
-                <Typography sx={{ color: "#78716C", fontSize: 14 }}>
-                  Help content will be added here.
-                </Typography>
-              </Box>
+              <AudioToTextHelp />
             </TabPanel>
           </TabContext>
         </Box>
