@@ -186,7 +186,7 @@ export const IssuesSidebar: React.FC<IssuesSidebarProps> = memo(
             />
           )}
 
-          <Divider sx={{ borderColor: "neutral.400", mb: 1.5 }} />
+          <Divider sx={{ borderColor: "#E7E5E4", mb: 1.5 }} />
 
           {/* Hang tight note while checks are still running */}
           {(taskProgress ?? []).some(
@@ -194,32 +194,31 @@ export const IssuesSidebar: React.FC<IssuesSidebarProps> = memo(
           ) && (
             <Box
               sx={{
-                mt: 1,
+                mt: 0.5,
                 mb: 1.5,
-                borderRadius: "10px",
-                border: "1px solid rgba(234,179,8,0.35)",
-                backgroundColor: "rgba(254,252,232,0.95)",
-                px: 1.75,
-                py: 1.25,
+                borderRadius: "8px",
+                bgcolor: "#FAFAF9",
+                border: "1px solid #E7E5E4",
+                px: 1.5,
+                py: 1,
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
               }}
             >
               <CircularProgress
-                size={14}
-                sx={{ color: "rgba(28,25,23,0.33)", flexShrink: 0 }}
+                size={12}
+                sx={{ color: "#E86D5A", flexShrink: 0 }}
               />
               <Typography
                 sx={{
-                  fontSize: "12px",
-                  lineHeight: 1.5,
-                  color: "rgba(28,25,23,0.33)",
-                  fontStyle: "italic",
+                  fontSize: 12,
+                  lineHeight: 1.4,
+                  color: "#78716C",
+                  fontWeight: 500,
                 }}
               >
-                Hang tight… we&apos;re still running a few checks and analyzing
-                your document.
+                Analyzing your document...
               </Typography>
             </Box>
           )}

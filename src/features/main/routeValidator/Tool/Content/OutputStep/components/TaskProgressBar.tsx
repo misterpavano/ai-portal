@@ -90,8 +90,8 @@ export const TaskProgressBar: React.FC<TaskProgressBarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 2,
-            marginBottom: 0.5,
+            gap: 0.5,
+            mb: 1.5,
           }}
         >
           {[
@@ -106,27 +106,44 @@ export const TaskProgressBar: React.FC<TaskProgressBarProps> = ({
               label: "Rejected",
               count: reviewCounts?.rejected ?? 0,
             },
-          ].map((item) => (
-            <Typography
-              key={item.key}
-              onClick={() =>
-                onReviewFilterChange?.(
-                  item.key as "all" | "approved" | "rejected",
-                )
-              }
-              sx={{
-                fontSize: "12px",
-                color: "text.primary",
-                cursor: "pointer",
-                userSelect: "none",
-                fontWeight: reviewFilter === item.key ? 600 : 400,
-              }}
-            >
-              {item.label} ({item.count})
-            </Typography>
-          ))}
+          ].map((item) => {
+            const isActive = reviewFilter === item.key;
+            return (
+              <Box
+                key={item.key}
+                onClick={() =>
+                  onReviewFilterChange?.(
+                    item.key as "all" | "approved" | "rejected",
+                  )
+                }
+                sx={{
+                  px: 1.25,
+                  py: 0.5,
+                  borderRadius: "8px",
+                  bgcolor: isActive ? "#1C1917" : "transparent",
+                  border: "1px solid",
+                  borderColor: isActive ? "#1C1917" : "#E7E5E4",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  transition: "all 0.15s ease",
+                  "&:hover": {
+                    bgcolor: isActive ? "#1C1917" : "#F5F5F4",
+                  },
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: isActive ? "#FFFFFF" : "#78716C",
+                  }}
+                >
+                  {item.label} ({item.count})
+                </Typography>
+              </Box>
+            );
+          })}
         </Box>
-        <Divider sx={{ borderColor: "neutral.400", my: 1 }} />
         <Box
           sx={{
             display: "flex",
@@ -143,24 +160,29 @@ export const TaskProgressBar: React.FC<TaskProgressBarProps> = ({
             value={searchQuery}
             onChange={(e) => onSearchChange?.(e.target.value)}
             sx={{
-              width: 200,
+              flex: 1,
               height: 32,
               "& .MuiOutlinedInput-root": {
-                borderRadius: "6px",
-                fontSize: 13,
-                backgroundColor: "#FFFFFF",
+                borderRadius: "8px",
+                fontSize: 12,
+                backgroundColor: "#FAFAF9",
                 "& fieldset": {
-                  borderColor: "neutral.400",
+                  borderColor: "#E7E5E4",
                 },
                 "&:hover fieldset": {
-                  borderColor: "neutral.500",
+                  borderColor: "#D6D3D1",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "primary.main",
+                  borderColor: "#E86D5A",
+                  borderWidth: "1.5px",
                 },
               },
               "& .MuiOutlinedInput-input": {
                 paddingY: 0.5,
+                "&::placeholder": {
+                  color: "#A8A29E",
+                  opacity: 1,
+                },
               },
             }}
           />

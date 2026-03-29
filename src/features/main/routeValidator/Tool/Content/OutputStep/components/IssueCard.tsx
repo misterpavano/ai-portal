@@ -112,11 +112,11 @@ export const IssueCard: React.FC<IssueCardProps> = memo(
             alignItems: "center",
             gap: 1.5,
             marginBottom: 1,
-            backgroundColor: isActive
-              ? COLORS.background.issueCardHeader
-              : "neutral.300",
-            padding: "4px 12px",
+            bgcolor: isActive ? "#FEF2F0" : "#FAFAF9",
+            px: 1.5,
+            py: 0.75,
             borderRadius: "9px 9px 0 0",
+            borderBottom: "1px solid #E7E5E4",
           }}
         >
           {/* Issue number badge */}
@@ -281,24 +281,27 @@ export const IssueCard: React.FC<IssueCardProps> = memo(
             </Box>
           )}
 
-          {/* More/Less button */}
+          {/* More/Less toggle */}
           <Box
+            onClick={handleMoreClick}
             sx={{
               mt: 1.5,
+              mb: 1,
               display: "flex",
               justifyContent: "flex-end",
               alignItems: "center",
               gap: 0.25,
               color: "#E86D5A",
+              cursor: "pointer",
+              userSelect: "none",
+              "&:hover": { color: "#D4553F" },
+              transition: "color 0.15s ease",
             }}
           >
             <Typography
-              onClick={handleMoreClick}
               sx={{
-                fontSize: "14px",
-                fontWeight: 500,
-                cursor: "pointer",
-                userSelect: "none",
+                fontSize: 12,
+                fontWeight: 600,
               }}
             >
               {isExpanded ? "Less" : "More"}
@@ -310,15 +313,15 @@ export const IssueCard: React.FC<IssueCardProps> = memo(
             )}
           </Box>
 
-          <Box sx={{ borderTop: "1px solid", borderTopColor: "neutral.400", mt: 1, pt: 1 }} />
+          <Box sx={{ borderTop: "1px solid #E7E5E4" }} />
 
-          {/* Bottom section with action buttons */}
+          {/* Action buttons */}
           <Box
             sx={{
               display: "flex",
               justifyContent: "flex-end",
               alignItems: "center",
-              gap: 1,
+              gap: 0.75,
             }}
           >
             <Box
@@ -327,17 +330,24 @@ export const IssueCard: React.FC<IssueCardProps> = memo(
                 display: "flex",
                 alignItems: "center",
                 gap: 0.5,
-                backgroundColor: isApproved ? "rgba(61,154,92,0.15)" : "transparent",
-                borderRadius: "4px",
-                px: 1,
+                bgcolor: isApproved ? "#3D9A5C" : "transparent",
+                border: "1px solid",
+                borderColor: isApproved ? "#3D9A5C" : "#E7E5E4",
+                borderRadius: "8px",
+                px: 1.25,
                 py: 0.5,
-                color: isApproved ? "#1C1917" : "neutral.600",
+                color: isApproved ? "#FFFFFF" : "#78716C",
                 cursor: "pointer",
+                transition: "all 0.15s ease",
+                "&:hover": {
+                  borderColor: isApproved ? "#3D9A5C" : "#3D9A5C",
+                  color: isApproved ? "#FFFFFF" : "#3D9A5C",
+                  bgcolor: isApproved ? "#3D9A5C" : "rgba(61,154,92,0.06)",
+                },
               }}
-              title="Approve"
             >
-              <ThumbUpIcon sx={{ fontSize: "14px" }} />
-              <Typography sx={{ fontSize: "12px", fontWeight: 400 }}>
+              <ThumbUpIcon sx={{ fontSize: 13 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 600 }}>
                 Approve
               </Typography>
             </Box>
@@ -348,17 +358,24 @@ export const IssueCard: React.FC<IssueCardProps> = memo(
                 display: "flex",
                 alignItems: "center",
                 gap: 0.5,
-                backgroundColor: isRejected ? "rgba(220,94,94,0.15)" : "transparent",
-                borderRadius: "4px",
-                px: 1,
+                bgcolor: isRejected ? "#DC5E5E" : "transparent",
+                border: "1px solid",
+                borderColor: isRejected ? "#DC5E5E" : "#E7E5E4",
+                borderRadius: "8px",
+                px: 1.25,
                 py: 0.5,
-                color: isRejected ? "#1C1917" : "neutral.600",
+                color: isRejected ? "#FFFFFF" : "#78716C",
                 cursor: "pointer",
+                transition: "all 0.15s ease",
+                "&:hover": {
+                  borderColor: isRejected ? "#DC5E5E" : "#DC5E5E",
+                  color: isRejected ? "#FFFFFF" : "#DC5E5E",
+                  bgcolor: isRejected ? "#DC5E5E" : "rgba(220,94,94,0.06)",
+                },
               }}
-              title="Reject"
             >
-              <CloseIcon sx={{ fontSize: "14px" }} />
-              <Typography sx={{ fontSize: "12px", fontWeight: 400 }}>
+              <CloseIcon sx={{ fontSize: 13 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 600 }}>
                 Reject
               </Typography>
             </Box>
