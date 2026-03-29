@@ -110,16 +110,15 @@ export const IssuesSidebar: React.FC<IssuesSidebarProps> = memo(
         sx={{
           width: "400px",
           backgroundColor: "#FFFFFF",
-          borderRadius: "8px",
+          borderRadius: "10px",
           overflowY: "auto",
           overflowX: "hidden",
-          border: "1px solid",
-          borderColor: "neutral.400",
+          border: "1px solid #E7E5E4",
           maxHeight: "100%",
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          zIndex: 0, // Keep sidebar cards below connector SVG (zIndex: 1)
+          zIndex: 0,
         }}
       >
         {/* Header */}
@@ -128,32 +127,38 @@ export const IssuesSidebar: React.FC<IssuesSidebarProps> = memo(
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            height: "4px",
-            // marginBottom: 1.5,
-            backgroundColor: "neutral.200",
-            padding: "20px 12px 20px 12px",
+            bgcolor: "#1C1917",
+            px: 2,
+            py: 1.5,
+            borderRadius: "9px 9px 0 0",
+            flexShrink: 0,
           }}
         >
           <Typography
             sx={{
-              fontSize: "16px",
-              fontWeight: 600,
-              color: "text.primary",
+              fontSize: 14,
+              fontWeight: 700,
+              color: "#FFFFFF",
+              letterSpacing: "-0.01em",
             }}
           >
             Issues Found
           </Typography>
           <Box
             sx={{
+              bgcolor: "rgba(255,255,255,0.12)",
+              borderRadius: "6px",
+              px: 1.25,
+              py: 0.25,
               display: "flex",
               alignItems: "center",
             }}
           >
             <Typography
               sx={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "text.primary",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#FFFFFF",
               }}
             >
               {issues.length}

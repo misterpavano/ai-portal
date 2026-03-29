@@ -224,30 +224,42 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = memo(
       return (
         <Box
           sx={{
-            backgroundColor: "neutral.200",
-            border: "1px solid",
-            borderColor: "neutral.300",
+            bgcolor: "#FAFAF9",
+            border: "1px solid #E7E5E4",
             borderBottom: "none",
-            borderRadius: "8px 8px 0 0",
+            borderRadius: "10px 10px 0 0",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            px: 2.5,
+            px: 2,
             py: 1,
             flexShrink: 0,
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Typography
-              sx={{ fontWeight: 700, color: "text.primary", fontSize: 15 }}
+              sx={{ fontWeight: 700, color: "#1C1917", fontSize: 13 }}
             >
               Page {pageNumber}
             </Typography>
-            <Typography
-              sx={{ color: "neutral.600", fontSize: 14, fontWeight: 400 }}
+            <Box
+              sx={{
+                bgcolor: issueCount > 0 ? "#FEF2F0" : "#F5F5F4",
+                borderRadius: "6px",
+                px: 1,
+                py: 0.25,
+              }}
             >
-              {issueCount === 1 ? "1 issue" : `${issueCount} issues`}
-            </Typography>
+              <Typography
+                sx={{
+                  color: issueCount > 0 ? "#E86D5A" : "#A8A29E",
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {issueCount === 1 ? "1 issue" : `${issueCount} issues`}
+              </Typography>
+            </Box>
           </Box>
           <Box
             sx={{
@@ -256,42 +268,55 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = memo(
               gap: 0.5,
             }}
           >
-            <IconButton
-              size="small"
-              onClick={onZoomOut}
-              disabled={isMinZoom}
+            <Box
               sx={{
-                color: isMinZoom ? "neutral.400" : "neutral.700",
-                p: 0.5,
-                "&:hover": { backgroundColor: "rgba(28,25,23,0.04)" },
+                display: "flex",
+                alignItems: "center",
+                gap: 0.25,
+                bgcolor: "#FFFFFF",
+                borderRadius: "8px",
+                border: "1px solid #E7E5E4",
+                px: 0.5,
+                py: 0.25,
               }}
             >
-              <IconZoomOut size={20} />
-            </IconButton>
-            <Typography
-              sx={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: "neutral.700",
-                minWidth: 40,
-                textAlign: "center",
-                userSelect: "none",
-              }}
-            >
-              {zoomPercent}%
-            </Typography>
-            <IconButton
-              size="small"
-              onClick={onZoomIn}
-              disabled={isMaxZoom}
-              sx={{
-                color: isMaxZoom ? "neutral.400" : "neutral.700",
-                p: 0.5,
-                "&:hover": { backgroundColor: "rgba(28,25,23,0.04)" },
-              }}
-            >
-              <IconZoomIn size={20} />
-            </IconButton>
+              <IconButton
+                size="small"
+                onClick={onZoomOut}
+                disabled={isMinZoom}
+                sx={{
+                  color: isMinZoom ? "#D6D3D1" : "#44403C",
+                  p: 0.5,
+                  "&:hover": { backgroundColor: "#F5F5F4" },
+                }}
+              >
+                <IconZoomOut size={16} />
+              </IconButton>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#44403C",
+                  minWidth: 36,
+                  textAlign: "center",
+                  userSelect: "none",
+                }}
+              >
+                {zoomPercent}%
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={onZoomIn}
+                disabled={isMaxZoom}
+                sx={{
+                  color: isMaxZoom ? "#D6D3D1" : "#44403C",
+                  p: 0.5,
+                  "&:hover": { backgroundColor: "#F5F5F4" },
+                }}
+              >
+                <IconZoomIn size={16} />
+              </IconButton>
+            </Box>
           </Box>
         </Box>
       );
@@ -354,7 +379,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = memo(
           minWidth: 0,
           display: "flex",
           flexDirection: "column",
-          borderRadius: "8px",
+          borderRadius: "10px",
           overflow: "hidden",
         }}
       >
@@ -374,26 +399,9 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = memo(
             minWidth: 0,
             position: "relative",
             overflow: "auto",
-            backgroundColor: isImage ? "neutral.100" : "transparent",
-            backgroundImage: isImage
-              ? `
-                repeating-linear-gradient(
-                  0deg,
-                  rgba(168,162,158,0.18) 0px,
-                  rgba(168,162,158,0.18) 1px,
-                  transparent 1px,
-                  transparent 16px
-                ),
-                repeating-linear-gradient(
-                  90deg,
-                  rgba(168,162,158,0.18) 0px,
-                  rgba(168,162,158,0.18) 1px,
-                  transparent 1px,
-                  transparent 16px
-                )
-              `
-              : "none",
-            borderRadius: isImage ? "0 0 8px 8px" : "8px",
+            backgroundColor: isImage ? "#F5F5F4" : "transparent",
+            backgroundImage: "none",
+            borderRadius: isImage ? "0 0 10px 10px" : "10px",
             isolation: "isolate",
             display: "flex",
             alignItems: "flex-start",

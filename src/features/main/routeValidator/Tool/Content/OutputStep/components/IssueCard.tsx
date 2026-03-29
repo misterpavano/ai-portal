@@ -90,8 +90,8 @@ export const IssueCard: React.FC<IssueCardProps> = memo(
         sx={{
           backgroundColor: isActive ? COLORS.background.issueCard : "white",
           border: "1px solid",
-          borderColor: "neutral.400",
-          borderRadius: "4px",
+          borderColor: "#E7E5E4",
+          borderRadius: "10px",
           cursor: "pointer",
           position: "relative",
           zIndex: isExpanded ? 2 : 1,
@@ -116,7 +116,7 @@ export const IssueCard: React.FC<IssueCardProps> = memo(
               ? COLORS.background.issueCardHeader
               : "neutral.300",
             padding: "4px 12px",
-            borderRadius: "3px 3px 0 0",
+            borderRadius: "9px 9px 0 0",
           }}
         >
           {/* Issue number badge */}

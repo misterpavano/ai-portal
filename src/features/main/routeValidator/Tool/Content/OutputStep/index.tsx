@@ -1237,10 +1237,25 @@ const OutputStep: React.FC = () => {
     }
   }, [documentType, images, allIssuesAcrossAllPages, fileName]);
 
+  const isDownloadDisabled =
+    documentType === "word"
+      ? isGeneratingDoc || !documentText || !hasApprovedIssues
+      : isGeneratingPdf || !images || images.length === 0 || !hasApprovedIssues;
+  const isDownloading = documentType === "word" ? isGeneratingDoc : isGeneratingPdf;
+  const handleDownload =
+    documentType === "word"
+      ? handleDownloadWordDocument
+      : handleDownloadPdfDocument;
+  const showDownload =
+    (documentType === "word" || isImageDocumentType(documentType)) &&
+    !!validationResults;
+
   return (
     <Box
       sx={{
-        padding: "20px",
+        px: 2.5,
+        pt: 2,
+        pb: 2,
         height: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -1248,113 +1263,85 @@ const OutputStep: React.FC = () => {
         position: "relative",
       }}
     >
-      {/* File name header */}
+      {/* Toolbar */}
       <Box
         sx={{
-          backgroundColor: "neutral.300",
-          padding: "10px 20px",
-          borderRadius: "8px",
-          marginBottom: 1.6,
+          bgcolor: "#1C1917",
+          px: 2.5,
+          py: 1.25,
+          borderRadius: "10px",
+          mb: 2,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           minHeight: 0,
         }}
       >
-        <Typography
-          sx={{ color: "text.primary", fontSize: "14px", fontWeight: 600 }}
-        >
-          {fileName}
-        </Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          {documentType === "word" && validationResults && (
-            <Button
-              onClick={handleDownloadWordDocument}
-              disabled={isGeneratingDoc || !documentText || !hasApprovedIssues}
-              sx={{
-                padding: "15px",
-                borderRadius: "5px",
-                border: "1px solid rgba(0, 0, 0, 0.25)",
-                fontSize: 12,
-                textTransform: "none",
-                fontWeight: 550,
-                letterSpacing: "1px",
-                backgroundColor:
-                  isGeneratingDoc || !documentText || !hasApprovedIssues
-                    ? "neutral.300"
-                    : "error.main",
-                color:
-                  isGeneratingDoc || !documentText || !hasApprovedIssues
-                    ? "text.primary"
-                    : "white",
-                "&:hover": {
-                  backgroundColor:
-                    isGeneratingDoc || !documentText || !hasApprovedIssues
-                      ? "neutral.300"
-                      : "error.main",
-                  color:
-                    isGeneratingDoc || !documentText || !hasApprovedIssues
-                      ? "text.primary"
-                      : "white",
-                },
-              }}
-            >
-              {isGeneratingDoc ? "Generating..." : "Download"}
-            </Button>
-          )}
-          {isImageDocumentType(documentType) && validationResults && (
-            <Button
-              onClick={handleDownloadPdfDocument}
-              disabled={
-                isGeneratingPdf ||
-                !images ||
-                images.length === 0 ||
-                !hasApprovedIssues
-              }
-              sx={{
-                padding: "15px",
-                borderRadius: "5px",
-                border: "1px solid rgba(0, 0, 0, 0.25)",
-                fontSize: 14,
-                textTransform: "none",
-                fontWeight: 550,
-                letterSpacing: "1px",
-                backgroundColor:
-                  isGeneratingPdf ||
-                  !images ||
-                  images.length === 0 ||
-                  !hasApprovedIssues
-                    ? "neutral.300"
-                    : "error.main",
-                color:
-                  isGeneratingPdf ||
-                  !images ||
-                  images.length === 0 ||
-                  !hasApprovedIssues
-                    ? "text.primary"
-                    : "white",
-                "&:hover": {
-                  backgroundColor:
-                    isGeneratingPdf ||
-                    !images ||
-                    images.length === 0 ||
-                    !hasApprovedIssues
-                      ? "neutral.300"
-                      : "error.main",
-                  color:
-                    isGeneratingPdf ||
-                    !images ||
-                    images.length === 0 ||
-                    !hasApprovedIssues
-                      ? "text.primary"
-                      : "white",
-                },
-              }}
-            >
-              {isGeneratingPdf ? "Generating..." : "Download"}
-            </Button>
-          )}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 28,
+              height: 28,
+              borderRadius: "7px",
+              bgcolor: "rgba(255,255,255,0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Typography sx={{ fontSize: 12, color: "#A8A29E", fontWeight: 600 }}>
+              {isImageDocumentType(documentType)
+                ? "PDF"
+                : documentType === "word"
+                  ? "DOC"
+                  : "ZIP"}
+            </Typography>
+          </Box>
+          <Typography
+            sx={{
+              color: "#FFFFFF",
+              fontSize: 13,
+              fontWeight: 600,
+              letterSpacing: "-0.01em",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: 400,
+            }}
+          >
+            {fileName}
+          </Typography>
         </Box>
+        {showDownload && (
+          <Button
+            onClick={handleDownload}
+            disabled={isDownloadDisabled}
+            sx={{
+              px: 2.5,
+              py: 0.75,
+              borderRadius: "8px",
+              fontSize: 12,
+              textTransform: "none",
+              fontWeight: 600,
+              letterSpacing: "0.01em",
+              bgcolor: isDownloadDisabled
+                ? "rgba(255,255,255,0.08)"
+                : "#E86D5A",
+              color: isDownloadDisabled
+                ? "rgba(255,255,255,0.3)"
+                : "#FFFFFF",
+              "&:hover": {
+                bgcolor: isDownloadDisabled
+                  ? "rgba(255,255,255,0.08)"
+                  : "#D4553F",
+              },
+              transition: "all 0.15s ease",
+            }}
+          >
+            {isDownloading ? "Generating..." : "Download"}
+          </Button>
+        )}
       </Box>
 
       {/* Main content area */}
@@ -1365,9 +1352,9 @@ const OutputStep: React.FC = () => {
           flex: 1,
           gap: 2,
           minHeight: 0,
-          minWidth: 0, // Critical: prevents flex container from expanding beyond parent
+          minWidth: 0,
           position: "relative",
-          overflow: "hidden", // Prevent horizontal scroll at container level
+          overflow: "hidden",
         }}
       >
         {isImageDocumentType(documentType) && (
