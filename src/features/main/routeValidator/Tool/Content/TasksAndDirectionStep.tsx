@@ -231,118 +231,122 @@ const TasksAndDirectionStep: React.FC = () => {
 
   return (
     <Box sx={{ px: 4, pt: 2, pb: 6 }}>
-      {/* ── Tasks Section ── */}
-      <Box sx={{ mb: 5 }}>
-        <Typography
-          sx={{ fontSize: 18, fontWeight: 700, color: "#1C1917", mb: 0.5 }}
-        >
-          Tasks
-        </Typography>
-        <Typography
-          sx={{ fontSize: 13, color: "#78716C", mb: 2.5 }}
-        >
-          Select checks to run, or skip straight to Direction below for custom instructions
-        </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-            gap: 1.5,
-            maxWidth: 700,
-          }}
-        >
-          {taskConfig.map((task) => (
-            <OptionCard
-              key={task.id}
-              checked={
-                routeValidatorFormValues.tasks?.includes(task.id) || false
-              }
-              onChange={() => handleTaskToggle(task.id)}
-              icon={task.icon}
-              title={task.label}
-              description={task.description}
-            />
-          ))}
+      {/* Two-column layout: Tasks left, Direction right */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 4,
+          flexDirection: { xs: "column", md: "row" },
+        }}
+      >
+        {/* ── Left Column: Tasks ── */}
+        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 340px" }, minWidth: 0 }}>
+          <Typography
+            sx={{ fontSize: 15, fontWeight: 700, color: "#1C1917", mb: 0.5 }}
+          >
+            Tasks
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "#78716C", mb: 2 }}>
+            Select checks to run
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1.5,
+            }}
+          >
+            {taskConfig.map((task) => (
+              <OptionCard
+                key={task.id}
+                checked={
+                  routeValidatorFormValues.tasks?.includes(task.id) || false
+                }
+                onChange={() => handleTaskToggle(task.id)}
+                icon={task.icon}
+                title={task.label}
+                description={task.description}
+              />
+            ))}
+          </Box>
+
+          {/* Brand guideline selector - contextual */}
+          {routeValidatorFormValues.tasks?.includes(
+            "client_brand_guideline",
+          ) && (
+            <Box sx={{ mt: 2.5 }}>
+              <FormControl fullWidth>
+                <InputLabel id="brand-guideline-select-label">
+                  Client Brand Guideline
+                </InputLabel>
+                <Select
+                  labelId="brand-guideline-select-label"
+                  id="brand-guideline-select"
+                  value={routeValidatorFormValues.brandGuideline || ""}
+                  label="Client Brand Guideline"
+                  onChange={(event) => {
+                    const value = event.target.value as string;
+                    setRouteValidatorFormValues((prev) => ({
+                      ...prev,
+                      brandGuideline: value,
+                      clientBrand: value,
+                      selectedClient: value,
+                    }));
+                  }}
+                  disabled={isLoadingGuidelines}
+                  sx={{
+                    borderRadius: "10px",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#E7E5E4",
+                    },
+                  }}
+                >
+                  {isLoadingGuidelines ? (
+                    <MenuItem value="" disabled>
+                      Loading...
+                    </MenuItem>
+                  ) : brandGuidelinesData?.guidelines &&
+                    brandGuidelinesData.guidelines.length > 0 ? (
+                    brandGuidelinesData.guidelines.map(
+                      (guideline: {
+                        name: string;
+                        fileName: string;
+                        displayName: string;
+                      }) => (
+                        <MenuItem key={guideline.name} value={guideline.name}>
+                          {guideline.displayName}
+                        </MenuItem>
+                      ),
+                    )
+                  ) : (
+                    <MenuItem value="" disabled>
+                      No brand guidelines available
+                    </MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
         </Box>
 
-        {/* Brand guideline selector - contextual, shown when task is selected */}
-        {routeValidatorFormValues.tasks?.includes("client_brand_guideline") && (
-          <Box sx={{ mt: 3, maxWidth: 400 }}>
-            <FormControl fullWidth>
-              <InputLabel id="brand-guideline-select-label">
-                Client Brand Guideline
-              </InputLabel>
-              <Select
-                labelId="brand-guideline-select-label"
-                id="brand-guideline-select"
-                value={routeValidatorFormValues.brandGuideline || ""}
-                label="Client Brand Guideline"
-                onChange={(event) => {
-                  const value = event.target.value as string;
-                  setRouteValidatorFormValues((prev) => ({
-                    ...prev,
-                    brandGuideline: value,
-                    clientBrand: value,
-                    selectedClient: value,
-                  }));
-                }}
-                disabled={isLoadingGuidelines}
-                sx={{
-                  borderRadius: "10px",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#E7E5E4",
-                  },
-                }}
-              >
-                {isLoadingGuidelines ? (
-                  <MenuItem value="" disabled>
-                    Loading...
-                  </MenuItem>
-                ) : brandGuidelinesData?.guidelines &&
-                  brandGuidelinesData.guidelines.length > 0 ? (
-                  brandGuidelinesData.guidelines.map(
-                    (guideline: {
-                      name: string;
-                      fileName: string;
-                      displayName: string;
-                    }) => (
-                      <MenuItem key={guideline.name} value={guideline.name}>
-                        {guideline.displayName}
-                      </MenuItem>
-                    ),
-                  )
-                ) : (
-                  <MenuItem value="" disabled>
-                    No brand guidelines available
-                  </MenuItem>
-                )}
-              </Select>
-            </FormControl>
-          </Box>
-        )}
-      </Box>
+        {/* ── Right Column: Direction ── */}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography
+            sx={{ fontSize: 15, fontWeight: 700, color: "#1C1917", mb: 0.5 }}
+          >
+            Direction
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "#78716C", mb: 2 }}>
+            Add notes or upload a previously annotated file. Both optional.
+          </Typography>
 
-      {/* ── Direction Section ── */}
-      <Box>
-        <Typography
-          sx={{ fontSize: 18, fontWeight: 700, color: "#1C1917", mb: 0.5 }}
-        >
-          Direction
-        </Typography>
-        <Typography
-          sx={{ fontSize: 13, color: "#78716C", mb: 2.5 }}
-        >
-          Add notes or upload a previously annotated file. Both are optional.
-        </Typography>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            maxWidth: 700,
-          }}
-        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+            }}
+          >
           {/* Additional Notes - always visible, no checkbox gate */}
           <Box>
             <Typography
@@ -537,6 +541,7 @@ const TasksAndDirectionStep: React.FC = () => {
                 </Box>
               </Box>
             )}
+          </Box>
           </Box>
         </Box>
       </Box>
