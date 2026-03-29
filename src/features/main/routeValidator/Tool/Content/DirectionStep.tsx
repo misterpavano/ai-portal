@@ -169,15 +169,30 @@ const DirectionStep: React.FC = () => {
 
   return (
     <Box sx={{ padding: "20px 0 20px 20px" }}>
-      <Typography
-        sx={{
-          fontSize: "18px",
-          fontWeight: 600,
-          marginBottom: 3,
-        }}
-      >
-        Direction:
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          sx={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#A8A29E",
+            textTransform: "uppercase",
+            letterSpacing: "0.12em",
+            mb: 0.5,
+          }}
+        >
+          Guidance
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontWeight: 700,
+            color: "#1C1917",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Direction
+        </Typography>
+      </Box>
 
       <Box
         sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 980 }}
@@ -198,12 +213,13 @@ const DirectionStep: React.FC = () => {
                   checked={routeValidatorFormValues.useAdditionalNotes}
                   onChange={handleUseAdditionalNotesChange}
                   sx={{
-                    color: "neutral.700",
+                    color: "#A8A29E",
+                    "&.Mui-checked": { color: "#E86D5A" },
                   }}
                 />
               }
               label={
-                <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, color: "#1C1917" }}>
                   Additional notes for AI Review
                 </Typography>
               }
@@ -248,12 +264,13 @@ const DirectionStep: React.FC = () => {
                   checked={routeValidatorFormValues.useAnnotatedFile}
                   onChange={handleUseAnnotatedFileChange}
                   sx={{
-                    color: "neutral.700",
+                    color: "#A8A29E",
+                    "&.Mui-checked": { color: "#E86D5A" },
                   }}
                 />
               }
               label={
-                <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, color: "#1C1917" }}>
                   Upload annotated file from previous round
                 </Typography>
               }
@@ -265,14 +282,20 @@ const DirectionStep: React.FC = () => {
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 sx={{
-                  border: "1px dashed",
-                  borderRadius: 2,
-                  padding: 2,
+                  border: "1px dashed #D6D3D1",
+                  borderRadius: "10px",
+                  padding: 2.5,
                   display: "flex",
                   minHeight: "10px",
                   width: "95%",
                   cursor: "pointer",
                   flexDirection: "column",
+                  backgroundColor: "#FAFAF9",
+                  transition: "all 0.15s ease",
+                  "&:hover": {
+                    borderColor: "#E86D5A",
+                    backgroundColor: "#FEF2F0",
+                  },
                 }}
                 onClick={() => {
                   fileInputRef.current?.click();

@@ -246,9 +246,8 @@ const TasksAndDirectionStep: React.FC = () => {
             disableGutters
             elevation={0}
             sx={{
-              border: "1px solid",
-              borderColor: "neutral.400",
-              borderRadius: 2,
+              border: "1px solid #E7E5E4",
+              borderRadius: "10px !important",
               overflow: "hidden",
               "&:before": { display: "none" },
             }}
@@ -328,9 +327,8 @@ const TasksAndDirectionStep: React.FC = () => {
         disableGutters
         elevation={0}
         sx={{
-          border: "1px solid",
-          borderColor: "neutral.400",
-          borderRadius: 1,
+          border: "1px solid #E7E5E4",
+          borderRadius: "10px !important",
           overflow: "hidden",
           mb: 4,
           maxWidth: 500,
@@ -381,12 +379,13 @@ const TasksAndDirectionStep: React.FC = () => {
                     }
                     onChange={() => handleTaskToggle(task)}
                     sx={{
-                      color: "neutral.700",
+                      color: "#A8A29E",
+                      "&.Mui-checked": { color: "#E86D5A" },
                     }}
                   />
                 }
                 label={
-                  <Typography sx={{ fontSize: "14px" }}>
+                  <Typography sx={{ fontSize: 14, color: "#1C1917" }}>
                     {taskDisplayNames[task] || task}
                   </Typography>
                 }
@@ -459,9 +458,8 @@ const TasksAndDirectionStep: React.FC = () => {
         disableGutters
         elevation={0}
         sx={{
-          border: "1px solid",
-          borderColor: "neutral.400",
-          borderRadius: 1,
+          border: "1px solid #E7E5E4",
+          borderRadius: "10px !important",
           overflow: "hidden",
           maxWidth: 500,
           "&:before": { display: "none" },
@@ -518,12 +516,13 @@ const TasksAndDirectionStep: React.FC = () => {
                       checked={routeValidatorFormValues.useAdditionalNotes}
                       onChange={handleUseAdditionalNotesChange}
                       sx={{
-                        color: "neutral.700",
+                        color: "#A8A29E",
+                        "&.Mui-checked": { color: "#E86D5A" },
                       }}
                     />
                   }
                   label={
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: "#1C1917" }}>
                       Additional notes for AI Review
                     </Typography>
                   }
@@ -568,12 +567,13 @@ const TasksAndDirectionStep: React.FC = () => {
                       checked={routeValidatorFormValues.useAnnotatedFile}
                       onChange={handleUseAnnotatedFileChange}
                       sx={{
-                        color: "neutral.700",
+                        color: "#A8A29E",
+                        "&.Mui-checked": { color: "#E86D5A" },
                       }}
                     />
                   }
                   label={
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: "#1C1917" }}>
                       Upload annotated file from previous round
                     </Typography>
                   }
@@ -585,15 +585,20 @@ const TasksAndDirectionStep: React.FC = () => {
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     sx={{
-                      backgroundColor: "white",
-                      border: "1px solid",
-                      borderColor: "neutral.400",
-                      padding: 2,
+                      backgroundColor: "#FAFAF9",
+                      border: "1px dashed #D6D3D1",
+                      borderRadius: "10px",
+                      padding: 2.5,
                       display: "flex",
                       minHeight: "10px",
                       width: "95%",
                       cursor: "pointer",
                       flexDirection: "column",
+                      transition: "all 0.15s ease",
+                      "&:hover": {
+                        borderColor: "#E86D5A",
+                        backgroundColor: "#FEF2F0",
+                      },
                     }}
                     onClick={() => {
                       fileInputRef.current?.click();

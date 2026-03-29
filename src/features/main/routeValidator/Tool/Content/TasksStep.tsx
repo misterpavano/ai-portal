@@ -53,15 +53,30 @@ const TasksStep: React.FC = () => {
 
   return (
     <Box sx={{ padding: "20px 0 60px 40px" }}>
-      <Typography
-        sx={{
-          fontSize: "18px",
-          fontWeight: 600,
-          marginBottom: 3,
-        }}
-      >
-        Tasks
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          sx={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#A8A29E",
+            textTransform: "uppercase",
+            letterSpacing: "0.12em",
+            mb: 0.5,
+          }}
+        >
+          Configuration
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontWeight: 700,
+            color: "#1C1917",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Tasks
+        </Typography>
+      </Box>
 
       <Box sx={{ display: "flex", flexDirection: "column", maxWidth: 600 }}>
         {taskOptions.map((task) => (
@@ -74,12 +89,13 @@ const TasksStep: React.FC = () => {
                 }
                 onChange={() => handleTaskToggle(task)}
                 sx={{
-                  color: "neutral.700",
+                  color: "#A8A29E",
+                  "&.Mui-checked": { color: "#E86D5A" },
                 }}
               />
             }
             label={
-              <Typography sx={{ fontSize: "14px" }}>
+              <Typography sx={{ fontSize: 14, color: "#1C1917" }}>
                 {taskDisplayNames[task] || task}
               </Typography>
             }
