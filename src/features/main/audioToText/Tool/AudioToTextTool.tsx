@@ -92,7 +92,7 @@ const AudioToTextTools: React.FC = () => {
     },
     {
       label: "Output",
-      component: <TranscriptionPreview />,
+      component: <TranscriptionPreview onCancel={() => setCurrentStep({ currentStep: 0, isFinished: false })} />,
     },
   ];
 

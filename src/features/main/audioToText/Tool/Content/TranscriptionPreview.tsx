@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
+import DefaultButton from "../../../../../components/layouts/DefaultButton";
 import TranscriptBox from "../Forms/TranscriptionBox";
 import { useEffect, useRef, useState } from "react";
 import { TranscriptData } from "../../../../../types/response/openai";
@@ -15,7 +16,11 @@ import {
 
 const POLL_INTERVAL = 10000;
 
-const TranscriptionPreview: React.FC = () => {
+interface TranscriptionPreviewProps {
+  onCancel?: () => void;
+}
+
+const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel }) => {
   const [audioToTextFormValues, setAudioToTextFormValues] =
     useAtom(audioToTextFormAtom);
   const [transcript, setTranscript] = useState<string | TranscriptData>("");
@@ -509,6 +514,23 @@ const TranscriptionPreview: React.FC = () => {
             </Box>
           ))}
         </Box>
+
+        {/* Cancel button */}
+        {onCancel && (
+          <Box sx={{ mt: 5 }}>
+            <DefaultButton
+              type="secondary"
+              title="Cancel"
+              onClick={onCancel}
+              style={{
+                borderRadius: "8px",
+                height: 40,
+                width: 120,
+                fontSize: 13,
+              }}
+            />
+          </Box>
+        )}
       </Box>
     );
   }
