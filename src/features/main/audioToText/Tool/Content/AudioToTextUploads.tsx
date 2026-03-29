@@ -462,155 +462,167 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
     initialValues.transcriptionOptions.includeSpeakerIdentifier;
 
   return (
-    <Box sx={{ maxWidth: 640, px: 4, pt: 2, pb: 6 }}>
-      {/* Upload section */}
-      <Box sx={{ mb: 5 }}>
-        <Box sx={{ mb: 2.5 }}>
-          <Typography
-            sx={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "#A8A29E",
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              mb: 0.5,
-            }}
-          >
-            Step 1
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: 22,
-              fontWeight: 800,
-              color: "#1C1917",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Upload Audio
-          </Typography>
-        </Box>
-
-        <Box
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onClick={() => fileInputRef.current?.click()}
+    <Box sx={{ px: 4, pt: 2, pb: 6 }}>
+      {/* Page header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
           sx={{
-            border: "2px dashed",
-            borderColor: dropzoneState === "uploaded" ? "#E86D5A" : "#E7E5E4",
-            borderRadius: "16px",
-            px: 3,
-            py: 1,
-            cursor: "pointer",
-            bgcolor: dropzoneState === "uploaded" ? "#FEF2F0" : "#FAFAF9",
-            transition: "all 0.2s ease",
-            "&:hover": {
-              borderColor: "#E86D5A",
-              bgcolor: "#FEF2F0",
-            },
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#A8A29E",
+            textTransform: "uppercase",
+            letterSpacing: "0.12em",
+            mb: 0.5,
           }}
         >
-          <input
-            ref={fileInputRef}
-            accept="audio/*,video/mp4,video/mpeg,video/quicktime"
-            style={{ display: "none" }}
-            type="file"
-            onChange={handleFileChange}
-          />
-          {renderDropzone()}
-        </Box>
+          Transcription
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: 24,
+            fontWeight: 800,
+            color: "#1C1917",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          New Transcription
+        </Typography>
       </Box>
 
-      {/* Options section */}
-      <Box sx={{ mb: 5 }}>
-        <Box sx={{ mb: 2.5 }}>
+      {/* Split layout: Upload left, Options right */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 3,
+          flexDirection: { xs: "column", md: "row" },
+          mb: 4,
+        }}
+      >
+        {/* Left — Upload */}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: 700,
-              color: "#A8A29E",
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              mb: 0.5,
+              color: "#1C1917",
+              mb: 1.5,
             }}
           >
-            Step 2
+            Audio File
           </Typography>
+          <Box
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onClick={() => fileInputRef.current?.click()}
+            sx={{
+              border: "2px dashed",
+              borderColor: dropzoneState === "uploaded" ? "#E86D5A" : "#E7E5E4",
+              borderRadius: "16px",
+              px: 3,
+              cursor: "pointer",
+              bgcolor: dropzoneState === "uploaded" ? "#FEF2F0" : "#FAFAF9",
+              transition: "all 0.2s ease",
+              height: "100%",
+              minHeight: 240,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              "&:hover": {
+                borderColor: "#E86D5A",
+                bgcolor: "#FEF2F0",
+              },
+            }}
+          >
+            <input
+              ref={fileInputRef}
+              accept="audio/*,video/mp4,video/mpeg,video/quicktime"
+              style={{ display: "none" }}
+              type="file"
+              onChange={handleFileChange}
+            />
+            <Box sx={{ width: "100%" }}>{renderDropzone()}</Box>
+          </Box>
+        </Box>
+
+        {/* Right — Options */}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: 22,
-              fontWeight: 800,
+              fontSize: 13,
+              fontWeight: 700,
               color: "#1C1917",
-              letterSpacing: "-0.02em",
+              mb: 1.5,
             }}
           >
             Options
           </Typography>
-        </Box>
-
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-          <OptionCard
-            checked={initialValues.transcriptionOptions.provideSummary}
-            onChange={(checked) =>
-              setAudioToTextFormValues((prev) => ({
-                ...prev,
-                transcriptionOptions: {
-                  ...prev.transcriptionOptions,
-                  provideSummary: checked,
-                },
-              }))
-            }
-            icon={IconMicrophone}
-            title="Audio Summary"
-            description="Generate a concise summary of the audio content"
-          />
-          <OptionCard
-            checked={initialValues.transcriptionOptions.includeTimestamps}
-            onChange={(checked) =>
-              setAudioToTextFormValues((prev) => ({
-                ...prev,
-                transcriptionOptions: {
-                  ...prev.transcriptionOptions,
-                  includeTimestamps: checked,
-                },
-              }))
-            }
-            icon={IconClock}
-            title="Timestamps"
-            description="Include time markers throughout the transcript"
-          />
-          <OptionCard
-            checked={
-              initialValues.transcriptionOptions.includeSpeakerIdentifier
-            }
-            onChange={(checked) =>
-              setAudioToTextFormValues((prev) => ({
-                ...prev,
-                transcriptionOptions: {
-                  ...prev.transcriptionOptions,
-                  includeSpeakerIdentifier: checked,
-                },
-              }))
-            }
-            icon={IconUserScan}
-            title="Speaker Identification"
-            description="Detect and label different speakers (Beta)"
-          />
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <OptionCard
+              checked={initialValues.transcriptionOptions.provideSummary}
+              onChange={(checked) =>
+                setAudioToTextFormValues((prev) => ({
+                  ...prev,
+                  transcriptionOptions: {
+                    ...prev.transcriptionOptions,
+                    provideSummary: checked,
+                  },
+                }))
+              }
+              icon={IconMicrophone}
+              title="Audio Summary"
+              description="Generate a concise summary of the audio content"
+            />
+            <OptionCard
+              checked={initialValues.transcriptionOptions.includeTimestamps}
+              onChange={(checked) =>
+                setAudioToTextFormValues((prev) => ({
+                  ...prev,
+                  transcriptionOptions: {
+                    ...prev.transcriptionOptions,
+                    includeTimestamps: checked,
+                  },
+                }))
+              }
+              icon={IconClock}
+              title="Timestamps"
+              description="Include time markers throughout the transcript"
+            />
+            <OptionCard
+              checked={
+                initialValues.transcriptionOptions.includeSpeakerIdentifier
+              }
+              onChange={(checked) =>
+                setAudioToTextFormValues((prev) => ({
+                  ...prev,
+                  transcriptionOptions: {
+                    ...prev.transcriptionOptions,
+                    includeSpeakerIdentifier: checked,
+                  },
+                }))
+              }
+              icon={IconUserScan}
+              title="Speaker Identification"
+              description="Detect and label different speakers (Beta)"
+            />
+          </Box>
         </Box>
       </Box>
 
-      {/* Action */}
-      <DefaultButton
-        style={{
-          borderRadius: "10px",
-          height: 48,
-          width: "100%",
-          fontSize: 15,
-        }}
-        type="primary"
-        title="Transcribe Audio"
-        onClick={nextStep}
-        disabled={dropzoneState !== "uploaded" || !hasSelection}
-      />
+      {/* Action — anchored to right column width */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <DefaultButton
+          style={{
+            borderRadius: "10px",
+            height: 48,
+            width: "calc(50% - 12px)",
+            fontSize: 15,
+          }}
+          type="primary"
+          title="Transcribe Audio"
+          onClick={nextStep}
+          disabled={dropzoneState !== "uploaded" || !hasSelection}
+        />
+      </Box>
     </Box>
   );
 };
