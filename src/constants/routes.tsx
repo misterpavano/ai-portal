@@ -3,7 +3,7 @@ import { colors } from "../theme/colors";
 import { GeneralRoute } from "../types/route";
 
 const activeRouteColor = colors.accent.main;
-const inactiveRouteColor = colors.transparent[400];
+const inactiveRouteColor = "rgba(255, 255, 255, 0.5)";
 
 export const prototypeRoutes: GeneralRoute[] = [
   {
