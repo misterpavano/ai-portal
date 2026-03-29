@@ -2,31 +2,35 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  FormControlLabel,
-  Checkbox,
   MenuItem,
   Select,
   FormControl,
   InputLabel,
   TextareaAutosize,
+  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
   IconButton,
   CircularProgress,
-  AccordionDetails,
-  Accordion,
-  AccordionSummary,
 } from "@mui/material";
 import { useAtom } from "jotai";
 import { routeValidatorFormAtom } from "../../../../../atoms/routeValidatorAtom";
 import { useGetBrandGuidelinesQuery } from "../../../../../api/slices/routeValidatorSlice";
 import {
-  IconChevronDown,
   IconFile,
   IconTrash,
+  IconTrashFilled,
   IconX,
+  IconAbc,
+  IconTextGrammar,
+  IconBook2,
+  IconPalette,
+  IconAccessible,
+  IconSeo,
+  IconUpload,
 } from "@tabler/icons-react";
+import OptionCard from "../../../../../components/shared/OptionCard";
 import {
   extractCommentsFromDocx,
   AnnotationSummary,
@@ -34,17 +38,46 @@ import {
 } from "./OutputStep/wordDocUtils/extractCommentsFromDocx";
 import { extractCommentsFromPdf } from "./OutputStep/pdfUtils/extractCommentsFromPdf";
 
-const GEMINI_MODEL_OPTIONS = [
-  {
-    value: "gemini-3-pro-image-preview",
-    label: "Gemini 3 Pro Image (preview)",
-  },
-  { value: "gemini-3-pro-preview", label: "Gemini 3 Pro (preview)" },
-  { value: "gemini-3.1-pro-preview", label: "Gemini 3.1 Pro (preview)" },
-  { value: "gemini-3-flash-preview", label: "Gemini 3 Flash (preview)" },
-] as const;
-
 const DEFAULT_GEMINI_MODEL = "gemini-3-pro-image-preview";
+
+const taskConfig = [
+  {
+    id: "spell_check",
+    label: "Spell check",
+    description: "Find and flag spelling errors",
+    icon: IconAbc,
+  },
+  {
+    id: "grammar_consistency",
+    label: "Grammar consistency",
+    description: "Check grammar and style consistency",
+    icon: IconTextGrammar,
+  },
+  {
+    id: "organization_editorial_guideline",
+    label: "AMA Guidelines",
+    description: "Validate against AMA editorial standards",
+    icon: IconBook2,
+  },
+  {
+    id: "client_brand_guideline",
+    label: "Client brand guideline",
+    description: "Check compliance with brand standards",
+    icon: IconPalette,
+  },
+  {
+    id: "wcag_compliance",
+    label: "WCAG compliance",
+    description: "Verify web accessibility standards",
+    icon: IconAccessible,
+  },
+  {
+    id: "seo_checks",
+    label: "SEO checks",
+    description: "Analyze search optimization factors",
+    icon: IconSeo,
+  },
+];
 
 const TasksAndDirectionStep: React.FC = () => {
   const [routeValidatorFormValues, setRouteValidatorFormValues] = useAtom(
@@ -58,23 +91,15 @@ const TasksAndDirectionStep: React.FC = () => {
   const [isExtractingComments, setIsExtractingComments] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const taskOptions = [
-    "spell_check",
-    "grammar_consistency",
-    "organization_editorial_guideline",
-    "client_brand_guideline",
-    "wcag_compliance",
-    "seo_checks",
-  ];
-
-  const taskDisplayNames: Record<string, string> = {
-    spell_check: "Spell check",
-    grammar_consistency: "Grammar consistency",
-    wcag_compliance: "WCAG compliance",
-    seo_checks: "SEO checks",
-    organization_editorial_guideline: "AMA Guidelines",
-    client_brand_guideline: "Client brand guideline",
-  };
+  // Set default Gemini model on mount if not set (hidden from user)
+  useEffect(() => {
+    if (!routeValidatorFormValues.geminiModel) {
+      setRouteValidatorFormValues((prev) => ({
+        ...prev,
+        geminiModel: DEFAULT_GEMINI_MODEL,
+      }));
+    }
+  }, []);
 
   const handleTaskToggle = (task: string) => {
     setRouteValidatorFormValues((prev) => {
@@ -82,10 +107,7 @@ const TasksAndDirectionStep: React.FC = () => {
       const newTasks = currentTasks.includes(task)
         ? currentTasks.filter((t) => t !== task)
         : [...currentTasks, task];
-      return {
-        ...prev,
-        tasks: newTasks,
-      };
+      return { ...prev, tasks: newTasks };
     });
   };
 
@@ -95,32 +117,7 @@ const TasksAndDirectionStep: React.FC = () => {
     setRouteValidatorFormValues((prev) => ({
       ...prev,
       additionalNotes: event.target.value,
-    }));
-  };
-
-  const handleUseAdditionalNotesChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRouteValidatorFormValues((prev) => ({
-      ...prev,
-      useAdditionalNotes: event.target.checked,
-    }));
-  };
-
-  const handleUseAnnotatedFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRouteValidatorFormValues((prev) => ({
-      ...prev,
-      useAnnotatedFile: event.target.checked,
-    }));
-  };
-
-  const handleGeminiModelChange = (event: { target: { value: unknown } }) => {
-    const value = event.target.value as string;
-    setRouteValidatorFormValues((prev) => ({
-      ...prev,
-      geminiModel: value || DEFAULT_GEMINI_MODEL,
+      useAdditionalNotes: event.target.value.length > 0,
     }));
   };
 
@@ -128,17 +125,14 @@ const TasksAndDirectionStep: React.FC = () => {
     setIsExtractingComments(true);
     try {
       const fileName = file.name.toLowerCase();
-      // Extract from .docx files
       if (fileName.endsWith(".docx")) {
         const extracted = await extractCommentsFromDocx(file);
         setAnnotationData(extracted);
-        // Store annotation data in form values so it's accessible for validation
         setRouteValidatorFormValues((prev) => ({
           ...prev,
           annotationData: extracted,
         }));
       } else if (fileName.endsWith(".pdf")) {
-        // Extract from PDF files
         const extracted = await extractCommentsFromPdf(file);
         setAnnotationData(extracted);
         setRouteValidatorFormValues((prev) => ({
@@ -146,10 +140,9 @@ const TasksAndDirectionStep: React.FC = () => {
           annotationData: extracted,
         }));
       } else {
-        // For other formats, show a message
         const emptyData = {
           summary:
-            "Annotation extraction is currently only supported for Word documents (.docx) and PDF files (.pdf). Please upload a supported file to view annotations.",
+            "Annotation extraction is currently only supported for Word documents (.docx) and PDF files (.pdf).",
           annotations: [],
         };
         setAnnotationData(emptyData);
@@ -181,6 +174,7 @@ const TasksAndDirectionStep: React.FC = () => {
       setRouteValidatorFormValues((prev) => ({
         ...prev,
         annotatedFile: selectedFile as any,
+        useAnnotatedFile: true,
       }));
       await extractAnnotations(selectedFile);
       setShowReviewSummary(true);
@@ -194,6 +188,7 @@ const TasksAndDirectionStep: React.FC = () => {
       setRouteValidatorFormValues((prev) => ({
         ...prev,
         annotatedFile: droppedFile as any,
+        useAnnotatedFile: true,
       }));
       await extractAnnotations(droppedFile);
       setShowReviewSummary(true);
@@ -213,6 +208,7 @@ const TasksAndDirectionStep: React.FC = () => {
       ...prev,
       annotatedFile: null,
       annotationData: undefined,
+      useAnnotatedFile: false,
     }));
     setAnnotationData(null);
     setShowReviewSummary(false);
@@ -221,7 +217,6 @@ const TasksAndDirectionStep: React.FC = () => {
     }
   };
 
-  // Extract annotations when file is selected and dialog is opened
   useEffect(() => {
     if (
       showReviewSummary &&
@@ -234,473 +229,317 @@ const TasksAndDirectionStep: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showReviewSummary, routeValidatorFormValues.annotatedFile]);
 
-  const isWord = routeValidatorFormValues.documentType === "word";
-
   return (
-    <Box sx={{ padding: "20px 0 60px 40px" }}>
-      {/* Model selection: only for images/screenshots; Word uses static WORD_MODEL (gemini-2.5-pro) */}
-      {!isWord && (
-        <Box sx={{ marginBottom: 4, maxWidth: 500 }}>
-          <Accordion
-            defaultExpanded
-            disableGutters
-            elevation={0}
-            sx={{
-              border: "1px solid #E7E5E4",
-              borderRadius: "10px !important",
-              overflow: "hidden",
-              "&:before": { display: "none" },
-            }}
-          >
-            <AccordionSummary
-              expandIcon={<IconChevronDown size={18} />}
-              sx={{
-                backgroundColor: "common.white",
-                minHeight: 48,
-
-                px: 2,
-                "& .MuiAccordionSummary-content": { margin: 0 },
-              }}
-            >
-              <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
-                Gemini Model
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ backgroundColor: "neutral.200", px: 2, py: 2 }}>
-              <FormControl fullWidth size="small">
-                <Select
-                  labelId="gemini-model-select-label"
-                  id="gemini-model-select"
-                  value={
-                    routeValidatorFormValues.geminiModel || DEFAULT_GEMINI_MODEL
-                  }
-                  onChange={handleGeminiModelChange}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        borderRadius: 2,
-                        mt: 1,
-                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.12)",
-                      },
-                    },
-                    anchorOrigin: { vertical: "bottom", horizontal: "left" },
-                    transformOrigin: { vertical: "top", horizontal: "left" },
-                  }}
-                  sx={{
-                    backgroundColor: "common.white",
-                    borderRadius: 2,
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "neutral.400",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "neutral.400",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "neutral.400",
-                    },
-                    "& .MuiSelect-select": {
-                      padding: "10px 14px",
-                      fontSize: 14,
-                      fontWeight: 400,
-                    },
-                  }}
-                >
-                  {GEMINI_MODEL_OPTIONS.map((opt) => (
-                    <MenuItem
-                      key={opt.value}
-                      value={opt.value}
-                      sx={{ fontSize: 16, fontWeight: 500 }}
-                    >
-                      {opt.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </AccordionDetails>
-          </Accordion>
+    <Box sx={{ px: 4, pt: 2, pb: 6 }}>
+      {/* ── Tasks Section ── */}
+      <Box sx={{ mb: 5 }}>
+        <Typography
+          sx={{ fontSize: 18, fontWeight: 700, color: "#1C1917", mb: 0.5 }}
+        >
+          Tasks
+        </Typography>
+        <Typography
+          sx={{ fontSize: 13, color: "#78716C", mb: 2.5 }}
+        >
+          Select checks to run, or skip straight to Direction below for custom instructions
+        </Typography>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+            gap: 1.5,
+            maxWidth: 700,
+          }}
+        >
+          {taskConfig.map((task) => (
+            <OptionCard
+              key={task.id}
+              checked={
+                routeValidatorFormValues.tasks?.includes(task.id) || false
+              }
+              onChange={() => handleTaskToggle(task.id)}
+              icon={task.icon}
+              title={task.label}
+              description={task.description}
+            />
+          ))}
         </Box>
-      )}
 
-      {/* Tasks Section */}
-      <Accordion
-        defaultExpanded
-        disableGutters
-        elevation={0}
-        sx={{
-          border: "1px solid #E7E5E4",
-          borderRadius: "10px !important",
-          overflow: "hidden",
-          mb: 4,
-          maxWidth: 500,
-          "&:before": { display: "none" },
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<IconChevronDown size={18} />}
+        {/* Brand guideline selector - contextual, shown when task is selected */}
+        {routeValidatorFormValues.tasks?.includes("client_brand_guideline") && (
+          <Box sx={{ mt: 3, maxWidth: 400 }}>
+            <FormControl fullWidth>
+              <InputLabel id="brand-guideline-select-label">
+                Client Brand Guideline
+              </InputLabel>
+              <Select
+                labelId="brand-guideline-select-label"
+                id="brand-guideline-select"
+                value={routeValidatorFormValues.brandGuideline || ""}
+                label="Client Brand Guideline"
+                onChange={(event) => {
+                  const value = event.target.value as string;
+                  setRouteValidatorFormValues((prev) => ({
+                    ...prev,
+                    brandGuideline: value,
+                    clientBrand: value,
+                    selectedClient: value,
+                  }));
+                }}
+                disabled={isLoadingGuidelines}
+                sx={{
+                  borderRadius: "10px",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#E7E5E4",
+                  },
+                }}
+              >
+                {isLoadingGuidelines ? (
+                  <MenuItem value="" disabled>
+                    Loading...
+                  </MenuItem>
+                ) : brandGuidelinesData?.guidelines &&
+                  brandGuidelinesData.guidelines.length > 0 ? (
+                  brandGuidelinesData.guidelines.map(
+                    (guideline: {
+                      name: string;
+                      fileName: string;
+                      displayName: string;
+                    }) => (
+                      <MenuItem key={guideline.name} value={guideline.name}>
+                        {guideline.displayName}
+                      </MenuItem>
+                    ),
+                  )
+                ) : (
+                  <MenuItem value="" disabled>
+                    No brand guidelines available
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
+      </Box>
+
+      {/* ── Direction Section ── */}
+      <Box>
+        <Typography
+          sx={{ fontSize: 18, fontWeight: 700, color: "#1C1917", mb: 0.5 }}
+        >
+          Direction
+        </Typography>
+        <Typography
+          sx={{ fontSize: 13, color: "#78716C", mb: 2.5 }}
+        >
+          Add notes or upload a previously annotated file. Both are optional.
+        </Typography>
+
+        <Box
           sx={{
-            backgroundColor: "common.white",
-            minHeight: 48,
-            px: 2,
-            py: 1,
-            "& .MuiAccordionSummary-content": { margin: 0 },
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            maxWidth: 700,
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-            <Typography sx={{ fontSize: "18px", fontWeight: 600 }}>
-              Tasks
-            </Typography>
+          {/* Additional Notes - always visible, no checkbox gate */}
+          <Box>
             <Typography
               sx={{
-                fontSize: "13px",
-                color: "neutral.700",
-                fontStyle: "italic",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#44403C",
+                mb: 1,
               }}
             >
-              Select one or more tasks to check, or skip to provide <br />{" "}
-              custom direction below
+              Additional Notes
             </Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ backgroundColor: "neutral.200", px: 2, py: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              maxWidth: 600,
-            }}
-          >
-            {taskOptions.map((task) => (
-              <FormControlLabel
-                key={task}
-                control={
-                  <Checkbox
-                    checked={
-                      routeValidatorFormValues.tasks?.includes(task) || false
-                    }
-                    onChange={() => handleTaskToggle(task)}
-                    sx={{
-                      color: "#A8A29E",
-                      "&.Mui-checked": { color: "#E86D5A" },
-                    }}
-                  />
-                }
-                label={
-                  <Typography sx={{ fontSize: 14, color: "#1C1917" }}>
-                    {taskDisplayNames[task] || task}
-                  </Typography>
-                }
-              />
-            ))}
+            <TextareaAutosize
+              minRows={4}
+              maxRows={12}
+              value={routeValidatorFormValues.additionalNotes || ""}
+              onChange={handleAdditionalNotesChange}
+              placeholder="e.g. &quot;Focus on the claims table in section 3&quot; or &quot;Check that all footnotes match their references&quot;"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1.5px solid #E7E5E4",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                resize: "vertical",
+                lineHeight: 1.6,
+                color: "#1C1917",
+                boxSizing: "border-box",
+                transition: "border-color 0.15s ease",
+                outline: "none",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#E86D5A";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#E7E5E4";
+              }}
+            />
           </Box>
 
-          {routeValidatorFormValues.tasks?.includes(
-            "client_brand_guideline",
-          ) && (
-            <Box sx={{ marginTop: 3, maxWidth: 400 }}>
-              <FormControl fullWidth>
-                <InputLabel id="brand-guideline-select-label">
-                  Client Brand Guideline
-                </InputLabel>
-                <Select
-                  labelId="brand-guideline-select-label"
-                  id="brand-guideline-select"
-                  value={routeValidatorFormValues.brandGuideline || ""}
-                  label="Client Brand Guideline"
-                  onChange={(event) => {
-                    const value = event.target.value as string;
-                    setRouteValidatorFormValues((prev) => ({
-                      ...prev,
-                      brandGuideline: value,
-                      // Derive clientBrand / selectedClient directly from brandGuideline
-                      clientBrand: value,
-                      selectedClient: value,
-                    }));
-                  }}
-                  disabled={isLoadingGuidelines}
+          {/* Annotated File Upload - always visible, no checkbox gate */}
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#44403C",
+                mb: 1,
+              }}
+            >
+              Annotated File from Previous Round
+            </Typography>
+
+            {routeValidatorFormValues.annotatedFile ? (
+              /* File uploaded state */
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  p: 2,
+                  borderRadius: "10px",
+                  border: "1.5px solid #E86D5A",
+                  bgcolor: "#FEF2F0",
+                }}
+              >
+                <Box
                   sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "neutral.400",
-                    },
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    minWidth: 0,
                   }}
                 >
-                  {isLoadingGuidelines ? (
-                    <MenuItem value="" disabled>
-                      Loading...
-                    </MenuItem>
-                  ) : brandGuidelinesData?.guidelines &&
-                    brandGuidelinesData.guidelines.length > 0 ? (
-                    brandGuidelinesData.guidelines.map(
-                      (guideline: {
-                        name: string;
-                        fileName: string;
-                        displayName: string;
-                      }) => (
-                        <MenuItem key={guideline.name} value={guideline.name}>
-                          {guideline.displayName}
-                        </MenuItem>
-                      ),
-                    )
-                  ) : (
-                    <MenuItem value="" disabled>
-                      No brand guidelines available
-                    </MenuItem>
-                  )}
-                </Select>
-              </FormControl>
-            </Box>
-          )}
-        </AccordionDetails>
-      </Accordion>
-
-      {/* Direction Section */}
-      <Accordion
-        defaultExpanded
-        disableGutters
-        elevation={0}
-        sx={{
-          border: "1px solid #E7E5E4",
-          borderRadius: "10px !important",
-          overflow: "hidden",
-          maxWidth: 500,
-          "&:before": { display: "none" },
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<IconChevronDown size={18} />}
-          sx={{
-            backgroundColor: "common.white",
-            minHeight: 48,
-            px: 2,
-            py: 1,
-            "& .MuiAccordionSummary-content": { margin: 0 },
-          }}
-        >
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-            <Typography sx={{ fontSize: "18px", fontWeight: 600 }}>
-              Direction
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: "13px",
-                color: "neutral.700",
-                fontStyle: "italic",
-              }}
-            >
-              Provide custom instructions or upload an annotated file. You can
-              use direction independently without selecting any tasks above.
-            </Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ backgroundColor: "neutral.200", px: 2, py: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 3,
-              maxWidth: 980,
-            }}
-          >
-            {/* Additional Notes Section */}
-            <Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  marginBottom: 1,
-                }}
-              >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={routeValidatorFormValues.useAdditionalNotes}
-                      onChange={handleUseAdditionalNotesChange}
-                      sx={{
-                        color: "#A8A29E",
-                        "&.Mui-checked": { color: "#E86D5A" },
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: "#1C1917" }}>
-                      Additional notes for AI Review
-                    </Typography>
-                  }
-                />
-              </Box>
-              {routeValidatorFormValues.useAdditionalNotes && (
-                <TextareaAutosize
-                  minRows={8}
-                  value={routeValidatorFormValues.additionalNotes}
-                  onChange={handleAdditionalNotesChange}
-                  placeholder="Enter additional notes..."
-                  style={{
-                    width: "95%",
-                    padding: "12px",
-                    border: "1px solid #E7E5E4",
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                    fontFamily: "inherit",
-                    resize: "vertical",
-                  }}
-                />
-              )}
-            </Box>
-
-            {/* Upload Annotated File Section */}
-            <Box
-              sx={{
-                width: 400,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  marginBottom: 1,
-                }}
-              >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={routeValidatorFormValues.useAnnotatedFile}
-                      onChange={handleUseAnnotatedFileChange}
-                      sx={{
-                        color: "#A8A29E",
-                        "&.Mui-checked": { color: "#E86D5A" },
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: "#1C1917" }}>
-                      Upload annotated file from previous round
-                    </Typography>
-                  }
-                />
-              </Box>
-              {routeValidatorFormValues.useAnnotatedFile && (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                   <Box
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
                     sx={{
-                      backgroundColor: "#FAFAF9",
-                      border: "1px dashed #D6D3D1",
+                      width: 36,
+                      height: 36,
                       borderRadius: "10px",
-                      padding: 2.5,
+                      bgcolor: "#E86D5A",
                       display: "flex",
-                      minHeight: "10px",
-                      width: "95%",
-                      cursor: "pointer",
-                      flexDirection: "column",
-                      transition: "all 0.15s ease",
-                      "&:hover": {
-                        borderColor: "#E86D5A",
-                        backgroundColor: "#FEF2F0",
-                      },
-                    }}
-                    onClick={() => {
-                      fileInputRef.current?.click();
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
                     }}
                   >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      style={{ display: "none" }}
-                      onChange={handleFileSelect}
-                      accept=".pdf,.doc,.docx"
-                    />
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <IconFile color="#44403C" size={20} />
-                      <Typography sx={{ color: "neutral.700", fontSize: "14px" }}>
-                        Drop file here or{" "}
-                        <Box
-                          component="span"
-                          sx={{
-                            fontWeight: "bold",
-                            textDecoration: "underline",
-                          }}
-                        >
-                          Browse files
-                        </Box>
-                      </Typography>
-                    </Box>
+                    <IconFile color="#FFFFFF" size={16} />
                   </Box>
-                  {routeValidatorFormValues.annotatedFile && (
-                    <Box
+                  <Box sx={{ minWidth: 0 }}>
+                    <Tooltip
+                      title={routeValidatorFormValues.annotatedFile.name}
+                      placement="top"
+                      arrow
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: "#1C1917",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {routeValidatorFormValues.annotatedFile.name}
+                      </Typography>
+                    </Tooltip>
+                    <Typography
+                      onClick={() => setShowReviewSummary(true)}
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 1,
-                        paddingLeft: 1,
-                        width: "95%",
+                        fontSize: 12,
+                        color: "#E86D5A",
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" },
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          minWidth: 0,
-                        }}
-                      >
-                        <IconFile color="#44403C" size={16} />
-                        <Typography
-                          sx={{
-                            color: "neutral.700",
-                            fontSize: "12px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {routeValidatorFormValues.annotatedFile.name}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveFile();
-                        }}
-                        sx={{
-                          color: "error.main",
-                          "&:hover": {
-                            backgroundColor: "rgba(211, 47, 47, 0.08)",
-                          },
-                        }}
-                        aria-label="Remove file"
-                      >
-                        <IconTrash size={18} />
-                      </IconButton>
-                    </Box>
-                  )}
+                      View annotation summary
+                    </Typography>
+                  </Box>
                 </Box>
-              )}
-            </Box>
-
-            {/* Review Summary Link - only when "Upload annotated file" is checked and a file is uploaded */}
-            {routeValidatorFormValues.useAnnotatedFile &&
-              routeValidatorFormValues.annotatedFile && (
-                <Box>
-                  <Typography
-                    onClick={() => setShowReviewSummary(true)}
+                <Tooltip title="Remove" placement="top" arrow>
+                  <Box
+                    onClick={handleRemoveFile}
                     sx={{
-                      color: "#E86D5A",
-                      textDecoration: "underline",
+                      width: 32,
+                      height: 32,
+                      borderRadius: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       cursor: "pointer",
-                      fontSize: "14px",
+                      transition: "all 0.15s ease",
+                      "&:hover": { bgcolor: "rgba(232,109,90,0.15)" },
                     }}
                   >
-                    Review Summary
+                    <IconTrashFilled size={16} color="#A8A29E" />
+                  </Box>
+                </Tooltip>
+              </Box>
+            ) : (
+              /* Dropzone state */
+              <Box
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onClick={() => fileInputRef.current?.click()}
+                sx={{
+                  border: "1.5px dashed #D6D3D1",
+                  borderRadius: "10px",
+                  p: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  bgcolor: "#FAFAF9",
+                  transition: "all 0.15s ease",
+                  "&:hover": {
+                    borderColor: "#E86D5A",
+                    bgcolor: "#FEF2F0",
+                  },
+                }}
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleFileSelect}
+                  accept=".pdf,.doc,.docx"
+                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                  }}
+                >
+                  <IconUpload color="#A8A29E" size={18} strokeWidth={1.5} />
+                  <Typography sx={{ fontSize: 13, color: "#78716C" }}>
+                    Drop an annotated file here or{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: "#E86D5A",
+                        fontWeight: 600,
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      browse
+                    </Box>
                   </Typography>
                 </Box>
-              )}
+              </Box>
+            )}
           </Box>
-        </AccordionDetails>
-      </Accordion>
+        </Box>
+      </Box>
 
       {/* Review Summary Dialog */}
       <Dialog
@@ -708,11 +547,7 @@ const TasksAndDirectionStep: React.FC = () => {
         onClose={handleCloseDialog}
         maxWidth="md"
         fullWidth
-        PaperProps={{
-          style: {
-            borderRadius: "12px",
-          },
-        }}
+        PaperProps={{ style: { borderRadius: "12px" } }}
       >
         <DialogTitle
           sx={{
@@ -746,120 +581,118 @@ const TasksAndDirectionStep: React.FC = () => {
           ) : annotationData ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               {annotationData.annotations.length > 0 && (
-                <Box>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-                  >
-                    {annotationData.annotations.map(
-                      (annotation: ExtractedComment, index: number) => (
-                        <Box
-                          key={annotation.id || index}
-                          sx={{
-                            padding: 1.5,
-                            backgroundColor: "neutral.100",
-                            borderRadius: 1,
-                          }}
-                        >
-                          {annotation.issue && (
-                            <Typography
-                              sx={{
-                                fontSize: "14px",
-                                lineHeight: 1.6,
-                                fontWeight: 500,
-                                marginBottom: 0.5,
-                              }}
-                            >
-                              {annotation.type && `[${annotation.type}] `}
-                              {annotation.issue}
-                            </Typography>
-                          )}
-                          {annotation.reasoning && (
-                            <Typography
-                              sx={{
-                                fontSize: "13px",
-                                lineHeight: 1.6,
-                                color: "neutral.700",
-                                marginBottom: 0.5,
-                              }}
-                            >
-                              <strong>Reasoning:</strong> {annotation.reasoning}
-                            </Typography>
-                          )}
-                          {annotation.recommendation && (
-                            <Typography
-                              sx={{
-                                fontSize: "13px",
-                                lineHeight: 1.6,
-                                color: "neutral.700",
-                              }}
-                            >
-                              <strong>Recommendation:</strong>{" "}
-                              {annotation.recommendation}
-                            </Typography>
-                          )}
-                          {!annotation.issue &&
-                            !annotation.reasoning &&
-                            !annotation.recommendation && (
-                              <>
+                <Box
+                  sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+                >
+                  {annotationData.annotations.map(
+                    (annotation: ExtractedComment, index: number) => (
+                      <Box
+                        key={annotation.id || index}
+                        sx={{
+                          padding: 1.5,
+                          backgroundColor: "neutral.100",
+                          borderRadius: 1,
+                        }}
+                      >
+                        {annotation.issue && (
+                          <Typography
+                            sx={{
+                              fontSize: "14px",
+                              lineHeight: 1.6,
+                              fontWeight: 500,
+                              marginBottom: 0.5,
+                            }}
+                          >
+                            {annotation.type && `[${annotation.type}] `}
+                            {annotation.issue}
+                          </Typography>
+                        )}
+                        {annotation.reasoning && (
+                          <Typography
+                            sx={{
+                              fontSize: "13px",
+                              lineHeight: 1.6,
+                              color: "neutral.700",
+                              marginBottom: 0.5,
+                            }}
+                          >
+                            <strong>Reasoning:</strong> {annotation.reasoning}
+                          </Typography>
+                        )}
+                        {annotation.recommendation && (
+                          <Typography
+                            sx={{
+                              fontSize: "13px",
+                              lineHeight: 1.6,
+                              color: "neutral.700",
+                            }}
+                          >
+                            <strong>Recommendation:</strong>{" "}
+                            {annotation.recommendation}
+                          </Typography>
+                        )}
+                        {!annotation.issue &&
+                          !annotation.reasoning &&
+                          !annotation.recommendation && (
+                            <>
+                              <Typography
+                                sx={{ fontSize: "14px", lineHeight: 1.6 }}
+                              >
+                                {annotation.text}
+                              </Typography>
+                              {annotation.associatedText && (
                                 <Typography
-                                  sx={{ fontSize: "14px", lineHeight: 1.6 }}
+                                  sx={{
+                                    fontSize: "13px",
+                                    lineHeight: 1.6,
+                                    color: "neutral.700",
+                                    marginTop: 0.5,
+                                    fontStyle: "italic",
+                                  }}
                                 >
-                                  {annotation.text}
+                                  <strong>Associated text:</strong> "
+                                  {annotation.associatedText}"
                                 </Typography>
-                                {annotation.associatedText && (
-                                  <Typography
-                                    sx={{
-                                      fontSize: "13px",
-                                      lineHeight: 1.6,
-                                      color: "neutral.700",
-                                      marginTop: 0.5,
-                                      fontStyle: "italic",
-                                    }}
-                                  >
-                                    <strong>Associated text:</strong> "
-                                    {annotation.associatedText}"
-                                  </Typography>
-                                )}
-                              </>
-                            )}
-                          {annotation.associatedText &&
-                            (annotation.issue ||
-                              annotation.reasoning ||
-                              annotation.recommendation) && (
-                              <Typography
-                                sx={{
-                                  fontSize: "13px",
-                                  lineHeight: 1.6,
-                                  color: "neutral.700",
-                                  marginTop: 0.5,
-                                  fontStyle: "italic",
-                                }}
-                              >
-                                <strong>Associated text:</strong> "
-                                {annotation.associatedText}"
-                              </Typography>
-                            )}
-                          {annotation.author &&
-                            annotation.author !== "Unknown" && (
-                              <Typography
-                                sx={{
-                                  fontSize: "12px",
-                                  color: "neutral.500",
-                                  marginTop: 0.5,
-                                }}
-                              >
-                                — {annotation.author}
-                                {annotation.date &&
-                                  !Number.isNaN(
-                                    new Date(annotation.date).getTime(),
-                                  ) &&
-                                  ` • ${new Date(annotation.date).toLocaleDateString()}`}
-                              </Typography>
-                            )}
-                        </Box>
-                      ),
-                    )}
-                  </Box>
+                              )}
+                            </>
+                          )}
+                        {annotation.associatedText &&
+                          (annotation.issue ||
+                            annotation.reasoning ||
+                            annotation.recommendation) && (
+                            <Typography
+                              sx={{
+                                fontSize: "13px",
+                                lineHeight: 1.6,
+                                color: "neutral.700",
+                                marginTop: 0.5,
+                                fontStyle: "italic",
+                              }}
+                            >
+                              <strong>Associated text:</strong> "
+                              {annotation.associatedText}"
+                            </Typography>
+                          )}
+                        {annotation.author &&
+                          annotation.author !== "Unknown" && (
+                            <Typography
+                              sx={{
+                                fontSize: "12px",
+                                color: "neutral.500",
+                                marginTop: 0.5,
+                              }}
+                            >
+                              - {annotation.author}
+                              {annotation.date &&
+                                !Number.isNaN(
+                                  new Date(annotation.date).getTime(),
+                                ) &&
+                                ` \u2022 ${new Date(annotation.date).toLocaleDateString()}`}
+                            </Typography>
+                          )}
+                      </Box>
+                    ),
+                  )}
                 </Box>
               )}
             </Box>

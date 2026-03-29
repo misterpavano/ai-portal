@@ -1,7 +1,8 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
 import DefaultButton from "../../../../../components/layouts/DefaultButton";
+import ErrorState from "../../../../../components/shared/ErrorState";
 import TranscriptBox from "../Forms/TranscriptionBox";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { TranscriptData } from "../../../../../types/response/openai";
 import { useAtom } from "jotai";
 import { audioToTextFormAtom } from "../../../../../atoms/audioToTextAtom";
@@ -12,15 +13,44 @@ import {
   useAddFileToVectorStoreMutation,
   useAskQuestionBasedOnFileMutation,
   useCreateThreadMutation,
+  useDeleteFileFromVectorStoreMutation,
+  useDeleteFileFromStorageMutation,
+  useDeleteVectorStoreMutation,
+  useDeleteAssistantMutation,
 } from "../../../../../api/slices/openAiSlice";
+import { audioToTextValues } from "../../../../../config/audioToTextValues";
+import {
+  IconFile,
+  IconMicrophone,
+  IconClock,
+  IconUserScan,
+} from "@tabler/icons-react";
 
 const POLL_INTERVAL = 10000;
+
+// Stable waveform bar values (seeded, not random per render)
+const WAVE_BARS = [
+  { startHeight: 18, endHeight: 42, opacity: 0.5 },
+  { startHeight: 30, endHeight: 36, opacity: 0.7 },
+  { startHeight: 14, endHeight: 48, opacity: 0.4 },
+  { startHeight: 36, endHeight: 28, opacity: 0.9 },
+  { startHeight: 22, endHeight: 44, opacity: 0.6 },
+  { startHeight: 40, endHeight: 32, opacity: 0.8 },
+  { startHeight: 16, endHeight: 46, opacity: 0.5 },
+  { startHeight: 34, endHeight: 38, opacity: 0.7 },
+  { startHeight: 20, endHeight: 42, opacity: 0.6 },
+  { startHeight: 38, endHeight: 30, opacity: 0.9 },
+  { startHeight: 24, endHeight: 40, opacity: 0.5 },
+  { startHeight: 32, endHeight: 34, opacity: 0.8 },
+];
 
 interface TranscriptionPreviewProps {
   onCancel?: () => void;
 }
 
-const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel }) => {
+const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
+  onCancel,
+}) => {
   const [audioToTextFormValues, setAudioToTextFormValues] =
     useAtom(audioToTextFormAtom);
   const [transcript, setTranscript] = useState<string | TranscriptData>("");
@@ -32,6 +62,10 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
   const [addFileToVectorStore] = useAddFileToVectorStoreMutation();
   const [askQuestionBasedOnFile] = useAskQuestionBasedOnFileMutation();
   const [createThread] = useCreateThreadMutation();
+  const [deleteFileFromVectorStore] = useDeleteFileFromVectorStoreMutation();
+  const [deleteFileFromStorage] = useDeleteFileFromStorageMutation();
+  const [deleteVectorStore] = useDeleteVectorStoreMutation();
+  const [deleteAssistant] = useDeleteAssistantMutation();
   const [jobId, setJobId] = useState<string | null>(null);
   const [jobState, setJobState] = useState<
     "waiting" | "active" | "completed" | "failed" | null
@@ -41,7 +75,12 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
   );
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [fileProcessed, setFileProcessed] = useState(false);
-  // Prevent double POST /transcribe (React Strict Mode or effect re-run with same file)
+  // Gate: user must confirm before transcription starts
+  const [confirmed, setConfirmed] = useState(false);
+  // Track cancellation
+  const cancelledRef = useRef(false);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Prevent double POST /transcribe
   const transcriptionStartedForFileRef = useRef<string | null>(null);
 
   const getTranscriptText = (
@@ -55,13 +94,75 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
     return "";
   };
 
+  // Cleanup helper: delete vector store, assistant, uploaded file
+  const cleanupResources = useCallback(async () => {
+    const vectorStoreId = audioToTextFormValues.vectorStoreId;
+    const assistantId = audioToTextFormValues.assistantId;
+    const fileId = audioToTextFormValues.file?.fileId;
+
+    if (fileId && vectorStoreId) {
+      try {
+        await deleteFileFromVectorStore({
+          vectorStoreId,
+          file_id: fileId,
+        }).unwrap();
+      } catch (e) {
+        console.error("Cleanup: error deleting file from vector store", e);
+      }
+      try {
+        await deleteFileFromStorage(fileId).unwrap();
+      } catch (e) {
+        console.error("Cleanup: error deleting file from storage", e);
+      }
+    }
+
+    if (assistantId) {
+      try {
+        await deleteAssistant(assistantId).unwrap();
+      } catch (e) {
+        console.error("Cleanup: error deleting assistant", e);
+      }
+    }
+
+    if (vectorStoreId) {
+      try {
+        await deleteVectorStore(vectorStoreId).unwrap();
+      } catch (e) {
+        console.error("Cleanup: error deleting vector store", e);
+      }
+    }
+  }, [
+    audioToTextFormValues.vectorStoreId,
+    audioToTextFormValues.assistantId,
+    audioToTextFormValues.file?.fileId,
+    deleteFileFromVectorStore,
+    deleteFileFromStorage,
+    deleteAssistant,
+    deleteVectorStore,
+  ]);
+
+  // Handle cancel: stop polling, cleanup, go back
+  const handleCancel = useCallback(async () => {
+    cancelledRef.current = true;
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    setIsTranscribing(false);
+    setIsProcessingFile(false);
+    await cleanupResources();
+    onCancel?.();
+  }, [cleanupResources, onCancel]);
+
   // Reset fileProcessed when a new file is uploaded
   useEffect(() => {
     setFileProcessed(false);
   }, [audioToTextFormValues.uploadedFile]);
 
-  // Transcribe the file when component mounts or when file/options change
+  // Transcribe the file ONLY after user confirms
   useEffect(() => {
+    if (!confirmed) return;
+
     const transcribeFile = async () => {
       if (!audioToTextFormValues.uploadedFile) {
         transcriptionStartedForFileRef.current = null;
@@ -71,20 +172,17 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
       const file = audioToTextFormValues.uploadedFile;
       const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
 
-      // Only trigger once per file (avoids double POST from Strict Mode or dependency flicker)
       if (transcriptionStartedForFileRef.current === fileKey) {
         return;
       }
       transcriptionStartedForFileRef.current = fileKey;
 
       const fileType = file.type;
-
-      // Only transcribe audio files
       const isAudio =
         fileType.startsWith("audio/") ||
         fileType === "video/mp4" ||
         fileType === "video/mpeg" ||
-        fileType === "video/quicktime" || // .mov
+        fileType === "video/quicktime" ||
         fileType === "video/webm";
 
       if (!isAudio) {
@@ -95,13 +193,13 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
       }
 
       try {
+        cancelledRef.current = false;
         setIsTranscribing(true);
         setTranscriptionError(null);
 
         const formData = new FormData();
         formData.append("file", file);
 
-        // Append transcription options to FormData
         if (audioToTextFormValues.transcriptionOptions.provideSummary) {
           formData.append("provideSummary", "true");
         }
@@ -115,10 +213,13 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
         }
 
         const { jobId } = await transcribeAudio(formData).unwrap();
+
+        if (cancelledRef.current) return;
+
         setJobId(jobId);
         setJobState("waiting");
-        console.log("Transcription job queued:", jobId);
       } catch (error) {
+        if (cancelledRef.current) return;
         console.error("Transcription failed:", error);
         transcriptionStartedForFileRef.current = null;
         setIsTranscribing(false);
@@ -130,15 +231,22 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
 
     transcribeFile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioToTextFormValues.uploadedFile]);
+  }, [confirmed, audioToTextFormValues.uploadedFile]);
 
   // Poll for transcription status
   useEffect(() => {
     if (!jobId || jobState === "completed" || jobState === "failed") return;
 
     const interval = setInterval(async () => {
+      if (cancelledRef.current) {
+        clearInterval(interval);
+        return;
+      }
+
       try {
         const statusResponse = await getTranscriptionStatus(jobId).unwrap();
+
+        if (cancelledRef.current) return;
 
         setJobState(statusResponse.state);
 
@@ -149,7 +257,6 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
           const transcriptData = statusResponse.transcript;
           setTranscript(transcriptData || "");
 
-          // Store transcript in atom for download and clear previous edits
           setAudioToTextFormValues((prev) => ({
             ...prev,
             transcript: transcriptData || null,
@@ -174,8 +281,11 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
           clearInterval(interval);
           setIsTranscribing(false);
           setTranscriptionError("Transcription failed. Please try again.");
+          // Cleanup on failure
+          await cleanupResources();
         }
       } catch (err) {
+        if (cancelledRef.current) return;
         console.error("Polling error:", err);
         clearInterval(interval);
         setIsTranscribing(false);
@@ -185,17 +295,17 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
       }
     }, POLL_INTERVAL);
 
-    return () => clearInterval(interval);
-  }, [jobId, jobState, getTranscriptionStatus]);
+    pollIntervalRef.current = interval;
 
-  // Separate effect to handle file upload and summary generation after transcription completes
+    return () => {
+      clearInterval(interval);
+      pollIntervalRef.current = null;
+    };
+  }, [jobId, jobState, getTranscriptionStatus, cleanupResources]);
+
+  // File upload and summary generation after transcription completes
   useEffect(() => {
     const processFileAndGenerateSummary = async () => {
-      // Only process if:
-      // 1. Transcription is complete (we have transcript data)
-      // 2. provideSummary is enabled
-      // 3. Vector store and assistant are ready
-      // 4. File hasn't been processed yet
       if (
         !audioToTextFormValues.transcriptionOptions.provideSummary ||
         !transcript ||
@@ -203,7 +313,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
         !audioToTextFormValues.assistantId ||
         !audioToTextFormValues.uploadedFile ||
         audioToTextFormValues.file.fileId ||
-        fileProcessed
+        fileProcessed ||
+        cancelledRef.current
       ) {
         return;
       }
@@ -213,12 +324,10 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
         return;
       }
 
-      console.log("🔄 Starting file upload and summary generation...");
       setIsProcessingFile(true);
       setFileProcessed(true);
 
       try {
-        // Convert transcript text to a file
         const transcriptBlob = new Blob([transcriptText], {
           type: "text/plain",
         });
@@ -229,60 +338,42 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
           { type: "text/plain" },
         );
 
-        console.log("📤 Uploading file to OpenAI...");
-        // Upload file to OpenAI
         const formData = new FormData();
         formData.append("file", transcriptFile);
         formData.append("purpose", "assistants");
         const uploadResponse = await uploadFile(formData).unwrap();
         const fileId = uploadResponse.id;
         const fileName = uploadResponse.filename;
-        console.log("✅ File uploaded:", fileId, fileName);
 
-        console.log("📦 Adding file to vector store...");
-        // Add file to vector store
+        if (cancelledRef.current) return;
+
         await addFileToVectorStore({
           vectorId: audioToTextFormValues.vectorStoreId,
           file_id: fileId,
         }).unwrap();
-        console.log("✅ File added to vector store");
 
-        // Store file info in atom
         setAudioToTextFormValues((prev) => ({
           ...prev,
-          file: {
-            fileId: fileId,
-            fileName: fileName,
-          },
+          file: { fileId, fileName },
         }));
 
-        // Wait for vector store to process the file before querying
-        // We'll try multiple times with increasing delays
-        console.log("⏳ Waiting for vector store to process file...");
+        if (cancelledRef.current) return;
+
         let summaryResponse;
         let attempt = 0;
         const maxAttempts = 3;
         let success = false;
 
-        while (attempt < maxAttempts && !success) {
+        while (attempt < maxAttempts && !success && !cancelledRef.current) {
           attempt++;
-
-          // Wait longer on each attempt: 5s, 8s, 12s
-          const waitTime = attempt === 1 ? 5000 : attempt === 2 ? 8000 : 12000;
-          console.log(
-            `⏳ Attempt ${attempt}/${maxAttempts}: Waiting ${waitTime / 1000}s for vector store...`,
-          );
+          const waitTime =
+            attempt === 1 ? 5000 : attempt === 2 ? 8000 : 12000;
           await new Promise((resolve) => setTimeout(resolve, waitTime));
 
-          console.log("💬 Creating thread and generating summary...");
-          // Create thread and call askQuestionBasedOnFile for summary
+          if (cancelledRef.current) return;
+
           const thread = await createThread().unwrap();
           const systemPrompt = `You have access to a transcribed audio file in your knowledge base. Please read the transcription and provide a comprehensive summary. Focus on the main topics discussed, key points, and any important conclusions or decisions. Do not reference file names, IDs, or metadata in your response. Just provide the summary of the content.`;
-
-          console.log(
-            `📝 Attempt ${attempt}: Calling askQuestionBasedOnFile with prompt:`,
-            systemPrompt,
-          );
 
           try {
             summaryResponse = await askQuestionBasedOnFile({
@@ -292,12 +383,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
               assistantPrompt: "",
             }).unwrap();
 
-            console.log(
-              `✅ Summary response received (attempt ${attempt}):`,
-              summaryResponse.content,
-            );
+            if (cancelledRef.current) return;
 
-            // Check if the response contains error messages
             const responseContent = summaryResponse.content || "";
             const isErrorResponse =
               responseContent.includes("couldn't find") ||
@@ -306,65 +393,45 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
               responseContent.includes("feel free to upload") ||
               responseContent.includes("provide me with more context") ||
               responseContent.includes("attempt another search") ||
-              responseContent.length < 50; // Very short responses might indicate errors
+              responseContent.length < 50;
 
             if (!isErrorResponse) {
-              // Success! We got a valid summary
               success = true;
-              console.log(`✅ Valid summary generated on attempt ${attempt}`);
-
-              // Remove OpenAI citation tags like 【4:0†source】
               const cleanedSummary = responseContent
                 .replace(/【\d+:\d+†source】/g, "")
                 .trim();
 
-              // Store summary in atom
               setAudioToTextFormValues((prev) => ({
                 ...prev,
                 summary: cleanedSummary,
               }));
-            } else {
-              console.warn(
-                `⚠️ Attempt ${attempt} returned an error response, will retry...`,
+            } else if (attempt === maxAttempts) {
+              throw new Error(
+                "Failed to generate summary after multiple attempts",
               );
-              if (attempt === maxAttempts) {
-                // Last attempt failed
-                throw new Error(
-                  "Failed to generate summary after multiple attempts",
-                );
-              }
             }
           } catch (err) {
-            console.error(`❌ Error on attempt ${attempt}:`, err);
-            if (attempt === maxAttempts) {
-              throw err;
-            }
+            if (attempt === maxAttempts) throw err;
           }
         }
 
-        if (!success) {
-          console.error("❌ Summary generation failed after all attempts");
+        if (!success && !cancelledRef.current) {
           setAudioToTextFormValues((prev) => ({
             ...prev,
             summary:
-              "Unable to generate summary at this time. The file may still be processing. Please try generating the summary again in a few moments.",
+              "Unable to generate summary at this time. The file may still be processing.",
           }));
-          throw new Error(
-            "Failed to generate summary. The file may not be ready yet.",
-          );
         }
       } catch (error) {
-        console.error("❌ Error processing file for vector store:", error);
-
-        // Set error message as summary if it's a summary-related error
+        if (cancelledRef.current) return;
+        console.error("Error processing file for vector store:", error);
         setAudioToTextFormValues((prev) => ({
           ...prev,
           summary:
             prev.summary ||
-            "Unable to generate summary. Please try uploading the file again or contact support if the issue persists.",
+            "Unable to generate summary. Please try uploading the file again.",
         }));
-
-        setFileProcessed(false); // Reset flag on error so it can retry
+        setFileProcessed(false);
       } finally {
         setIsProcessingFile(false);
       }
@@ -382,15 +449,190 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
     fileProcessed,
   ]);
 
+  // ── Confirmation screen ──
+  if (!confirmed) {
+    const file = audioToTextFormValues.uploadedFile;
+    const opts = audioToTextFormValues.transcriptionOptions;
+    const selectedOptions = [
+      opts.provideSummary && { icon: IconMicrophone, label: "Audio Summary" },
+      opts.includeTimestamps && { icon: IconClock, label: "Timestamps" },
+      opts.includeSpeakerIdentifier && {
+        icon: IconUserScan,
+        label: "Speaker Identification",
+      },
+    ].filter(Boolean) as { icon: typeof IconMicrophone; label: string }[];
+
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 360,
+          px: 4,
+          py: 6,
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontWeight: 800,
+            color: "#1C1917",
+            letterSpacing: "-0.02em",
+            mb: 1,
+          }}
+        >
+          Ready to transcribe?
+        </Typography>
+        <Typography sx={{ fontSize: 13, color: "#A8A29E", mb: 4 }}>
+          Review your selection before starting
+        </Typography>
+
+        {/* File info card */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            p: 2,
+            borderRadius: "12px",
+            border: "1.5px solid #E7E5E4",
+            bgcolor: "#FAFAF9",
+            mb: 3,
+            width: "100%",
+            maxWidth: 400,
+          }}
+        >
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "10px",
+              bgcolor: "#E86D5A",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <IconFile color="#FFFFFF" size={18} />
+          </Box>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              sx={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#1C1917",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {file?.name || "Unknown file"}
+            </Typography>
+            <Typography sx={{ fontSize: 12, color: "#A8A29E" }}>
+              {file
+                ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+                : "Unknown size"}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Selected options */}
+        {selectedOptions.length > 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              flexWrap: "wrap",
+              justifyContent: "center",
+              mb: 4,
+              maxWidth: 400,
+            }}
+          >
+            {selectedOptions.map((opt) => (
+              <Box
+                key={opt.label}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                  px: 1.5,
+                  py: 0.75,
+                  borderRadius: "8px",
+                  bgcolor: "#FEF2F0",
+                  border: "1px solid #FECDC6",
+                }}
+              >
+                <opt.icon size={14} color="#E86D5A" strokeWidth={1.5} />
+                <Typography
+                  sx={{ fontSize: 12, fontWeight: 500, color: "#E86D5A" }}
+                >
+                  {opt.label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        <Typography
+          sx={{
+            fontSize: 12,
+            color: "#D6D3D1",
+            mb: 3,
+            textAlign: "center",
+          }}
+        >
+          This may take a few minutes depending on file length
+        </Typography>
+
+        <Box sx={{ display: "flex", gap: 1.5 }}>
+          {onCancel && (
+            <DefaultButton
+              type="secondary"
+              title="Go Back"
+              onClick={onCancel}
+              style={{
+                borderRadius: "10px",
+                height: 48,
+                width: 140,
+                fontSize: 14,
+              }}
+            />
+          )}
+          <DefaultButton
+            type="primary"
+            title="Start Transcription"
+            onClick={() => setConfirmed(true)}
+            style={{
+              borderRadius: "10px",
+              height: 48,
+              width: 200,
+              fontSize: 14,
+            }}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
+  // ── Loading / processing state ──
   if (transcribing || isProcessingFile) {
     const steps = [
       { label: "Uploading audio", done: true },
-      { label: "Processing audio stream", done: jobState === "active" || jobState === "completed" },
+      {
+        label: "Processing audio stream",
+        done: jobState === "active" || jobState === "completed",
+      },
       { label: "Generating transcript", done: jobState === "completed" },
       { label: "Finalizing output", done: false },
     ];
     const activeStep = steps.findIndex((s) => !s.done);
-    const progressPercent = Math.min(((activeStep < 0 ? steps.length : activeStep) / steps.length) * 100, 95);
+    const progressPercent = Math.min(
+      ((activeStep < 0 ? steps.length : activeStep) / steps.length) * 100,
+      95,
+    );
 
     return (
       <Box
@@ -413,19 +655,22 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
             height: 48,
           }}
         >
-          {[...Array(12)].map((_, i) => (
+          {WAVE_BARS.map((bar, i) => (
             <Box
               key={i}
               sx={{
                 width: 4,
                 borderRadius: "2px",
                 bgcolor: "#E86D5A",
-                opacity: 0.3 + Math.random() * 0.7,
-                animation: `waveBar 1.2s ease-in-out ${i * 0.1}s infinite alternate`,
-                height: `${12 + Math.random() * 36}px`,
-                "@keyframes waveBar": {
+                opacity: bar.opacity,
+                animation: `waveBar${i} 1.2s ease-in-out ${i * 0.1}s infinite alternate`,
+                height: `${bar.startHeight}px`,
+                [`@keyframes waveBar${i}`]: {
                   "0%": { height: "12px", opacity: 0.3 },
-                  "100%": { height: `${20 + Math.random() * 28}px`, opacity: 1 },
+                  "100%": {
+                    height: `${bar.endHeight}px`,
+                    opacity: 1,
+                  },
                 },
               }}
             />
@@ -471,15 +716,19 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
         </Box>
 
         {/* Step indicators */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, width: "100%", maxWidth: 300 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.5,
+            width: "100%",
+            maxWidth: 300,
+          }}
+        >
           {steps.map((step, i) => (
             <Box
               key={step.label}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-              }}
+              sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
             >
               <Box
                 sx={{
@@ -489,23 +738,43 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  bgcolor: step.done ? "#E86D5A" : i === activeStep ? "#1C1917" : "#F5F5F4",
+                  bgcolor: step.done
+                    ? "#E86D5A"
+                    : i === activeStep
+                      ? "#1C1917"
+                      : "#F5F5F4",
                   transition: "all 0.3s ease",
                 }}
               >
                 {step.done ? (
-                  <Box component="span" sx={{ color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}>✓</Box>
+                  <Box
+                    component="span"
+                    sx={{ color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}
+                  >
+                    ✓
+                  </Box>
                 ) : i === activeStep ? (
                   <CircularProgress size={10} sx={{ color: "#FFFFFF" }} />
                 ) : (
-                  <Box component="span" sx={{ color: "#D6D3D1", fontSize: 10, fontWeight: 600 }}>{i + 1}</Box>
+                  <Box
+                    component="span"
+                    sx={{ color: "#D6D3D1", fontSize: 10, fontWeight: 600 }}
+                  >
+                    {i + 1}
+                  </Box>
                 )}
               </Box>
               <Typography
                 sx={{
                   fontSize: 13,
-                  fontWeight: step.done ? 600 : i === activeStep ? 600 : 400,
-                  color: step.done ? "#1C1917" : i === activeStep ? "#1C1917" : "#A8A29E",
+                  fontWeight:
+                    step.done ? 600 : i === activeStep ? 600 : 400,
+                  color:
+                    step.done
+                      ? "#1C1917"
+                      : i === activeStep
+                        ? "#1C1917"
+                        : "#A8A29E",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -516,61 +785,45 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({ onCancel })
         </Box>
 
         {/* Cancel button */}
-        {onCancel && (
-          <Box sx={{ mt: 5 }}>
-            <DefaultButton
-              type="secondary"
-              title="Cancel"
-              onClick={onCancel}
-              style={{
-                borderRadius: "8px",
-                height: 40,
-                width: 120,
-                fontSize: 13,
-              }}
-            />
-          </Box>
-        )}
+        <Box sx={{ mt: 5 }}>
+          <DefaultButton
+            type="secondary"
+            title="Cancel"
+            onClick={handleCancel}
+            style={{
+              borderRadius: "8px",
+              height: 40,
+              width: 120,
+              fontSize: 13,
+            }}
+          />
+        </Box>
       </Box>
     );
   }
 
+  // ── Error state ──
   if (transcriptionError) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 2,
-          minHeight: "300px",
+      <ErrorState
+        title="Transcription Failed"
+        message={transcriptionError}
+        actionLabel="Try Again"
+        onAction={() => {
+          setTranscriptionError(null);
+          setConfirmed(false);
+          transcriptionStartedForFileRef.current = null;
         }}
-      >
-        <Box
-          sx={{
-            width: 56,
-            height: 56,
-            borderRadius: "14px",
-            bgcolor: "#FEF2F0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            mb: 1,
-          }}
-        >
-          <Typography sx={{ fontSize: 24 }}>⚠</Typography>
-        </Box>
-        <Typography sx={{ fontSize: 16, fontWeight: 700, color: "#1C1917" }}>
-          Transcription Failed
-        </Typography>
-        <Typography sx={{ color: "#A8A29E", fontSize: 13, textAlign: "center", maxWidth: 320 }}>
-          {transcriptionError}
-        </Typography>
-      </Box>
+        secondaryLabel="Go Back"
+        onSecondary={async () => {
+          await cleanupResources();
+          onCancel?.();
+        }}
+      />
     );
   }
 
+  // ── Transcript result ──
   return (
     <Box>
       <TranscriptBox

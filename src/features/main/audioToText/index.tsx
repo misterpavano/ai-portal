@@ -40,9 +40,10 @@ const StyledTabs = styled(TabList)(() => ({
   },
 }));
 
+const STEP_LABELS = ["Upload & Configure", "Preview"];
+
 const AudioToText: React.FC<AudioToTextProps> = ({ handleDownloadFile }) => {
   const [step, setCurrentStep] = useAtom(audioToTextStepAtom);
-  const isNextButtonVisible = step.currentStep !== 0;
 
   const [value, setValue] = React.useState("Tool");
 
@@ -52,9 +53,13 @@ const AudioToText: React.FC<AudioToTextProps> = ({ handleDownloadFile }) => {
       currentStep: prevStep.currentStep + 1,
     }));
   };
+
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
+
+  const breadcrumb =
+    value === "Tool" ? [STEP_LABELS[step.currentStep]] : undefined;
 
   return (
     <>
@@ -62,6 +67,7 @@ const AudioToText: React.FC<AudioToTextProps> = ({ handleDownloadFile }) => {
         title="Audio To Text"
         subtitle="Transcribe audio files into structured, reviewable text"
         icon={<IconBroadcast width={18} height={18} color={"#FFFFFF"} />}
+        breadcrumb={breadcrumb}
       />
 
       <Box sx={{ typography: "body1", p: 3 }}>
@@ -119,17 +125,18 @@ const AudioToText: React.FC<AudioToTextProps> = ({ handleDownloadFile }) => {
               </StyledTabs>
             </Box>
             <TabPanel sx={{ p: 0 }} value="Tool">
-              <Box sx={{ padding: 3 }}>
+              <AudioToTextTools />
+
+              {/* Action bar: only shows on preview step */}
+              <Box sx={{ px: 3, pb: step.currentStep === 1 ? 2 : 0 }}>
                 <AudioToTextFooter
                   step={step}
                   setCurrentStep={setCurrentStep}
                   nextStep={nextStep}
-                  isNextButtonVisible={isNextButtonVisible}
+                  isNextButtonVisible={step.currentStep === 1}
                   handleDownloadFile={handleDownloadFile}
                 />
               </Box>
-
-              <AudioToTextTools />
             </TabPanel>
             <TabPanel sx={{ p: 0 }} value="Help">
               <Box sx={{ p: 3 }}>

@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { IconLogout, IconSettings, IconUser } from "@tabler/icons-react";
-import { MouseEvent, ReactNode, useState } from "react";
+import React, { MouseEvent, ReactNode, useState } from "react";
 import { useAtom } from "jotai";
 import {
   userAtom,
@@ -25,6 +25,8 @@ type HeaderTitleProps = {
   icon: ReactNode;
   subtitle?: string;
   selectedModel?: string;
+  /** Optional breadcrumb trail shown below the title, e.g. ["Document to Review"] */
+  breadcrumb?: string[];
 };
 
 const clearSummaryStorage = () => {
@@ -38,6 +40,7 @@ const HeaderTitle = ({
   subtitle,
   icon,
   selectedModel,
+  breadcrumb,
 }: HeaderTitleProps) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -124,7 +127,44 @@ const HeaderTitle = ({
               <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.01em", color: "#1C1917" }}>
                 {title}
               </Typography>
-              {subtitle && (
+              {breadcrumb && breadcrumb.length > 0 && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      color: "#A8A29E",
+                      fontWeight: 500,
+                      letterSpacing: "0.01em",
+                    }}
+                  >
+                    {title}
+                  </Typography>
+                  {breadcrumb.map((crumb, i) => (
+                    <React.Fragment key={i}>
+                      <Typography
+                        sx={{ fontSize: 12, color: "#D6D3D1", mx: 0.25 }}
+                      >
+                        /
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: 12,
+                          color:
+                            i === breadcrumb.length - 1
+                              ? "#1C1917"
+                              : "#A8A29E",
+                          fontWeight:
+                            i === breadcrumb.length - 1 ? 600 : 500,
+                          letterSpacing: "0.01em",
+                        }}
+                      >
+                        {crumb}
+                      </Typography>
+                    </React.Fragment>
+                  ))}
+                </Box>
+              )}
+              {subtitle && !breadcrumb?.length && (
                 <Typography variant="body" sx={{ lineHeight: 1.4, color: "#78716C", fontSize: 13 }}>
                   {subtitle}
                 </Typography>

@@ -36,10 +36,11 @@ const StyledTabs = styled(TabList)(() => ({
   },
 }));
 
+const STEP_LABELS = ["Document to Review", "Tasks & Direction", "Output"];
+
 const RouteValidator = () => {
   const [step, setCurrentStep] = useAtom(routeValidatorStepAtom);
-  // Hide Next button on first step (0) and last step (2 - Output)
-  const isNextButtonVisible = step.currentStep !== 0 && step.currentStep !== 2;
+  const isNextButtonVisible = step.currentStep !== 2;
 
   const nextStep = () => {
     setCurrentStep((prevStep) => ({
@@ -54,12 +55,16 @@ const RouteValidator = () => {
     setValue(newValue);
   };
 
+  const breadcrumb =
+    value === "Tool" ? [STEP_LABELS[step.currentStep]] : undefined;
+
   return (
     <>
       <HeaderTitle
         title="Route Assistant"
         subtitle="Validate and review documents"
         icon={<IconRoute width={18} height={18} color={"#FFFFFF"} />}
+        breadcrumb={breadcrumb}
       />
       <Box sx={{ typography: "body1", p: 3 }}>
         <Box
