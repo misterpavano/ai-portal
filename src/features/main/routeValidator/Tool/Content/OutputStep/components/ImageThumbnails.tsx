@@ -18,9 +18,8 @@ export const ImageThumbnails: React.FC<ImageThumbnailsProps> = memo(
           height: "fit-content",
           alignSelf: "flex-start",
           backgroundColor: "#FFFFFF",
-          border: "1px solid",
-          borderColor: "neutral.400",
-          borderRadius: "8px",
+          border: "1px solid #E7E5E4",
+          borderRadius: "10px",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -28,8 +27,8 @@ export const ImageThumbnails: React.FC<ImageThumbnailsProps> = memo(
       >
         <Box
           sx={{
-            backgroundColor: "neutral.200",
-            borderBottom: (theme: any) => `1px dashed ${theme.palette.neutral[400]}`,
+            bgcolor: "#FAFAF9",
+            borderBottom: "1px dashed #E7E5E4",
             display: "flex",
             height: "43px",
             alignItems: "center",
@@ -58,10 +57,10 @@ export const ImageThumbnails: React.FC<ImageThumbnailsProps> = memo(
                   alignItems: "center",
                   justifyContent: "center",
                   minHeight: "60px",
-                  borderBottom: (theme: any) =>
+                  borderBottom:
                     index === images.length - 1
                       ? "none"
-                      : `1px dashed ${theme.palette.neutral[400]}`,
+                      : "1px dashed #E7E5E4",
                   transition: "background-color 0.15s ease",
                   "&:hover": {
                     backgroundColor: isSelected ? "#FEF2F0" : "#FAFAF9",
@@ -76,7 +75,7 @@ export const ImageThumbnails: React.FC<ImageThumbnailsProps> = memo(
                     top: 0,
                     bottom: 0,
                     width: "10px",
-                    backgroundColor: hasIssues ? COLORS.error : "neutral.300",
+                    backgroundColor: hasIssues ? COLORS.error : "#E7E5E4",
                   }}
                 />
 

@@ -300,8 +300,8 @@ export const IssuesSidebar: React.FC<IssuesSidebarProps> = memo(
                 sx={{
                   borderRadius: "10px",
                   border: "1px solid",
-                  borderColor: "neutral.300",
-                  backgroundColor: "neutral.100",
+                  borderColor: "#E7E5E4",
+                  backgroundColor: "#FAFAF9",
                   px: 2,
                   py: 2.5,
                   textAlign: "center",
@@ -310,7 +310,7 @@ export const IssuesSidebar: React.FC<IssuesSidebarProps> = memo(
               >
                 <Typography
                   sx={{
-                    color: "neutral.600",
+                    color: "#78716C",
                     fontSize: "13px",
                     fontWeight: 500,
                   }}
