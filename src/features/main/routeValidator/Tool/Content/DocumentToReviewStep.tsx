@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
-  Grid,
   LinearProgress,
-  CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import { useAtom } from "jotai";
 import {
@@ -16,6 +15,9 @@ import {
   IconFileTypePdf,
   IconFileZip,
   IconFileTypeDocx,
+  IconUpload,
+  IconTrashFilled,
+  IconCheck,
 } from "@tabler/icons-react";
 import DefaultButton from "../../../../../components/layouts/DefaultButton";
 import { useUploadDocumentMutation } from "../../../../../api/slices/routeValidatorSlice";
@@ -23,8 +25,34 @@ import JSZip from "jszip";
 // @ts-ignore
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 
-// Use CDN worker so it loads on staging/production even when /pdf.worker.min.mjs isn't served
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/legacy/build/pdf.worker.min.mjs`;
+
+const documentTypes = [
+  {
+    id: "route",
+    name: "PDF",
+    description: "Route as PDF document",
+    icon: IconFileTypePdf,
+    accept: ".pdf",
+    disabled: false,
+  },
+  {
+    id: "screenshots",
+    name: "ZIP",
+    description: "Route as screenshots",
+    icon: IconFileZip,
+    accept: ".zip",
+    disabled: false,
+  },
+  {
+    id: "word",
+    name: "Word",
+    description: "Route as .doc/.docx",
+    icon: IconFileTypeDocx,
+    accept: ".doc,.docx",
+    disabled: false,
+  },
+];
 
 const DocumentToReviewStep: React.FC = () => {
   const [routeValidatorFormValues, setRouteValidatorFormValues] = useAtom(
@@ -40,55 +68,24 @@ const DocumentToReviewStep: React.FC = () => {
 
   const [uploadDocument] = useUploadDocumentMutation();
 
-  // Check if file is already uploaded from form state
   const fileUploaded = !!routeValidatorFormValues.file?.fileName;
   const uploadedFileName = routeValidatorFormValues.file?.fileName || "";
 
-  // Track step changes to detect when navigating back to step 0
   useEffect(() => {
-    // If we're navigating back to step 0 from a later step, reset justUploaded
     if (currentStepState.currentStep === 0 && previousStepRef.current > 0) {
       setJustUploaded(false);
     }
     previousStepRef.current = currentStepState.currentStep;
   }, [currentStepState.currentStep]);
 
-  // Show "Upload complete" only if we just uploaded a file (not when navigating back)
   const showUploadComplete =
     fileUploaded && justUploaded && currentStepState.currentStep === 0;
-
-  const documentTypes = [
-    {
-      id: "route",
-      name: "PDF Document",
-      description: "Route provided as a PDF document.",
-      icon: <IconFileTypePdf size={40} />,
-      accept: ".pdf",
-      disabled: false,
-    },
-    {
-      id: "screenshots",
-      name: "ZIP File",
-      description: "Route provided as a ZIP file.",
-      icon: <IconFileZip size={40} />,
-      accept: ".zip",
-      disabled: false, // Temporarily disabled
-    },
-    {
-      id: "word",
-      name: "Word Document",
-      description: "Route provided as a Word document (.doc, .docx).",
-      icon: <IconFileTypeDocx size={40} />,
-      accept: ".doc,.docx",
-      disabled: false, // Temporarily disabled
-    },
-  ];
 
   const handleDocumentTypeSelect = (typeId: string) => {
     setRouteValidatorFormValues((prev) => ({
       ...prev,
       documentType: typeId,
-      file: { fileId: "", fileName: "" }, // Clear previous file on type change
+      file: { fileId: "", fileName: "" },
       extractedImages: [],
       extractedText: "",
     }));
@@ -101,191 +98,93 @@ const DocumentToReviewStep: React.FC = () => {
 
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => {
-        if (prev >= 90) {
-          return 90;
-        }
+        if (prev >= 90) return 90;
         return Math.min(prev + 10, 90);
       });
     }, 300);
 
     try {
-      // Upload file to backend
       const formData = new FormData();
       formData.append("file", selectedFile);
       const response = await uploadDocument(formData).unwrap();
 
-      console.log("[DocumentToReviewStep] Upload response:", response);
-
-      // Extract images from ZIP file if it's a screenshots type
       let extractedImages: { id: string; url: string; name: string }[] = [];
 
       if (routeValidatorFormValues.documentType === "screenshots") {
         try {
-          console.log(
-            "[DocumentToReviewStep] Extracting images from ZIP file...",
-          );
           const zip = await JSZip.loadAsync(selectedFile);
-
-          const imageExtensions = [
-            ".png",
-            ".jpg",
-            ".jpeg",
-            ".gif",
-            ".bmp",
-            ".webp",
-          ];
-
-          // Collect image entries then sort by filename so page 1..N matches backend (backend sorts the same way)
-          const imageEntries: {
-            filename: string;
-            file: (typeof zip.files)[string];
-          }[] = [];
+          const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"];
+          const imageEntries: { filename: string; file: (typeof zip.files)[string] }[] = [];
           for (const [filename, file] of Object.entries(zip.files)) {
             if (file.dir) continue;
             const baseName = filename.split("/").pop() || filename;
-            if (
-              baseName.startsWith(".") ||
-              baseName.startsWith("._") ||
-              filename.includes("__MACOSX")
-            )
-              continue;
-            const isImage = imageExtensions.some((ext) =>
-              filename.toLowerCase().endsWith(ext),
-            );
+            if (baseName.startsWith(".") || baseName.startsWith("._") || filename.includes("__MACOSX")) continue;
+            const isImage = imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
             if (isImage) imageEntries.push({ filename, file });
           }
           imageEntries.sort((a, b) => {
-            const nameA = (
-              a.filename.split("/").pop() || a.filename
-            ).toLowerCase();
-            const nameB = (
-              b.filename.split("/").pop() || b.filename
-            ).toLowerCase();
+            const nameA = (a.filename.split("/").pop() || a.filename).toLowerCase();
+            const nameB = (b.filename.split("/").pop() || b.filename).toLowerCase();
             return nameA.localeCompare(nameB, undefined, { numeric: true });
           });
-
-          for (
-            let imageIndex = 0;
-            imageIndex < imageEntries.length;
-            imageIndex++
-          ) {
-            const { filename, file } = imageEntries[imageIndex];
+          for (let i = 0; i < imageEntries.length; i++) {
+            const { filename, file } = imageEntries[i];
             try {
               const blob = await file.async("blob");
               if (blob.size === 0) continue;
-              const imageUrl = URL.createObjectURL(blob);
-              extractedImages.push({
-                id: `img-${imageIndex + 1}`,
-                url: imageUrl,
-                name: filename,
-              });
+              extractedImages.push({ id: `img-${i + 1}`, url: URL.createObjectURL(blob), name: filename });
             } catch (error) {
-              console.error(
-                `[DocumentToReviewStep] Error processing image ${filename}:`,
-                error,
-              );
+              console.error(`Error processing image ${filename}:`, error);
             }
           }
-
-          console.log(
-            `[DocumentToReviewStep] Extracted ${extractedImages.length} images from ZIP`,
-          );
         } catch (error) {
           console.error("Error extracting ZIP file:", error);
-          // Continue with upload even if extraction fails
         }
       }
 
-      // Extract images from PDF file (render each page as an image)
       if (routeValidatorFormValues.documentType === "route") {
         try {
-          console.log(
-            "[DocumentToReviewStep] Extracting images from PDF file...",
-          );
           const arrayBuffer = await selectedFile.arrayBuffer();
-          const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer })
-            .promise;
+          const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
           const numPages = pdfDoc.numPages;
-          const RENDER_SCALE = 2; // 2x scale for good quality (match PDF clarity)
-          // JPEG quality for extracted page images (keeps export PDF size reasonable vs PNG)
+          const RENDER_SCALE = 2;
           const JPEG_QUALITY = 0.88;
-
           for (let pageNum = 1; pageNum <= numPages; pageNum++) {
             try {
               const page = await pdfDoc.getPage(pageNum);
               const viewport = page.getViewport({ scale: RENDER_SCALE });
-
               const canvas = document.createElement("canvas");
               canvas.width = viewport.width;
               canvas.height = viewport.height;
               const context = canvas.getContext("2d");
               if (!context) continue;
-
-              // Fill white background before rendering PDF content
               context.fillStyle = "#ffffff";
               context.fillRect(0, 0, canvas.width, canvas.height);
-
-              const renderTask = page.render({
-                canvas,
-                canvasContext: context,
-                viewport: viewport,
-              });
-              await renderTask.promise;
-
-              console.log(
-                `[DocumentToReviewStep] PDF page ${pageNum} rendered: ${canvas.width}x${canvas.height}`,
-              );
-
-              // Use JPEG (not PNG) to keep export PDF size small; PNG would make export ~10x larger
+              await page.render({ canvas, canvasContext: context, viewport }).promise;
               const blob: Blob = await new Promise((resolve) =>
                 canvas.toBlob((b) => resolve(b!), "image/jpeg", JPEG_QUALITY),
               );
               if (!blob || blob.size === 0) continue;
-
-              const imageUrl = URL.createObjectURL(blob);
-              extractedImages.push({
-                id: `img-${pageNum}`,
-                url: imageUrl,
-                name: `page-${String(pageNum).padStart(3, "0")}.jpg`,
-              });
+              extractedImages.push({ id: `img-${pageNum}`, url: URL.createObjectURL(blob), name: `page-${String(pageNum).padStart(3, "0")}.jpg` });
             } catch (pageError) {
-              console.error(
-                `[DocumentToReviewStep] Error rendering PDF page ${pageNum}:`,
-                pageError,
-              );
+              console.error(`Error rendering PDF page ${pageNum}:`, pageError);
             }
           }
-
-          console.log(
-            `[DocumentToReviewStep] Extracted ${extractedImages.length} images from PDF (${numPages} pages)`,
-          );
         } catch (error) {
           console.error("Error extracting PDF file:", error);
-          // Continue with upload even if extraction fails
         }
       }
 
-      // Update form state with file info and extracted images
       setRouteValidatorFormValues((prev) => ({
         ...prev,
-        file: {
-          fileId: response.fileId,
-          fileName: response.fileName,
-          fileObject: selectedFile, // Store file object for later use
-        },
-        extractedImages, // Store extracted images
+        file: { fileId: response.fileId, fileName: response.fileName, fileObject: selectedFile },
+        extractedImages,
       }));
-
       setUploadProgress(100);
-      setJustUploaded(true); // Mark that we just uploaded a file
+      setJustUploaded(true);
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      setUploadError(
-        error?.data?.message ||
-          error?.data?.error ||
-          error?.message ||
-          "SERVER ISSUE - please try again later.",
-      );
+      setUploadError(error?.data?.message || error?.data?.error || error?.message || "SERVER ISSUE - please try again later.");
     } finally {
       clearInterval(progressInterval);
       setIsUploading(false);
@@ -297,19 +196,14 @@ const DocumentToReviewStep: React.FC = () => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       processFile(selectedFile);
-      // Clear the input value to fix the bug where selecting the same file again doesn't trigger onChange
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     const droppedFile = event.dataTransfer.files[0];
-    if (droppedFile) {
-      processFile(droppedFile);
-    }
+    if (droppedFile) processFile(droppedFile);
   };
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -319,15 +213,13 @@ const DocumentToReviewStep: React.FC = () => {
   const handleBack = () => {
     setRouteValidatorFormValues((prev) => ({
       ...prev,
-      file: {
-        fileId: "",
-        fileName: "",
-      },
+      file: { fileId: "", fileName: "" },
       extractedImages: [],
       extractedText: "",
     }));
     setUploadError(null);
     setUploadProgress(0);
+    setJustUploaded(false);
   };
 
   const handleConfirm = () => {
@@ -341,314 +233,306 @@ const DocumentToReviewStep: React.FC = () => {
   const selectedTypeConfig = documentTypes.find((t) => t.id === selectedType);
 
   return (
-    <Box sx={{ padding: "20px 0 20px 20px" }}>
-      <Typography
+    <Box sx={{ px: 4, pt: 2, pb: 6 }}>
+      {/* Split layout */}
+      <Box
         sx={{
-          fontSize: "11px",
-          fontWeight: 600,
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          color: "#A8A29E",
-          borderBottom: "1px solid #E7E5E4",
-          paddingBottom: "12px",
-          marginBottom: "16px",
+          display: "flex",
+          gap: 4,
+          flexDirection: { xs: "column", md: "row" },
         }}
       >
-        Select a document type:
-      </Typography>
-
-      {!showUploadComplete ? (
-        <>
-          <Grid container spacing={1.5} sx={{ maxWidth: 540, marginBottom: 4 }}>
-            {documentTypes.map((type) => (
-              <Grid item xs={12} sm={4} key={type.id}>
+        {/* Left — Document type selection */}
+        <Box sx={{ flex: "0 0 280px" }}>
+          <Typography
+            sx={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: "#1C1917",
+              mb: 1.5,
+            }}
+          >
+            Document Type
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            {documentTypes.map((type) => {
+              const Icon = type.icon;
+              const isSelected = selectedType === type.id;
+              return (
                 <Box
-                  onClick={() =>
-                    !type.disabled && handleDocumentTypeSelect(type.id)
-                  }
+                  key={type.id}
+                  onClick={() => !type.disabled && handleDocumentTypeSelect(type.id)}
                   sx={{
-                    width: 160,
-                    height: "auto",
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "flex-start",
-                    gap: "12px",
-                    border: "1px solid #E7E5E4",
-                    borderLeft:
-                      selectedType === type.id
-                        ? "3px solid #E86D5A"
-                        : "1px solid #E7E5E4",
-                    borderRadius: "10px",
-                    padding: "20px 16px",
-                    overflow: "hidden",
+                    gap: 2,
+                    p: 2,
+                    borderRadius: "12px",
+                    border: "1.5px solid",
+                    borderColor: isSelected ? "#E86D5A" : "#E7E5E4",
+                    bgcolor: isSelected ? "#FEF2F0" : "#FFFFFF",
                     cursor: type.disabled ? "not-allowed" : "pointer",
-                    backgroundColor:
-                      selectedType === type.id ? "#FAFAF9" : "#FFFFFF",
                     opacity: type.disabled ? 0.5 : 1,
-                    transition: "all 200ms ease-out",
-                    boxShadow:
-                      selectedType === type.id
-                        ? "0 4px 12px rgba(28,25,23,0.08), 0 2px 4px rgba(28,25,23,0.04)"
-                        : "0 1px 3px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04)",
+                    transition: "all 0.15s ease",
                     "&:hover": {
-                      backgroundColor: type.disabled
-                        ? "#FFFFFF"
-                        : selectedType === type.id
-                          ? "#FAFAF9"
-                          : "#FAFAF9",
-                      boxShadow: type.disabled
-                        ? "0 1px 3px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04)"
-                        : "0 4px 12px rgba(28,25,23,0.08), 0 2px 4px rgba(28,25,23,0.04)",
-                      transform:
-                        type.disabled || selectedType === type.id
-                          ? "none"
-                          : "translateY(-1px)",
+                      borderColor: type.disabled ? "#E7E5E4" : isSelected ? "#D4553F" : "#D6D3D1",
+                      bgcolor: type.disabled ? "#FFFFFF" : isSelected ? "#FEF2F0" : "#FAFAF9",
                     },
                   }}
                 >
                   <Box
                     sx={{
-                      color: "#44403C",
-                      height: 36,
+                      width: 40,
+                      height: 40,
+                      borderRadius: "10px",
+                      bgcolor: isSelected ? "#E86D5A" : "#F5F5F4",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      transition: "all 0.15s ease",
                       flexShrink: 0,
-                      "& svg": { width: 36, height: 36 },
                     }}
                   >
-                    {type.icon}
+                    <Icon size={18} color={isSelected ? "#FFFFFF" : "#78716C"} />
                   </Box>
-                  <Typography
-                    sx={{
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      color: "#1C1917",
-                      textAlign: "center",
-                      lineHeight: 1.2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "100%",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {type.name}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "11px",
-                      fontWeight: 400,
-                      color: "#A8A29E",
-                      textAlign: "center",
-                      lineHeight: 1.4,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "100%",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {type.description}
-                  </Typography>
-                  {type.disabled && (
-                    <Typography
-                      sx={{
-                        fontSize: "10px",
-                        color: "#78716C",
-                        textAlign: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      Coming soon
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#1C1917", lineHeight: 1.3 }}>
+                      {type.name}
                     </Typography>
-                  )}
+                    <Typography sx={{ fontSize: 12, color: "#A8A29E", lineHeight: 1.4 }}>
+                      {type.description}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: "6px",
+                      border: "1.5px solid",
+                      borderColor: isSelected ? "#E86D5A" : "#D6D3D1",
+                      bgcolor: isSelected ? "#E86D5A" : "transparent",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "all 0.15s ease",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {isSelected && <IconCheck size={14} color="#FFFFFF" strokeWidth={2.5} />}
+                  </Box>
                 </Box>
-              </Grid>
-            ))}
-          </Grid>
-
-          {selectedType && (
-            <Box sx={{ width: 460 }}>
-              <Box sx={{ pb: 0.5, mb: 1 }}>
-                <Typography sx={{ fontSize: "12px", color: "#78716C" }}>
-                  You can either drag and drop the file into the section below
-                  or browse to attach it.
-                  {selectedTypeConfig?.accept && (
-                    <Box component="span" sx={{ fontWeight: 500 }}>
-                      {" "}
-                      (
-                      {selectedTypeConfig.accept
-                        .split(",")
-                        .map((ext) => ext.trim())
-                        .join(", ")}
-                      )
-                    </Box>
-                  )}
-                </Typography>
-              </Box>
-              <Box
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                sx={{
-                  backgroundColor: "#FAFAF9",
-                  border: "1px dashed #D6D3D1",
-                  borderRadius: "10px",
-                  padding: "20px",
-                  display: "flex",
-                  minHeight: "10px",
-                  width: "95%",
-                  cursor: "pointer",
-                  flexDirection: "column",
-                  opacity: isUploading ? 0.6 : 1,
-                }}
-                onClick={() => !isUploading && fileInputRef.current?.click()}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                  onChange={handleFileSelect}
-                  accept={selectedTypeConfig?.accept}
-                  disabled={isUploading}
-                />
-                {isUploading ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      width: "100%",
-                    }}
-                  >
-                    <Box sx={{ flex: 1 }}>
-                      <LinearProgress
-                        color="error"
-                        variant="determinate"
-                        value={uploadProgress}
-                      />
-                    </Box>
-                    <CircularProgress
-                      size={20}
-                      sx={{ color: "error.main" }}
-                    />
-                  </Box>
-                ) : uploadError ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1,
-                    }}
-                  >
-                    <Typography
-                      sx={{ color: "error.main", fontSize: "12px" }}
-                    >
-                      {uploadError}
-                    </Typography>
-                    <Typography
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setUploadError(null);
-                        fileInputRef.current?.click();
-                      }}
-                      sx={{
-                        color: "error.main",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Try Again
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <IconFile color="#A8A29E" size={20} />
-                    <Typography
-                      sx={{ color: "#78716C", fontSize: "13px" }}
-                    >
-                      Drop file here or{" "}
-                      <Box
-                        component="span"
-                        sx={{
-                          fontWeight: 600,
-                          color: "#1C1917",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        Browse files
-                      </Box>
-                      {selectedTypeConfig?.accept && (
-                        <Box
-                          component="span"
-                          sx={{ ml: 0.5, fontSize: "11px", color: "#A8A29E" }}
-                        >
-                          (
-                          {selectedTypeConfig.accept
-                            .split(",")
-                            .map((ext) => ext.trim())
-                            .join(", ")}
-                          )
-                        </Box>
-                      )}
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          )}
-        </>
-      ) : (
-        <Box sx={{ maxWidth: 980 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              marginBottom: 2,
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: "16px",
-                fontWeight: 600,
-                color: "#3D9A5C",
-              }}
-            >
-              Upload complete
-            </Typography>
-            <Typography sx={{ fontSize: "14px", color: "#44403C" }}>
-              {uploadedFileName}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 2, marginBottom: 2 }}>
-            <DefaultButton
-              title="Back"
-              type="secondary"
-              onClick={handleBack}
-              style={{ width: 100 }}
-            />
-            <DefaultButton
-              title="Confirm"
-              type="primary"
-              onClick={handleConfirm}
-              style={{ width: 100 }}
-            />
+              );
+            })}
           </Box>
         </Box>
-      )}
+
+        {/* Right — Upload area */}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography
+            sx={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: "#1C1917",
+              mb: 1.5,
+            }}
+          >
+            Upload Document
+          </Typography>
+
+          {showUploadComplete ? (
+            /* Uploaded state */
+            <Box
+              sx={{
+                border: "2px solid #E86D5A",
+                borderRadius: "16px",
+                bgcolor: "#FEF2F0",
+                p: 3,
+                minHeight: 200,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+                <Box
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "12px",
+                    bgcolor: "#E86D5A",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <IconCheck size={22} color="#FFFFFF" strokeWidth={2} />
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#1C1917" }}>
+                    Upload complete
+                  </Typography>
+                  <Tooltip title={uploadedFileName} placement="top">
+                    <Typography sx={{ fontSize: 13, color: "#78716C" }}>
+                      {uploadedFileName.length > 40
+                        ? uploadedFileName.substring(0, 40) + "..."
+                        : uploadedFileName}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+                <Box sx={{ ml: "auto" }}>
+                  <Tooltip title="Remove" placement="top">
+                    <Box
+                      onClick={handleBack}
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        "&:hover": { bgcolor: "rgba(232,109,90,0.15)" },
+                      }}
+                    >
+                      <IconTrashFilled size={16} color="#A8A29E" />
+                    </Box>
+                  </Tooltip>
+                </Box>
+              </Box>
+              <DefaultButton
+                title="Continue to Review"
+                type="primary"
+                onClick={handleConfirm}
+                style={{ borderRadius: "10px", height: 44, width: 200 }}
+              />
+            </Box>
+          ) : selectedType ? (
+            /* Drop zone */
+            <Box
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+              sx={{
+                border: "2px dashed",
+                borderColor: "#E7E5E4",
+                borderRadius: "16px",
+                px: 3,
+                cursor: isUploading ? "default" : "pointer",
+                bgcolor: "#FAFAF9",
+                transition: "all 0.2s ease",
+                minHeight: 240,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: isUploading ? 0.7 : 1,
+                "&:hover": {
+                  borderColor: isUploading ? "#E7E5E4" : "#E86D5A",
+                  bgcolor: isUploading ? "#FAFAF9" : "#FEF2F0",
+                },
+              }}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileSelect}
+                accept={selectedTypeConfig?.accept}
+                disabled={isUploading}
+              />
+              {isUploading ? (
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, width: "70%" }}>
+                  <Typography sx={{ fontSize: 13, color: "#78716C", fontWeight: 500 }}>
+                    Uploading...
+                  </Typography>
+                  <LinearProgress
+                    sx={{
+                      width: "100%",
+                      borderRadius: 4,
+                      height: 3,
+                      bgcolor: "#F5F5F4",
+                      "& .MuiLinearProgress-bar": { bgcolor: "#E86D5A", borderRadius: 4 },
+                    }}
+                    variant="determinate"
+                    value={uploadProgress}
+                  />
+                </Box>
+              ) : uploadError ? (
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, py: 4 }}>
+                  <Typography sx={{ color: "#DC5E5E", fontSize: 13, fontWeight: 500, textAlign: "center" }}>
+                    {uploadError}
+                  </Typography>
+                  <Typography
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setUploadError(null);
+                      fileInputRef.current?.click();
+                    }}
+                    sx={{
+                      color: "#E86D5A",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                  >
+                    Try Again
+                  </Typography>
+                </Box>
+              ) : (
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, py: 4 }}>
+                  <Box
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: "14px",
+                      bgcolor: "#1C1917",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <IconUpload color="#FFFFFF" size={24} strokeWidth={1.5} />
+                  </Box>
+                  <Box sx={{ textAlign: "center" }}>
+                    <Typography sx={{ fontSize: 15, fontWeight: 700, color: "#1C1917", mb: 0.5, letterSpacing: "-0.01em" }}>
+                      Drop your {selectedTypeConfig?.name} file here
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: "#A8A29E" }}>
+                      or{" "}
+                      <Box component="span" sx={{ color: "#E86D5A", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}>
+                        browse files
+                      </Box>
+                    </Typography>
+                    <Typography sx={{ fontSize: 11, color: "#D6D3D1", mt: 1 }}>
+                      {selectedTypeConfig?.accept?.split(",").map((ext) => ext.trim()).join(", ")} supported
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          ) : (
+            /* No type selected yet */
+            <Box
+              sx={{
+                border: "2px dashed #E7E5E4",
+                borderRadius: "16px",
+                minHeight: 240,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "#FAFAF9",
+              }}
+            >
+              <Typography sx={{ fontSize: 14, color: "#A8A29E" }}>
+                Select a document type to upload
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Box>
     </Box>
   );
 };
 
 export default DocumentToReviewStep;
-
-// const renderTask = page.render({
-//   canvas,
-//   canvasContext: context,
-//   viewport: viewport,
-// });
-// await renderTask.promise;
