@@ -233,14 +233,20 @@ const FileUploader = ({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         sx={{
-          border: "1px dashed",
-          borderRadius: 2,
-          padding: 2,
+          border: "1px dashed #D6D3D1",
+          borderRadius: "10px",
+          padding: 2.5,
           display: "flex",
           minHeight: "10px",
           width: "95%",
           cursor: "pointer",
           flexDirection: "column",
+          backgroundColor: "#FAFAF9",
+          transition: "all 0.15s ease",
+          "&:hover": {
+            borderColor: "#E86D5A",
+            backgroundColor: "#FEF2F0",
+          },
         }}
         onClick={() => fileInputRef.current?.click()}
       >
@@ -484,14 +490,20 @@ export const MeetingNotesFileUploader = ({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         sx={{
-          border: "1px dashed",
-          borderRadius: 2,
-          padding: 2,
+          border: "1px dashed #D6D3D1",
+          borderRadius: "10px",
+          padding: 2.5,
           display: "flex",
           minHeight: "10px",
           width: "95%",
           cursor: "pointer",
           flexDirection: "column",
+          backgroundColor: "#FAFAF9",
+          transition: "all 0.15s ease",
+          "&:hover": {
+            borderColor: "#E86D5A",
+            backgroundColor: "#FEF2F0",
+          },
         }}
         onClick={() => fileInputRef.current?.click()}
       >

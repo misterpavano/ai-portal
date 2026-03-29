@@ -5,7 +5,6 @@ import {
   SelectChangeEvent,
   MenuProps,
 } from "@mui/material";
-import { IconChevronDown } from "@tabler/icons-react";
 import React from "react";
 
 type SelectProps = {
@@ -37,6 +36,7 @@ const Select = ({
       style: {
         maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
         width: 250,
+        borderRadius: 8,
       },
     },
     variant: "menu",
@@ -65,7 +65,7 @@ const Select = ({
   return (
     <>
       <Box sx={{ height: 20 }}>
-        <FormHelperText sx={{ color: "neutral.700", fontSize: 16 }}>
+        <FormHelperText sx={{ color: "neutral.700", fontSize: 13, fontWeight: 500 }}>
           {topText}
         </FormHelperText>
       </Box>
@@ -78,15 +78,25 @@ const Select = ({
         error={error}
         MenuProps={MenuProps}
         sx={{
-          borderRadius: 2,
+          borderRadius: "8px",
           marginRight: 15,
           backgroundColor: "white",
+          height: 44,
           "& .MuiOutlinedInput-notchedOutline": {
-            borderWidth: 1.5,
-            borderColor: "neutral.200",
+            borderWidth: 1,
+            borderColor: "#E7E5E4",
+            transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#D6D3D1",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#E86D5A",
+            borderWidth: 2,
+            boxShadow: "0 0 0 3px rgba(232, 109, 90, 0.12)",
           },
           "& .MuiSelect-select": {
-            fontSize: 14, // Reduced font size
+            fontSize: 14,
             overflow: "hidden",
             textOverflow: "ellipsis",
           },
@@ -98,7 +108,7 @@ const Select = ({
         {React.Children.map(children, (child) =>
           React.cloneElement(child as React.ReactElement, {
             sx: {
-              fontSize: 14, // Reduced font size for menu items
+              fontSize: 14,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",

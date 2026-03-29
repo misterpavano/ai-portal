@@ -83,7 +83,7 @@ const TextInput = ({
         {topText && (
           <Box sx={{ height: 20, pb: description ? 0 : 0.5 }}>
             <FormHelperText
-              sx={{ color: "neutral.700" }}
+              sx={{ color: "neutral.700", fontSize: 13, fontWeight: 500 }}
               id="outlined-weight-helper-text"
             >
               {topText}
@@ -111,6 +111,20 @@ const TextInput = ({
               width: "100%",
               backgroundColor: "white",
               borderRadius: 40,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#E7E5E4",
+                  borderWidth: 1,
+                },
+                "&:hover fieldset": {
+                  borderColor: "#D6D3D1",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#E86D5A",
+                  borderWidth: 2,
+                  boxShadow: "0 0 0 3px rgba(232, 109, 90, 0.12)",
+                },
+              },
               ...inputStyles,
             }}
             onKeyDown={handleKeyDown}
@@ -136,7 +150,7 @@ const TextInput = ({
                 paddingLeft: icon ? 10 : 15,
                 paddingRight: 15,
                 alignItems: "center",
-                fontSize: 15,
+                fontSize: 14,
               },
             }}
             value={value}

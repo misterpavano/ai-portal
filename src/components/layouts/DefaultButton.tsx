@@ -26,7 +26,8 @@ const backgroundColor = (
     return "transparent";
   }
 
-  return theme.palette.primary.main;
+  // Charcoal primary
+  return "#1C1917";
 };
 
 const border = (
@@ -84,14 +85,15 @@ const DefaultButton = ({
     textTransform: "none",
     alignItems: "center",
     justifyContent: "center",
+    transition: "all 0.15s ease",
     "&:hover": {
       backgroundColor:
-        type === "primary" ? theme.palette.primary.dark : theme.palette.neutral[100],
+        type === "primary" ? "#292524" : theme.palette.neutral[100],
       color:
         type === "primary"
           ? theme.palette.common.white
           : theme.palette.text.secondary,
-      borderColor: theme.palette.neutral[500],
+      borderColor: type === "secondary" ? "#E86D5A" : undefined,
     },
     ...style,
   };
@@ -99,8 +101,8 @@ const DefaultButton = ({
   const textStyles = {
     color: textColor(theme, type, disabled),
     fontSize: 14,
-    fontWeight: 500,
-    letterSpacing: "0.02em",
+    fontWeight: 600,
+    letterSpacing: "0.01em",
     ...textStyle,
   };
 

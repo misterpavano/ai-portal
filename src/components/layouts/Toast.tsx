@@ -22,8 +22,19 @@ const Toast = ({ open, autoHideDuration, onClose, type, title, icon, variant, st
                 horizontal: 'center',
             }}
         >
-            <Alert severity={type} sx={style} icon={icon} variant={variant}>
-                {type === 'warning' && <AlertTitle>Warning</AlertTitle>}
+            <Alert
+                severity={type}
+                sx={{
+                    borderRadius: '10px',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    boxShadow: '0 4px 12px rgba(28, 25, 23, 0.12)',
+                    ...style,
+                }}
+                icon={icon}
+                variant={variant || "filled"}
+            >
+                {type === 'warning' && <AlertTitle sx={{ fontWeight: 600, fontSize: 14 }}>Warning</AlertTitle>}
                 {title}
             </Alert>
         </Snackbar>

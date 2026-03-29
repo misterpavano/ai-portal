@@ -47,7 +47,7 @@ const TextArea = ({
         <Box sx={{ position: "relative" }}>
             {topText && (
                 <Box sx={{ height: 18, pb: isLongText ? 2 : 0.5 }}>
-                    <FormHelperText sx={{ color: "neutral.700" }}>{topText}</FormHelperText>
+                    <FormHelperText sx={{ color: "neutral.700", fontSize: 13, fontWeight: 500 }}>{topText}</FormHelperText>
                 </Box>
             )}
             {description && (
@@ -74,13 +74,19 @@ const TextArea = ({
                             ? isFocused
                                 ? `2px solid ${theme.palette.error.main}`
                                 : `1px solid ${theme.palette.error.main}`
-                            : `1px solid ${theme.palette.neutral[300]}`,
+                            : isFocused
+                                ? `2px solid #E86D5A`
+                                : `1px solid #E7E5E4`,
+                        boxShadow: isFocused && !error ? "0 0 0 3px rgba(232, 109, 90, 0.12)" : "none",
                         width: "100%",
                         padding: 15,
                         fontFamily: "inherit",
-                        fontSize: 15,
+                        fontSize: 14,
+                        minHeight: "44px",
                         pointerEvents: disabled ? "none" : "auto",
                         opacity: disabled ? 0.6 : 1,
+                        transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+                        outline: "none",
                         ...styles,
                     }}
                     onChange={handleChange}
@@ -112,7 +118,7 @@ const TextArea = ({
                         position: "absolute",
                         bottom: 10,
                         right: 0,
-                        color: remainingChars && remainingChars < 0 ? "error.main" : "inherit",
+                        color: remainingChars && remainingChars < 0 ? "error.main" : "neutral.500",
                     }}
                 >
                     {value.length}/{maxLength}
