@@ -1,6 +1,5 @@
-import { Box, Card, CardActionArea, CardContent, Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import { IconArrowRight } from "@tabler/icons-react";
+import { Box, Typography } from "@mui/material";
+import { IconArrowUpRight } from "@tabler/icons-react";
 import { QuickAction } from "../dashboardData";
 
 type DashboardQuickActionCardProps = {
@@ -12,83 +11,80 @@ const DashboardQuickActionCard = ({
   action,
   onSelect,
 }: DashboardQuickActionCardProps) => {
-  const theme = useTheme();
   const Icon = action.icon;
 
   return (
-    <Card
-      elevation={0}
+    <Box
+      onClick={() => onSelect(action.path)}
       sx={{
-        border: "1px solid",
-        borderColor: "neutral.300",
-        borderRadius: 3,
-        bgcolor: "common.white",
-        boxShadow: theme.customShadows.raised,
-        transition: "all 150ms ease-out",
+        display: "flex",
+        alignItems: "center",
+        gap: 2.5,
+        p: 2.5,
+        borderRadius: "14px",
+        border: "1px solid #E7E5E4",
+        bgcolor: "#FFFFFF",
+        cursor: "pointer",
+        transition: "all 0.15s ease",
         "&:hover": {
-          borderColor: "accent.main",
-          boxShadow: theme.customShadows.elevated,
-          transform: "translateY(-1px)",
+          borderColor: "#E86D5A",
+          bgcolor: "#FEF2F0",
+          transform: "translateX(4px)",
+          "& .action-arrow": {
+            opacity: 1,
+            color: "#E86D5A",
+          },
         },
       }}
     >
-      <CardActionArea onClick={() => onSelect(action.path)} sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 2.5 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: { xs: "flex-start", sm: "center" },
-              justifyContent: "space-between",
-              gap: 2,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: { xs: "flex-start", sm: "center" },
-                gap: 2,
-                minWidth: 0,
-                flex: 1,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: 2.5,
-                  bgcolor: "accent.50",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "accent.main",
-                  flexShrink: 0,
-                }}
-              >
-                <Icon size={26} />
-              </Box>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: "text.primary",
-                    mb: 0.25,
-                  }}
-                >
-                  {action.title}
-                </Typography>
-                <Typography variant="small" sx={{ color: "neutral.600", lineHeight: 1.5 }}>
-                  {action.description}
-                </Typography>
-              </Box>
-            </Box>
-            <Box sx={{ color: "neutral.500", flexShrink: 0, pt: { xs: 0.5, sm: 0 } }}>
-              <IconArrowRight size={16} />
-            </Box>
-          </Box>
-        </CardContent>
-      </CardActionArea>
-    </Card>
+      <Box
+        sx={{
+          width: 48,
+          height: 48,
+          borderRadius: "12px",
+          bgcolor: "#1C1917",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <Icon size={22} color="#FFFFFF" strokeWidth={1.5} />
+      </Box>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography
+          sx={{
+            fontSize: 15,
+            fontWeight: 700,
+            color: "#1C1917",
+            mb: 0.25,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {action.title}
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: 13,
+            color: "#78716C",
+            lineHeight: 1.5,
+          }}
+        >
+          {action.description}
+        </Typography>
+      </Box>
+      <Box
+        className="action-arrow"
+        sx={{
+          opacity: 0.3,
+          color: "#A8A29E",
+          transition: "all 0.15s ease",
+          flexShrink: 0,
+        }}
+      >
+        <IconArrowUpRight size={18} />
+      </Box>
+    </Box>
   );
 };
 

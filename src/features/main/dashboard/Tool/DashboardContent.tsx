@@ -1,48 +1,106 @@
 import { Box, Grid, Typography } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import DashboardActivityFeed from "./components/DashboardActivityFeed";
 import DashboardQuickActionCard from "./components/DashboardQuickActionCard";
-import DashboardSectionHeading from "./components/DashboardSectionHeading";
 import DashboardStatCard from "./components/DashboardStatCard";
-import {
-  dashboardStats,
-  quickActions,
-  recentActivity,
-} from "./dashboardData";
+import { dashboardStats, quickActions, recentActivity } from "./dashboardData";
 
 const DashboardContent = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 1120, mx: "auto", pb: 6 }}>
-      <Box sx={{ mb: { xs: 4, md: 5 } }}>
+    <Box sx={{ width: "100%", maxWidth: 1200, mx: "auto", pb: 8 }}>
+      {/* Hero greeting — editorial style */}
+      <Box
+        sx={{
+          mb: 5,
+          pt: 1,
+          borderBottom: "1px solid",
+          borderColor: "neutral.300",
+          pb: 4,
+        }}
+      >
         <Typography
           sx={{
-            fontSize: 26,
-            fontWeight: 700,
-            color: "text.primary",
-            mb: 0.75,
-            lineHeight: 1.2,
+            fontSize: { xs: 28, md: 36 },
+            fontWeight: 800,
+            color: "#1C1917",
+            lineHeight: 1.1,
+            letterSpacing: "-0.03em",
+            mb: 1,
           }}
         >
-          Welcome back
+          Good{" "}
+          {new Date().getHours() < 12
+            ? "morning"
+            : new Date().getHours() < 17
+            ? "afternoon"
+            : "evening"}
         </Typography>
-        <Typography variant="body" sx={{ color: "neutral.600" }}>
-          Here&apos;s what&apos;s happening in your AI workspace today.
+        <Typography
+          sx={{
+            fontSize: 15,
+            color: "#78716C",
+            fontWeight: 400,
+            lineHeight: 1.5,
+          }}
+        >
+          Here's your workspace overview for{" "}
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}
         </Typography>
       </Box>
 
-      <Grid container spacing={2} sx={{ mb: { xs: 4, md: 5 } }}>
-        {dashboardStats.map((stat) => (
-          <Grid item xs={12} sm={6} md={3} key={stat.label}>
-            <DashboardStatCard stat={stat} />
-          </Grid>
+      {/* Stats ribbon — horizontal, no cards, clean data */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+          gap: 0,
+          mb: 5,
+          bgcolor: "#1C1917",
+          borderRadius: "16px",
+          overflow: "hidden",
+        }}
+      >
+        {dashboardStats.map((stat, index) => (
+          <DashboardStatCard key={stat.label} stat={stat} index={index} />
         ))}
-      </Grid>
+      </Box>
 
-      <Grid container spacing={3}>
+      {/* Main content — asymmetric split */}
+      <Grid container spacing={4}>
+        {/* Left column — tools */}
         <Grid item xs={12} md={7}>
-          <DashboardSectionHeading>Quick Actions</DashboardSectionHeading>
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              sx={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#A8A29E",
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                mb: 0.5,
+              }}
+            >
+              Tools
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#1C1917",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Quick Actions
+            </Typography>
+          </Box>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {quickActions.map((action) => (
               <DashboardQuickActionCard
@@ -54,6 +112,7 @@ const DashboardContent = () => {
           </Box>
         </Grid>
 
+        {/* Right column — activity */}
         <Grid item xs={12} md={5}>
           <DashboardActivityFeed items={recentActivity} />
         </Grid>

@@ -1,87 +1,113 @@
-import { Box, Card, CardContent, Divider, Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { Box, Typography } from "@mui/material";
 import { ActivityItem } from "../dashboardData";
-import DashboardSectionHeading from "./DashboardSectionHeading";
 
 type DashboardActivityFeedProps = {
   items: ActivityItem[];
 };
 
 const DashboardActivityFeed = ({ items }: DashboardActivityFeedProps) => {
-  const theme = useTheme();
-
   return (
     <Box>
-      <DashboardSectionHeading>Recent Activity</DashboardSectionHeading>
-      <Card
-        elevation={0}
-        sx={{
-          border: "1px solid",
-          borderColor: "neutral.300",
-          borderRadius: 3,
-          bgcolor: "common.white",
-          boxShadow: theme.customShadows.raised,
-          height: "100%",
-        }}
-      >
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          {items.map((item, index) => (
-            <Box key={`${item.action}-${item.time}`}>
-              <Box
-                sx={{
-                  px: 2.5,
-                  py: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    bgcolor: "success.main",
-                    flexShrink: 0,
-                    mt: "2px",
-                  }}
-                />
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      color: "text.primary",
-                      fontWeight: 500,
-                      mb: 0.25,
-                    }}
-                    noWrap
-                  >
-                    {item.action}
-                  </Typography>
-                  <Typography variant="xsmall" sx={{ color: "neutral.500" }}>
-                    {item.tool} · {item.time}
-                  </Typography>
-                </Box>
-              </Box>
-              {index < items.length - 1 && (
-                <Divider sx={{ mx: 2.5, borderColor: "neutral.200" }} />
-              )}
-            </Box>
-          ))}
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          sx={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#A8A29E",
+            textTransform: "uppercase",
+            letterSpacing: "0.12em",
+            mb: 0.5,
+          }}
+        >
+          Activity
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontWeight: 700,
+            color: "#1C1917",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Recent
+        </Typography>
+      </Box>
+
+      {/* Timeline */}
+      <Box sx={{ position: "relative" }}>
+        {/* Vertical line */}
+        <Box
+          sx={{
+            position: "absolute",
+            left: "11px",
+            top: "12px",
+            bottom: "12px",
+            width: "1px",
+            bgcolor: "#E7E5E4",
+          }}
+        />
+
+        {items.map((item, index) => (
           <Box
+            key={`${item.action}-${item.time}`}
             sx={{
-              px: 2.5,
-              py: 1.5,
-              borderTop: "1px solid",
-              borderColor: "neutral.200",
+              display: "flex",
+              gap: 2,
+              py: 2,
+              position: "relative",
+              "&:first-of-type": { pt: 0 },
+              "&:last-of-type": { pb: 0 },
             }}
           >
-            <Typography variant="xsmall" sx={{ color: "neutral.500", textAlign: "center" }}>
-              Showing last 4 activities
-            </Typography>
+            {/* Dot */}
+            <Box
+              sx={{
+                width: 23,
+                display: "flex",
+                justifyContent: "center",
+                flexShrink: 0,
+                pt: "3px",
+              }}
+            >
+              <Box
+                sx={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: "50%",
+                  bgcolor: index === 0 ? "#E86D5A" : "#D6D3D1",
+                  border: "2px solid",
+                  borderColor: index === 0 ? "#FEF2F0" : "#F5F5F4",
+                  boxShadow: index === 0 ? "0 0 0 2px #E86D5A" : "none",
+                  zIndex: 1,
+                }}
+              />
+            </Box>
+
+            {/* Content */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "#1C1917",
+                  mb: 0.25,
+                  lineHeight: 1.3,
+                }}
+              >
+                {item.action}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: "#A8A29E",
+                }}
+              >
+                {item.tool} &middot; {item.time}
+              </Typography>
+            </Box>
           </Box>
-        </CardContent>
-      </Card>
+        ))}
+      </Box>
     </Box>
   );
 };
