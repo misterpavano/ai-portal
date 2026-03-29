@@ -127,7 +127,6 @@ const SideMenu = ({ children }: { children: React.ReactNode }) => {
             )}
           </S.CollapseToggle>
         </S.SidebarFooter>
-        <S.VersionText>v1.0</S.VersionText>
       </S.SidebarDrawer>
 
       <S.MainContent>

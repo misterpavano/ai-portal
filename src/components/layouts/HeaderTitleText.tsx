@@ -81,13 +81,13 @@ const HeaderTitle = ({
         color: "text.primary",
         minHeight: 66,
         px: { xs: 2, md: 5 },
-        py: 2,
+        py: 2.5,
         borderRadius: 0,
         position: "sticky",
         top: 0,
         zIndex: 1,
-        borderBottom: "2px solid",
-        borderColor: "neutral.200",
+        borderBottom: "1px solid",
+        borderColor: "neutral.300",
       }}
       title={
         <Box
@@ -107,25 +107,25 @@ const HeaderTitle = ({
           >
             <Box
               sx={{
-                borderRadius: 2,
-                backgroundColor: "primary.600",
-                width: 28,
-                height: 28,
+                borderRadius: "10px",
+                backgroundColor: "#1C1917",
+                width: 32,
+                height: 32,
                 alignItems: "center",
                 justifyContent: "center",
                 display: "flex",
-                mr: 1.5,
+                mr: 2,
                 flexShrink: 0,
               }}
             >
               {icon}
             </Box>
-            <Stack gap={0.2} sx={{ minWidth: 0 }}>
-              <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>
+            <Stack gap={0.5} sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.01em", color: "#1C1917" }}>
                 {title}
               </Typography>
               {subtitle && (
-                <Typography variant="body" sx={{ lineHeight: 1.4, color: "text.secondary" }}>
+                <Typography variant="body" sx={{ lineHeight: 1.4, color: "#78716C", fontSize: 13 }}>
                   {subtitle}
                 </Typography>
               )}
@@ -159,16 +159,20 @@ const HeaderTitle = ({
               gap: 1,
               p: 1,
               borderRadius: 999,
-              backgroundColor: "neutral.300",
+              backgroundColor: "transparent",
               flexShrink: 0,
+              transition: "background-color 200ms ease-out",
+              "&:hover": {
+                backgroundColor: "#F5F5F4",
+              },
             }}
           >
             <Avatar
               sx={{
-                backgroundColor: "primary.900",
-                width: 30,
-                height: 30,
-                fontSize: 14,
+                backgroundColor: "#1C1917",
+                width: 28,
+                height: 28,
+                fontSize: 12,
               }}
             >
               {userInitials}

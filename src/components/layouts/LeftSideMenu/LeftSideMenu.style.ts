@@ -124,22 +124,22 @@ const CustomListItemButton = styled(ListItemButton)<{
   alignItems: "center",
   padding: "10px 12px",
   marginBottom: 2,
-  backgroundColor: isActive ? "rgba(232, 109, 90, 0.08)" : "transparent",
-  borderRadius: 6,
+  backgroundColor: isActive ? "rgba(232, 109, 90, 0.10)" : "transparent",
+  borderRadius: 8,
   borderLeft: isActive ? "3px solid #E86D5A" : "3px solid transparent",
   transition: TRANSITION,
   minHeight: 40,
   "&:hover": {
     backgroundColor: disabled
       ? isActive
-        ? "rgba(232, 109, 90, 0.08)"
+        ? "rgba(232, 109, 90, 0.10)"
         : "transparent"
       : isHoverDisabled
       ? isActive
-        ? "rgba(232, 109, 90, 0.08)"
+        ? "rgba(232, 109, 90, 0.10)"
         : "transparent"
-      : "rgba(255, 255, 255, 0.04)",
-    borderRadius: 6,
+      : "rgba(255, 255, 255, 0.06)",
+    borderRadius: 8,
   },
   cursor: disabled ? "not-allowed" : "pointer",
 }));
@@ -159,9 +159,10 @@ const NavText = styled(Typography)<{
   opacity: disabled ? 0.4 : 1,
   pointerEvents: disabled ? "none" : "auto",
   fontSize: 13,
-  fontWeight: isActive ? 500 : 400,
+  fontWeight: isActive ? 600 : 400,
   paddingLeft: 12,
   color: isActive ? "#FFFFFF" : "#A8A29E",
+  letterSpacing: isActive ? "-0.01em" : "0",
   transition: TRANSITION,
   whiteSpace: "nowrap",
   "&:hover": {
@@ -200,14 +201,7 @@ const SidebarFooter = styled(Box)<{ isSidebarOpen: boolean }>(
 );
 
 const VersionText = styled(Typography)({
-  fontSize: 10,
-  fontWeight: 500,
-  color: "#57534E",
-  position: "absolute",
-  bottom: 4,
-  left: 0,
-  right: 0,
-  textAlign: "center",
+  display: "none",
 });
 
 const ModalDialog = styled(Dialog)({});

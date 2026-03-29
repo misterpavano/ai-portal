@@ -22,10 +22,11 @@ const HeaderBar = styled(Box)(({ theme }) => ({
 }));
 
 const Breadcrumb = styled(Typography)(({ theme }) => ({
-  fontSize: 15,
-  fontWeight: 600,
-  color: theme.palette.text.primary,
-  letterSpacing: "-0.01em",
+  fontSize: 11,
+  fontWeight: 700,
+  color: "#A8A29E",
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
@@ -39,18 +40,18 @@ const RightSection = styled(Box)({
 });
 
 const NotificationButton = styled(Box)(({ theme }) => ({
-  width: 36,
-  height: 36,
-  borderRadius: 8,
+  width: 32,
+  height: 32,
+  borderRadius: "50%",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
-  color: theme.palette.neutral[600],
-  transition: "background-color 200ms ease-out, color 200ms ease-out",
+  color: "#A8A29E",
+  transition: "all 200ms ease-out",
   "&:hover": {
-    backgroundColor: theme.palette.neutral[200],
-    color: theme.palette.text.secondary,
+    backgroundColor: "#F5F5F4",
+    color: "#1C1917",
   },
 }));
 
@@ -68,15 +69,15 @@ const UserPill = styled(Box)(({ theme }) => ({
 }));
 
 const Avatar = styled(Box)(({ theme }) => ({
-  width: 30,
-  height: 30,
+  width: 28,
+  height: 28,
   borderRadius: "50%",
-  backgroundColor: theme.palette.accent.main,
+  backgroundColor: "#1C1917",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   color: theme.palette.common.white,
-  fontSize: 12,
+  fontSize: 11,
   fontWeight: 600,
 }));
 
