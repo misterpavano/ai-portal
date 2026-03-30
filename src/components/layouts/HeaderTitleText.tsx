@@ -190,77 +190,7 @@ const HeaderTitle = ({
             </Stack>
           </Box>
 
-          <Box
-            onClick={handleMenuOpen}
-            sx={{
-              cursor: "pointer",
-              display: { xs: "none", sm: "flex" },
-              alignItems: "center",
-              gap: 1,
-              p: 1,
-              borderRadius: 999,
-              backgroundColor: "transparent",
-              flexShrink: 0,
-              transition: "background-color 200ms ease-out",
-              "&:hover": {
-                backgroundColor: "#F5F5F4",
-              },
-            }}
-          >
-            <Avatar
-              sx={{
-                backgroundColor: "#1C1917",
-                width: 28,
-                height: 28,
-                fontSize: 12,
-              }}
-            >
-              {userInitials}
-            </Avatar>
-            <IconSettings color={theme.palette.accent.main} width={24} height={24} />
-            <Menu
-              sx={{
-                "& .MuiPaper-root": {
-                  borderRadius: 4,
-                  minWidth: 310,
-                  mt: 1,
-                  py: 1,
-                  boxShadow: theme.customShadows.elevated,
-                },
-              }}
-              anchorEl={anchorEl}
-              open={isMenuOpen}
-              onClose={handleMenuClose}
-            >
-              <MenuItem sx={{ px: 2, py: 1.25, color: "text.primary" }}>
-                <Typography sx={{ fontWeight: 900, fontSize: 16 }}>
-                  Hello, {displayName}
-                </Typography>
-              </MenuItem>
-              <Divider sx={{ mx: 2, borderColor: "neutral.400" }} />
-              <MenuItem sx={{ px: 2, py: 1.25, color: "text.primary", mt: 1 }}>
-                <IconUser
-                  width={22}
-                  height={22}
-                  style={{ marginRight: 10, color: theme.palette.text.primary }}
-                />
-                Profile
-              </MenuItem>
-              <Divider sx={{ mx: 2, borderColor: "neutral.400" }} />
-              <MenuItem
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                sx={{ px: 2, py: 1.25, color: "text.primary", mt: 1 }}
-              >
-                <IconLogout
-                  width={22}
-                  height={22}
-                  style={{ marginRight: 8, color: theme.palette.text.primary }}
-                />
-                {isLoggingOut ? "Logging out..." : "Logout"}
-              </MenuItem>
-            </Menu>
-          </Box>
+          {/* User menu removed for demo */}
         </Box>
       }
     />
