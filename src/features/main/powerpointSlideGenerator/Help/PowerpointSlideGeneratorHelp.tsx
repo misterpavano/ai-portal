@@ -1,130 +1,55 @@
-import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
+import {
+  IconPresentation,
+  IconWand,
+  IconDownload,
+} from "@tabler/icons-react";
+import { HelpPage, Section, Step, Feature, Tip } from "../../../../components/help/HelpLayout";
 
-const PowerpointSlideGeneratorHelp = () => {
-  return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        User Guide for PPTx Slide Generator
-      </Typography>
-      <Typography variant="subtitle1">
-        Welcome to the PPTx Slide Generator – a specialized tool designed to
-        create customized PowerPoint slides with information about Hedgehox.
-      </Typography>
+const PowerpointSlideGeneratorHelp = () => (
+  <HelpPage
+    title="PPTx Slide Generator"
+    description="Create PowerPoint slides from a content description. Describe what you need, and the AI generates formatted slides ready for download and editing."
+  >
+    <Section title="How It Works">
+      <Step number={1} title="Describe Your Content">
+        Enter a description of what you want on the slides. Be specific about
+        the information, data points, or messaging you need.
+      </Step>
+      <Step number={2} title="AI Processing">
+        The AI curates and organizes your content into a presentation-ready
+        format, structuring it across slides with appropriate headings and
+        layout.
+      </Step>
+      <Step number={3} title="Download">
+        The completed .pptx file is generated and available for download. Open
+        it in PowerPoint or compatible software to review and refine.
+      </Step>
+    </Section>
 
-      <Typography variant="subtitle1" sx={{ mb: 6 }}>
-        Whether you're preparing for a company presentation, a business meeting,
-        or an educational session, this tool leverages AI to streamline your
-        slide creation process.
-      </Typography>
+    <Section title="Features">
+      <Feature
+        icon={IconPresentation}
+        title="Template Integration"
+        description="Content is placed into a branded PowerPoint template with consistent formatting and layout."
+      />
+      <Feature
+        icon={IconWand}
+        title="AI-Structured Content"
+        description="The AI breaks your description into logical slide sections with headings, bullet points, and supporting text."
+      />
+      <Feature
+        icon={IconDownload}
+        title="Direct Download"
+        description="Get a ready-to-use .pptx file. Edit further in PowerPoint, Google Slides, or Keynote."
+      />
+    </Section>
 
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        How to Use the PPTx Slide Generator
-      </Typography>
-
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        <Typography component="span" fontWeight="bold">
-          Step 1: Input Content Description
-        </Typography>
-        <List>
-          <ListItem>
-            <ListItemText
-              primary={
-                <>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    fontWeight="bold"
-                  >
-                    •
-                  </Typography>{" "}
-                  Start by describing the content you want on your PowerPoint
-                  slide. Be as specific as possible about the information
-                  related to Hedgehox you would like to present.
-                </>
-              }
-            />
-          </ListItem>
-        </List>
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        <Typography component="span" fontWeight="bold">
-          Step 2: AI Processing
-        </Typography>
-        <List>
-          <ListItem>
-            <ListItemText
-              primary={
-                <>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    fontWeight="bold"
-                  >
-                    •
-                  </Typography>{" "}
-                  Once you submit your description, the AI will use the training
-                  data about Hedgehox to generate the relevant content. This
-                  process includes curating information, organizing data, and
-                  formulating it in a presentable manner.
-                </>
-              }
-            />
-          </ListItem>
-        </List>
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        <Typography component="span" fontWeight="bold">
-          Step 3: Content Integration
-        </Typography>
-        <List>
-          <ListItem>
-            <ListItemText
-              primary={
-                <>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    fontWeight="bold"
-                  >
-                    •
-                  </Typography>{" "}
-                  The generated content is then automatically inserted into a
-                  PowerPoint template.
-                </>
-              }
-            />
-          </ListItem>
-        </List>
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        <Typography component="span" fontWeight="bold">
-          Step 4: Download the Template
-        </Typography>
-        <List>
-          <ListItem>
-            <ListItemText
-              primary={
-                <>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    fontWeight="bold"
-                  >
-                    •
-                  </Typography>{" "}
-                  After the content is placed into the template, the completed
-                  PowerPoint file (.pptx) is available for download to your
-                  Downloads folder. You can then open it with Microsoft
-                  PowerPoint or compatible software to review and edit further
-                  if necessary.
-                </>
-              }
-            />
-          </ListItem>
-        </List>
-      </Typography>
-    </Box>
-  );
-};
+    <Tip>
+      Structure your input like an outline for best results. "Slide 1: Company
+      overview. Slide 2: Q3 revenue highlights. Slide 3: Product roadmap"
+      gives the AI clear direction.
+    </Tip>
+  </HelpPage>
+);
 
 export default PowerpointSlideGeneratorHelp;
