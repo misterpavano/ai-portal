@@ -193,7 +193,7 @@ export default function LoginPage() {
             <TextField
               label="Email"
               placeholder="Enter your email"
-              defaultValue="wally@mkg.com"
+              defaultValue="wally@hedgehox.com"
               fullWidth
               size="small"
               InputProps={{ readOnly: true }}
