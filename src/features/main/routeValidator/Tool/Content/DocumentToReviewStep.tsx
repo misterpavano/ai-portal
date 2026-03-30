@@ -253,83 +253,89 @@ const DocumentToReviewStep: React.FC = () => {
 
   return (
     <Box sx={{ px: 4, pt: 2, pb: 6 }}>
-      {/* Document type as pill toggle row above dropzone */}
-      <Box sx={{ mb: 3 }}>
-        <Typography
-          sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
-        >
-          Document Type
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 1.5,
-            flexWrap: "wrap",
-          }}
-        >
-          {documentTypes.map((type) => (
-            <OptionCard
-              key={type.id}
-              checked={selectedType === type.id}
-              onChange={() => handleDocumentTypeSelect(type.id)}
-              icon={type.icon}
-              title={type.name}
-              description={type.description}
-              disabled={type.disabled}
-            />
-          ))}
-        </Box>
-      </Box>
-
-      {/* Upload area - full width */}
-      <Box>
-        <Typography
-          sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
-        >
-          Upload Document
-        </Typography>
-
-        {selectedType ? (
-          <FileDropzone
-            file={
-              routeValidatorFormValues.file?.fileObject ??
-              (fileUploaded
-                ? ({ name: routeValidatorFormValues.file.fileName } as File)
-                : null)
-            }
-            status={dropzoneStatus}
-            progress={uploadProgress}
-            errorMessage={uploadError ?? undefined}
-            accept={selectedTypeConfig?.accept}
-            headline={`Drop your ${selectedTypeConfig?.name} file here`}
-            formatHint={selectedTypeConfig?.accept
-              ?.split(",")
-              .map((ext) => ext.trim())
-              .join(", ")}
-            onFileSelected={processFile}
-            onRemove={handleRemove}
-            onRetry={() => {
-              setUploadError(null);
-              setDropzoneStatus("idle");
-            }}
-          />
-        ) : (
-          <Box
-            sx={{
-              border: "2px dashed #E7E5E4",
-              borderRadius: "16px",
-              minHeight: 200,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              bgcolor: "#FAFAF9",
-            }}
+      {/* Split layout: Upload left (40%), Document Type right (60%) */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 3,
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { md: "stretch" },
+          mb: 4,
+        }}
+      >
+        {/* Left - Upload */}
+        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 320px" }, minWidth: 0, display: "flex", flexDirection: "column" }}>
+          <Typography
+            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
-            <Typography sx={{ fontSize: 14, color: "#A8A29E" }}>
-              Select a document type to upload
-            </Typography>
+            Upload Document
+          </Typography>
+
+          {selectedType ? (
+            <FileDropzone
+              file={
+                routeValidatorFormValues.file?.fileObject ??
+                (fileUploaded
+                  ? ({ name: routeValidatorFormValues.file.fileName } as File)
+                  : null)
+              }
+              status={dropzoneStatus}
+              progress={uploadProgress}
+              errorMessage={uploadError ?? undefined}
+              accept={selectedTypeConfig?.accept}
+              headline={`Drop your ${selectedTypeConfig?.name} file here`}
+              formatHint={selectedTypeConfig?.accept
+                ?.split(",")
+                .map((ext) => ext.trim())
+                .join(", ")}
+              fillHeight
+              onFileSelected={processFile}
+              onRemove={handleRemove}
+              onRetry={() => {
+                setUploadError(null);
+                setDropzoneStatus("idle");
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                border: "2px dashed #E7E5E4",
+                borderRadius: "16px",
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "#FAFAF9",
+              }}
+            >
+              <Typography sx={{ fontSize: 14, color: "#A8A29E" }}>
+                Select a document type to upload
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        {/* Right - Document Type Options */}
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+          <Typography
+            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
+          >
+            Document Type
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, justifyContent: "space-between" }}>
+            {documentTypes.map((type) => (
+              <OptionCard
+                key={type.id}
+                checked={selectedType === type.id}
+                onChange={() => handleDocumentTypeSelect(type.id)}
+                icon={type.icon}
+                title={type.name}
+                description={type.description}
+                disabled={type.disabled}
+              />
+            ))}
           </Box>
-        )}
+        </Box>
       </Box>
     </Box>
   );
