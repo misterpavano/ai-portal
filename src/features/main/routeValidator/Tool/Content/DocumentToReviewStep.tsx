@@ -291,7 +291,7 @@ const DocumentToReviewStep: React.FC = () => {
 
   return (
     <Box sx={{ px: 4, pt: 2, pb: 3 }}>
-      <Box sx={{ display: "flex", gap: 2, flexDirection: { xs: "column", md: "row" } }}>
+      <Box sx={{ display: "flex", gap: 0, flexDirection: { xs: "column", md: "row" } }}>
         {/* Upload Document - compact bar */}
         <Box sx={{ flex: 1 }}>
           <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1 }}>
@@ -356,6 +356,9 @@ const DocumentToReviewStep: React.FC = () => {
             </Box>
           )}
         </Box>
+
+        {/* Divider */}
+        <Box sx={{ width: "1px", bgcolor: "#E7E5E4", mx: 2.5, display: { xs: "none", md: "block" } }} />
 
         {/* Annotated File - compact bar */}
         <Box sx={{ flex: 1 }}>
