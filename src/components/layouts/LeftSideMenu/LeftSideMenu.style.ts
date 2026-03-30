@@ -345,13 +345,12 @@ const Logo = styled("img")<{ src: string; alt?: string }>(({ src }) => ({
 
 const LogoCollapsed = styled("img")<{ src: string; alt?: string }>(
   ({ src }) => ({
-    width: 32,
+    width: 22,
     height: 32,
     objectFit: "cover" as const,
     objectPosition: "left center",
     overflow: "hidden",
     content: `url(${src})`,
-    borderRadius: 6,
   })
 );
 
