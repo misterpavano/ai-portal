@@ -227,7 +227,7 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
       }
 
       try {
-        const statusResponse = await getTranscriptionStatus(jobId).unwrap();
+        const statusResponse = await getTranscriptionStatus(jobId as string).unwrap();
 
         if (cancelledRef.current) return;
 
