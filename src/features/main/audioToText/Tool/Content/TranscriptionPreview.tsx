@@ -598,190 +598,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
     );
   }
 
-  // ── Loading / processing state ──
-  if (transcribing || isProcessingFile) {
-    const steps = [
-      { label: "Uploading audio", done: true },
-      {
-        label: "Processing audio stream",
-        done: jobState === "active" || jobState === "completed",
-      },
-      { label: "Generating transcript", done: jobState === "completed" },
-      { label: "Finalizing output", done: false },
-    ];
-    const activeStep = steps.findIndex((s) => !s.done);
-    const progressPercent = Math.min(
-      ((activeStep < 0 ? steps.length : activeStep) / steps.length) * 100,
-      95,
-    );
-
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "360px",
-          px: 4,
-        }}
-      >
-        {/* Animated waveform visualization */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "3px",
-            mb: 4,
-            height: 48,
-          }}
-        >
-          {WAVE_BARS.map((bar, i) => (
-            <Box
-              key={i}
-              sx={{
-                width: 4,
-                borderRadius: "2px",
-                bgcolor: "#E86D5A",
-                opacity: bar.opacity,
-                animation: `waveBar${i} 1.2s ease-in-out ${i * 0.1}s infinite alternate`,
-                height: `${bar.startHeight}px`,
-                [`@keyframes waveBar${i}`]: {
-                  "0%": { height: "12px", opacity: 0.3 },
-                  "100%": {
-                    height: `${bar.endHeight}px`,
-                    opacity: 1,
-                  },
-                },
-              }}
-            />
-          ))}
-        </Box>
-
-        <Typography
-          sx={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: "#1C1917",
-            letterSpacing: "-0.02em",
-            mb: 1,
-          }}
-        >
-          {transcribing ? "Transcribing..." : "Processing..."}
-        </Typography>
-        <Typography sx={{ fontSize: 13, color: "#A8A29E", mb: 4 }}>
-          This may take a few minutes depending on file length
-        </Typography>
-
-        {/* Progress bar */}
-        <Box sx={{ width: "100%", maxWidth: 400, mb: 4 }}>
-          <Box
-            sx={{
-              width: "100%",
-              height: 4,
-              borderRadius: 2,
-              bgcolor: "#F5F5F4",
-              overflow: "hidden",
-            }}
-          >
-            <Box
-              sx={{
-                height: "100%",
-                borderRadius: 2,
-                bgcolor: "#E86D5A",
-                width: `${progressPercent}%`,
-                transition: "width 1s ease",
-              }}
-            />
-          </Box>
-        </Box>
-
-        {/* Step indicators */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1.5,
-            width: "100%",
-            maxWidth: 300,
-          }}
-        >
-          {steps.map((step, i) => (
-            <Box
-              key={step.label}
-              sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
-            >
-              <Box
-                sx={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: "6px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  bgcolor: step.done
-                    ? "#E86D5A"
-                    : i === activeStep
-                      ? "#1C1917"
-                      : "#F5F5F4",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                {step.done ? (
-                  <Box
-                    component="span"
-                    sx={{ color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}
-                  >
-                    ✓
-                  </Box>
-                ) : i === activeStep ? (
-                  <CircularProgress size={10} sx={{ color: "#FFFFFF" }} />
-                ) : (
-                  <Box
-                    component="span"
-                    sx={{ color: "#D6D3D1", fontSize: 10, fontWeight: 600 }}
-                  >
-                    {i + 1}
-                  </Box>
-                )}
-              </Box>
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  fontWeight:
-                    step.done ? 600 : i === activeStep ? 600 : 400,
-                  color:
-                    step.done
-                      ? "#1C1917"
-                      : i === activeStep
-                        ? "#1C1917"
-                        : "#A8A29E",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                {step.label}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-
-        {/* Cancel button */}
-        <Box sx={{ mt: 5 }}>
-          <DefaultButton
-            type="secondary"
-            title="Cancel"
-            onClick={handleCancel}
-            style={{
-              borderRadius: "8px",
-              height: 40,
-              width: 120,
-              fontSize: 13,
-            }}
-          />
-        </Box>
-      </Box>
-    );
-  }
+  // ── Loading state: show inline on the output page ──
+  const isLoading = transcribing || isProcessingFile;
 
   // ── Error state ──
   if (transcriptionError) {
@@ -806,9 +624,55 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
     );
   }
 
-  // ── Transcript result ──
+  // ── Transcript result (with inline loading) ──
   return (
     <Box>
+      {isLoading && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            px: 3,
+            py: 2,
+            mx: 3,
+            mt: 2,
+            borderRadius: "12px",
+            bgcolor: "#FEF2F0",
+            border: "1px solid #FECDC6",
+          }}
+        >
+          {/* Mini waveform */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: "2px", height: 24 }}>
+            {WAVE_BARS.slice(0, 6).map((bar, i) => (
+              <Box
+                key={i}
+                sx={{
+                  width: 3,
+                  borderRadius: "1.5px",
+                  bgcolor: "#E86D5A",
+                  opacity: bar.opacity,
+                  animation: `waveBar${i} 1.2s ease-in-out ${i * 0.1}s infinite alternate`,
+                  height: `${Math.round(bar.startHeight * 0.5)}px`,
+                  [`@keyframes waveBar${i}`]: {
+                    "0%": { height: "6px", opacity: 0.3 },
+                    "100%": { height: `${Math.round(bar.endHeight * 0.5)}px`, opacity: 1 },
+                  },
+                }}
+              />
+            ))}
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1C1917" }}>
+              Transcribing your audio...
+            </Typography>
+            <Typography sx={{ fontSize: 11, color: "#A8A29E" }}>
+              This may take a few minutes depending on file length
+            </Typography>
+          </Box>
+          <CircularProgress size={18} sx={{ color: "#E86D5A" }} />
+        </Box>
+      )}
       <TranscriptBox
         transcript={transcript}
         resetKey={transcriptResetKey}
