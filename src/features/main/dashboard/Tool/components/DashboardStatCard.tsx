@@ -41,12 +41,12 @@ const DashboardStatCard = ({ stat, index }: DashboardStatCardProps) => {
           mb: 1.5,
         }}
       >
-        <Icon size={16} color="#78716C" strokeWidth={1.5} />
+        <Icon size={16} color="#E86D5A" strokeWidth={1.5} />
         <Typography
           sx={{
             fontSize: 11,
             fontWeight: 600,
-            color: "#78716C",
+            color: "#E86D5A",
             textTransform: "uppercase",
             letterSpacing: "0.08em",
           }}
