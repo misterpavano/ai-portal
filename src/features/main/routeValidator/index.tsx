@@ -8,11 +8,10 @@ import { routeValidatorStepAtom } from "../../../atoms/routeValidatorAtom";
 import RouteValidatorTool from "./Tool/Content/RouteValidatorTool";
 import RouteValidatorFooter from "./Tool/Content/RouteValidatorFooter";
 
-const STEP_LABELS = ["Document to Review", "Tasks & Direction", "Output"];
+const STEP_LABELS = ["Configure", "Output"];
 
 const RouteValidator = () => {
   const [step, setCurrentStep] = useAtom(routeValidatorStepAtom);
-  const isNextButtonVisible = step.currentStep !== 2;
 
   const nextStep = () => {
     setCurrentStep((prevStep) => ({
@@ -21,7 +20,7 @@ const RouteValidator = () => {
     }));
   };
 
-  const breadcrumb = [STEP_LABELS[step.currentStep]];
+  const breadcrumb = [step.currentStep < 2 ? STEP_LABELS[0] : STEP_LABELS[1]];
 
   return (
     <>
@@ -42,17 +41,13 @@ const RouteValidator = () => {
             backgroundColor: "#FFFFFF",
           }}
         >
-          {step.currentStep !== 2 && (
-            <Box sx={{ padding: 3 }}>
-              <RouteValidatorFooter
-                step={step}
-                setCurrentStep={setCurrentStep}
-                nextStep={nextStep}
-                isNextButtonVisible={isNextButtonVisible}
-              />
-            </Box>
-          )}
           <RouteValidatorTool />
+          <RouteValidatorFooter
+            step={step}
+            setCurrentStep={setCurrentStep}
+            nextStep={nextStep}
+            isNextButtonVisible={step.currentStep < 2}
+          />
         </Box>
       </Box>
     </>
