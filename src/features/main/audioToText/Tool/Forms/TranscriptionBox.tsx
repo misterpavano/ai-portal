@@ -588,22 +588,31 @@ const TranscriptBox: React.FC<TranscriptBoxProps> = ({
             }}
             size="small"
             sx={{
-              backgroundColor: "neutral.200",
-              borderRadius: 2,
+              backgroundColor: "#F5F5F4",
+              borderRadius: "10px",
+              padding: "3px",
+              gap: "2px",
               "& .MuiToggleButton-root": {
                 textTransform: "none",
                 fontWeight: 500,
+                fontSize: 13,
                 border: "none",
-                borderRadius: 2,
-                px: 2,
-                py: 0.8,
-                transition: "all 0.2s",
+                borderRadius: "8px !important",
+                px: 2.5,
+                py: 0.75,
+                color: "#78716C",
+                transition: "all 0.15s ease",
+                "&:hover": {
+                  backgroundColor: "#EBEBEA",
+                },
               },
               "& .Mui-selected": {
-                backgroundColor: "primary.main",
-                color: "#fff",
+                backgroundColor: "#1C1917 !important",
+                color: "#FFFFFF !important",
+                fontWeight: 600,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
                 "&:hover": {
-                  backgroundColor: "primary.dark",
+                  backgroundColor: "#333 !important",
                 },
               },
             }}
