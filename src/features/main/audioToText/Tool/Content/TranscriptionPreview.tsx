@@ -510,7 +510,7 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
             </Typography>
             <Typography sx={{ fontSize: 12, color: "#A8A29E" }}>
               {file
-                ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+                ? `${(file!.size / (1024 * 1024)).toFixed(1)} MB`
                 : "Unknown size"}
             </Typography>
           </Box>
