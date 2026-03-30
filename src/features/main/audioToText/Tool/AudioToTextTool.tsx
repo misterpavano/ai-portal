@@ -28,8 +28,9 @@ const AudioToTextTools: React.FC = () => {
   const [createVectorStore] = useCreateVectorStoreMutation();
   const [createAssistant] = useCreateAssistantMutation();
 
-  // Create vector store and assistant when moving to TranscriptionPreview
+  // Create vector store and assistant when moving to TranscriptionPreview (disabled in demo mode)
   useEffect(() => {
+    if (true) return; // eslint-disable-line -- Demo mode: skip real API init
     const initializeVectorStoreAndAssistant = async () => {
       // Only create if we're on step 1 (TranscriptionPreview) and they don't exist yet
       if (
