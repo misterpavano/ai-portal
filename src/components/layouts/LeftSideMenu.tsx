@@ -115,10 +115,6 @@ const SideMenu = ({ children }: { children: React.ReactNode }) => {
         </S.SidebarContainer>
 
         <S.SidebarFooter isSidebarOpen={isSidebarOpen}>
-          <S.UserSection isSidebarOpen={isSidebarOpen}>
-            <S.UserAvatar>U</S.UserAvatar>
-            {isSidebarOpen && <S.UserName>User</S.UserName>}
-          </S.UserSection>
           <S.CollapseToggle onClick={toggleSidebar} size="small">
             {isSidebarOpen ? (
               <IconChevronLeft size={16} stroke={2} />
