@@ -26,6 +26,8 @@ export interface FileDropzoneProps {
   headline?: string;
   /** Minimum height */
   minHeight?: number;
+  /** Fill parent height (flex: 1) */
+  fillHeight?: boolean;
   onFileSelected: (file: File) => void;
   onRemove: () => void;
   onRetry?: () => void;
@@ -41,6 +43,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
   formatHint,
   headline = "Drop your file here",
   minHeight = 240,
+  fillHeight = false,
   onFileSelected,
   onRemove,
   onRetry,
@@ -283,6 +286,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
           bgcolor: isUploaded ? "#FEF2F0" : "#FAFAF9",
           transition: "all 0.2s ease",
           minHeight,
+          flex: fillHeight ? 1 : undefined,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

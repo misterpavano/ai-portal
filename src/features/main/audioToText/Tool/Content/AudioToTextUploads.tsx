@@ -168,11 +168,12 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
           display: "flex",
           gap: 3,
           flexDirection: { xs: "column", md: "row" },
+          alignItems: { md: "stretch" },
           mb: 4,
         }}
       >
         {/* Left - Upload */}
-        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 320px" }, minWidth: 0 }}>
+        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 320px" }, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Typography
             sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
@@ -186,6 +187,7 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
             accept="audio/*,video/mp4,video/mpeg,video/quicktime"
             headline="Drop your audio file here"
             formatHint="MP3, MP4, WAV, MOV supported"
+            fillHeight
             onFileSelected={handleUpload}
             onRemove={clearFileUpload}
             onRetry={() => {
