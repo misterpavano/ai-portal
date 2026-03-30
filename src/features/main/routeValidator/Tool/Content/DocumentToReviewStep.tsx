@@ -29,6 +29,7 @@ const documentTypes = [
     description: "Route as PDF document",
     icon: IconFileTypePdf,
     accept: ".pdf",
+    formatHint: "PDF supported",
     disabled: false,
   },
   {
@@ -37,6 +38,7 @@ const documentTypes = [
     description: "Route as screenshots",
     icon: IconFileZip,
     accept: ".zip",
+    formatHint: "ZIP archive supported",
     disabled: false,
   },
   {
@@ -45,6 +47,7 @@ const documentTypes = [
     description: "Route as .doc/.docx",
     icon: IconFileTypeDocx,
     accept: ".doc,.docx",
+    formatHint: "DOC, DOCX supported",
     disabled: false,
   },
 ];
@@ -284,10 +287,7 @@ const DocumentToReviewStep: React.FC = () => {
               errorMessage={uploadError ?? undefined}
               accept={selectedTypeConfig?.accept}
               headline={`Drop your ${selectedTypeConfig?.name} file here`}
-              formatHint={selectedTypeConfig?.accept
-                ?.split(",")
-                .map((ext) => ext.trim())
-                .join(", ")}
+              formatHint={selectedTypeConfig?.formatHint}
               fillHeight
               onFileSelected={processFile}
               onRemove={handleRemove}
