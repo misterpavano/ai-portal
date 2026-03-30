@@ -106,10 +106,6 @@ const TopHeader: React.FC = () => {
         <NotificationButton>
           <IconBell size={20} stroke={1.5} />
         </NotificationButton>
-        <UserPill>
-          <Avatar>U</Avatar>
-          <IconChevronDown size={14} stroke={2} />
-        </UserPill>
       </RightSection>
       <HelpDrawer open={helpOpen} onClose={() => setHelpOpen(false)} />
     </HeaderBar>

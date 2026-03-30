@@ -93,8 +93,9 @@ const AudioToTextFooter = ({
     handleDownloadFile("Word");
   };
 
-  // Step 0: no footer needed (Transcribe Audio button is inline in the upload form)
+  // Step 0: no footer needed. Also hide during loading (no transcript yet)
   if (step.currentStep === 0) return null;
+  if (!audioToTextFormValues.transcript) return null;
 
   // Step 1 (Preview): action bar with Back, Download, New Transcription
   return (
@@ -137,6 +138,8 @@ const AudioToTextFooter = ({
             style={{
               borderRadius: "8px",
               height: 40,
+              width: "auto",
+              minWidth: 0,
               paddingLeft: 24,
               paddingRight: 24,
               fontSize: 13,
@@ -150,6 +153,8 @@ const AudioToTextFooter = ({
             style={{
               borderRadius: "8px",
               height: 40,
+              width: "auto",
+              minWidth: 0,
               paddingLeft: 24,
               paddingRight: 24,
               fontSize: 13,

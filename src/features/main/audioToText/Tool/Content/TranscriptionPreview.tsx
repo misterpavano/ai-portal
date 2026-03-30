@@ -198,6 +198,7 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
 
       setTranscript(mockTranscript);
       setTranscriptResetKey((k) => k + 1);
+      setAudioToTextFormValues((prev) => ({ ...prev, transcript: mockTranscript }));
       setIsTranscribing(false);
       setIsProcessingFile(false);
     }, 5000));
