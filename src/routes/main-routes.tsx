@@ -23,7 +23,7 @@ const MainRoutes = () => {
   return (
     <SideMenu>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/" element={<Navigate to="/auth/login" />} />
         <Route
           path="/dashboard"
           element={
