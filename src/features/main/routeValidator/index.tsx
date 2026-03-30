@@ -1,41 +1,12 @@
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
-import { Typography, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import Box from "@mui/material/Box";
-import Tab from "@mui/material/Tab";
-import { IconHelp, IconRoute, IconTool } from "@tabler/icons-react";
+import { IconRoute } from "@tabler/icons-react";
 import * as React from "react";
 import HeaderTitle from "../../../components/layouts/HeaderTitleText";
 import { useAtom } from "jotai";
 import { routeValidatorStepAtom } from "../../../atoms/routeValidatorAtom";
 import RouteValidatorTool from "./Tool/Content/RouteValidatorTool";
 import RouteValidatorFooter from "./Tool/Content/RouteValidatorFooter";
-import RouteValidatorHelp from "./Help/RouteValidatorHelp";
-
-const StyledTab = styled(Tab)(() => ({
-  backgroundColor: "#FFFFFF",
-  textTransform: "none",
-  fontFamily: "'Plus Jakarta Sans', sans-serif",
-  "&.Mui-selected": {
-    backgroundColor: "#FFFFFF",
-    color: "#1C1917",
-    fontWeight: 600,
-    borderBottom: "2px solid #1C1917",
-  },
-  "&:not(.Mui-selected)": {
-    color: "#44403C",
-  },
-}));
-
-const StyledTabs = styled(TabList)(() => ({
-  paddingLeft: 8,
-  borderTopLeftRadius: "10px",
-  borderBottom: "none",
-  "& .MuiTabs-indicator": {
-    display: "none",
-  },
-}));
 
 const STEP_LABELS = ["Document to Review", "Tasks & Direction", "Output"];
 
@@ -50,14 +21,7 @@ const RouteValidator = () => {
     }));
   };
 
-  const [value, setValue] = React.useState("Tool");
-
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
-  };
-
-  const breadcrumb =
-    value === "Tool" ? [STEP_LABELS[step.currentStep]] : undefined;
+  const breadcrumb = [STEP_LABELS[step.currentStep]];
 
   return (
     <>
@@ -78,66 +42,17 @@ const RouteValidator = () => {
             backgroundColor: "#FFFFFF",
           }}
         >
-          <TabContext value={value}>
-            <Box
-              sx={{
-                borderBottom: "1px solid #E7E5E4",
-                borderTopLeftRadius: "10px",
-                borderTopRightRadius: "10px",
-              }}
-            >
-              <StyledTabs onChange={handleChange} aria-label="tabs">
-                <StyledTab
-                  label={
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      <IconTool size="14px" />
-                      <Typography
-                        variant="body"
-                        sx={{ fontSize: "14px", fontWeight: "520" }}
-                      >
-                        Tool
-                      </Typography>
-                    </Box>
-                  }
-                  value="Tool"
-                />
-                <StyledTab
-                  label={
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      <IconHelp size="14px" />
-                      <Typography
-                        variant="body"
-                        sx={{ fontSize: "14px", fontWeight: "520" }}
-                      >
-                        Help
-                      </Typography>
-                    </Box>
-                  }
-                  value="Help"
-                />
-              </StyledTabs>
+          {step.currentStep !== 2 && (
+            <Box sx={{ padding: 3 }}>
+              <RouteValidatorFooter
+                step={step}
+                setCurrentStep={setCurrentStep}
+                nextStep={nextStep}
+                isNextButtonVisible={isNextButtonVisible}
+              />
             </Box>
-            <TabPanel sx={{ p: 0 }} value="Tool">
-              {step.currentStep !== 2 && (
-                <Box sx={{ padding: 3 }}>
-                  <RouteValidatorFooter
-                    step={step}
-                    setCurrentStep={setCurrentStep}
-                    nextStep={nextStep}
-                    isNextButtonVisible={isNextButtonVisible}
-                  />
-                </Box>
-              )}
-              <RouteValidatorTool />
-            </TabPanel>
-            <TabPanel id="Help_Route_Validator" sx={{ p: 0 }} value="Help">
-              <RouteValidatorHelp />
-            </TabPanel>
-          </TabContext>
+          )}
+          <RouteValidatorTool />
         </Box>
       </Box>
     </>

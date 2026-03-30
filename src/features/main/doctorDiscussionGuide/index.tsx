@@ -1,44 +1,10 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Tab from "@mui/material/Tab";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
 import DiscussionGuidesTool from "./Tool/DiscussionGuideTool";
-import DiscussionGuidesHelp from "./Help/DiscussionGuidesHelp";
-import { Typography, styled } from "@mui/material";
 import HeaderTitle from "../../../components/layouts/HeaderTitleText";
-import { IconDirectionArrows, IconHelp, IconTool } from "@tabler/icons-react";
-
-const StyledTab = styled(Tab)(({ theme }) => ({
-  borderRight: "1px solid #E7E5E4",
-  backgroundColor: "#F5F5F4",
-  "&.Mui-selected": {
-    backgroundColor: "#FFFFFF",
-    color: "#1C1917",
-    fontWeight: 600,
-    borderBottom: "2px solid #1C1917",
-  },
-  "&:not(.Mui-selected)": {
-    color: theme.palette.text.primary,
-  },
-}));
-
-const StyledTabs = styled(TabList)(() => ({
-  borderTopLeftRadius: "10px",
-  borderBottom: "none",
-  "& .MuiTabs-indicator": {
-    display: "none",
-  },
-}));
+import { IconDirectionArrows } from "@tabler/icons-react";
 
 const DiscussionGuide = () => {
-  const [value, setValue] = React.useState("Tool");
-
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
-  };
-
   return (
     <Box sx={{ typography: "body1", p: 2 }}>
       <HeaderTitle
@@ -52,60 +18,15 @@ const DiscussionGuide = () => {
           borderRadius: "10px",
         }}
       >
-        <TabContext value={value}>
-          <Box
-            sx={{
-              backgroundColor: "neutral.100",
-              borderBottom: "1px solid #E7E5E4",
-              borderTopLeftRadius: "10px",
-              borderColor: "#E7E5E4",
-            }}
-          >
-            <StyledTabs onChange={handleChange} aria-label="tabs">
-              <StyledTab
-                label={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <IconTool size="14px" />
-                    <Typography
-                      variant="body"
-                      sx={{ fontSize: "14px", fontWeight: "520" }}
-                    >
-                      Tool
-                    </Typography>
-                  </Box>
-                }
-                value="Tool"
-              />
-              <StyledTab
-                label={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <IconHelp size="14px" />
-                    <Typography
-                      variant="body"
-                      sx={{ fontSize: "14px", fontWeight: "520" }}
-                    >
-                      Help
-                    </Typography>
-                  </Box>
-                }
-                value="Help"
-              />
-            </StyledTabs>
-          </Box>
-          <TabPanel value="Tool">
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <DiscussionGuidesTool />
-            </Box>
-          </TabPanel>
-          <TabPanel value="Help">
-            <DiscussionGuidesHelp />
-          </TabPanel>
-        </TabContext>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            p: 3,
+          }}
+        >
+          <DiscussionGuidesTool />
+        </Box>
       </Box>
     </Box>
   );

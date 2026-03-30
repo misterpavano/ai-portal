@@ -1,13 +1,7 @@
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
-import { Typography, styled } from "@mui/material";
 import Box from "@mui/material/Box";
-import Tab from "@mui/material/Tab";
-import { IconHelp, IconPageBreak, IconTool } from "@tabler/icons-react";
+import { IconPageBreak } from "@tabler/icons-react";
 import * as React from "react";
 import HeaderTitle from "../../../components/layouts/HeaderTitleText";
-import InterviewSummariesHelp from "./Help/InterviewSummariesHelp";
 import InterviewSummariesTool from "./Tool/InterviewSummariesTool";
 import { useAtom } from "jotai";
 import {
@@ -23,30 +17,6 @@ interface InterviewSummariesProps {
   handleToplineDownloadFile: (type: "Word" | "Powerpoint") => void;
 }
 
-const StyledTab = styled(Tab)(({ theme }) => ({
-  backgroundColor: "#FFFFFF",
-  textTransform: "none",
-  fontFamily: "'Plus Jakarta Sans', sans-serif",
-  "&.Mui-selected": {
-    backgroundColor: "#FFFFFF",
-    color: "#1C1917",
-    fontWeight: 600,
-    borderBottom: "2px solid #1C1917",
-  },
-  "&:not(.Mui-selected)": {
-    color: theme.palette.text.primary,
-  },
-}));
-
-const StyledTabs = styled(TabList)(() => ({
-  paddingLeft: 8,
-  borderTopLeftRadius: "10px",
-  borderBottom: "none",
-  "& .MuiTabs-indicator": {
-    display: "none",
-  },
-}));
-
 const InterviewSummaries: React.FC<InterviewSummariesProps> = ({
   handleDownloadFile,
   handleToplineDownloadFile,
@@ -56,20 +26,15 @@ const InterviewSummaries: React.FC<InterviewSummariesProps> = ({
   const [step, setCurrentStep] = useAtom(interviesSummariesStepAtom);
   const isNextButtonVisible = step.currentStep !== 0;
 
-  const [value, setValue] = React.useState("Tool");
   const [interviewSummariesFlow] = useAtom(interviewSummariesFormAtom);
   const tools = Array.isArray(toolsData) ? toolsData : (toolsData?.data ?? []);
 
   const chatMKGTool = tools.find((tool) => tool.name === "Meeting Summaries");
 
-  // Get model from backend first (source of truth), fallback to atom, then default
   const backendModel = chatMKGTool?.model?.modelId;
   const atomModel = models["Meeting Summaries"];
-
-  // Priority: Backend model > Atom model > Default
   const selectedModel = backendModel || atomModel || "gpt-3.5-turbo";
 
-  // Log model selection for debugging
   React.useEffect(() => {
     if (!isLoadingTools && backendModel) {
       console.log(
@@ -85,9 +50,6 @@ const InterviewSummaries: React.FC<InterviewSummariesProps> = ({
       ...prevStep,
       currentStep: prevStep.currentStep + 1,
     }));
-  };
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
   };
 
   return (
@@ -105,70 +67,22 @@ const InterviewSummaries: React.FC<InterviewSummariesProps> = ({
             border: "1px solid",
             borderColor: "neutral.200",
             borderRadius: "10px",
-            boxShadow: "0 1px 3px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04)",
+            boxShadow:
+              "0 1px 3px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04)",
           }}
         >
-          <TabContext value={value}>
-            <Box
-              sx={{
-                borderBottom: "1px solid #E7E5E4",
-                borderTopLeftRadius: "10px",
-                borderColor: "#E7E5E4",
-              }}
-            >
-              <StyledTabs onChange={handleChange} aria-label="tabs">
-                <StyledTab
-                  label={
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      <IconTool size="14px" />
-                      <Typography
-                        variant="body"
-                        sx={{ fontSize: "14px", fontWeight: "520" }}
-                      >
-                        Tool
-                      </Typography>
-                    </Box>
-                  }
-                  value="Tool"
-                />
-                <StyledTab
-                  label={
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      <IconHelp size="14px" />
-                      <Typography
-                        variant="body"
-                        sx={{ fontSize: "14px", fontWeight: "520" }}
-                      >
-                        Help
-                      </Typography>
-                    </Box>
-                  }
-                  value="Help"
-                />
-              </StyledTabs>
-            </Box>
-            <TabPanel sx={{ p: 0 }} value="Tool">
-              <Box sx={{ padding: 2 }}>
-                <InterviewSummariesFooter
-                  step={step}
-                  setCurrentStep={setCurrentStep}
-                  nextStep={nextStep}
-                  isNextButtonVisible={isNextButtonVisible}
-                  handleDownloadFile={handleDownloadFile}
-                  handleToplineDownloadFile={handleToplineDownloadFile}
-                />
-              </Box>
+          <Box sx={{ padding: 2 }}>
+            <InterviewSummariesFooter
+              step={step}
+              setCurrentStep={setCurrentStep}
+              nextStep={nextStep}
+              isNextButtonVisible={isNextButtonVisible}
+              handleDownloadFile={handleDownloadFile}
+              handleToplineDownloadFile={handleToplineDownloadFile}
+            />
+          </Box>
 
-              <InterviewSummariesTool />
-            </TabPanel>
-            <TabPanel id="Help_MKGAI_Summary" sx={{ p: 0 }} value="Help">
-              <InterviewSummariesHelp />
-            </TabPanel>
-          </TabContext>
+          <InterviewSummariesTool />
         </Box>
       </Box>
     </>

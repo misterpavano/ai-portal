@@ -2,7 +2,8 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { Box, Typography } from "@mui/material";
-import { IconBell, IconChevronDown } from "@tabler/icons-react";
+import { IconBell, IconChevronDown, IconHelp } from "@tabler/icons-react";
+import HelpDrawer from "./HelpDrawer";
 
 const HeaderBar = styled(Box)(({ theme }) => ({
   height: 56,
@@ -93,11 +94,15 @@ function derivePageName(pathname: string): string {
 const TopHeader: React.FC = () => {
   const location = useLocation();
   const pageName = derivePageName(location.pathname);
+  const [helpOpen, setHelpOpen] = React.useState(false);
 
   return (
     <HeaderBar>
       <Breadcrumb>{pageName}</Breadcrumb>
       <RightSection>
+        <NotificationButton onClick={() => setHelpOpen(true)}>
+          <IconHelp size={20} stroke={1.5} />
+        </NotificationButton>
         <NotificationButton>
           <IconBell size={20} stroke={1.5} />
         </NotificationButton>
@@ -106,6 +111,7 @@ const TopHeader: React.FC = () => {
           <IconChevronDown size={14} stroke={2} />
         </UserPill>
       </RightSection>
+      <HelpDrawer open={helpOpen} onClose={() => setHelpOpen(false)} />
     </HeaderBar>
   );
 };
