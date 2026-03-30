@@ -274,45 +274,27 @@ const DocumentToReviewStep: React.FC = () => {
             Upload Document
           </Typography>
 
-          {selectedType ? (
-            <FileDropzone
-              file={
-                routeValidatorFormValues.file?.fileObject ??
-                (fileUploaded
-                  ? ({ name: routeValidatorFormValues.file.fileName } as File)
-                  : null)
-              }
-              status={dropzoneStatus}
-              progress={uploadProgress}
-              errorMessage={uploadError ?? undefined}
-              accept={selectedTypeConfig?.accept}
-              headline={`Drop your ${selectedTypeConfig?.name} file here`}
-              formatHint={selectedTypeConfig?.formatHint}
-              fillHeight
-              onFileSelected={processFile}
-              onRemove={handleRemove}
-              onRetry={() => {
-                setUploadError(null);
-                setDropzoneStatus("idle");
-              }}
-            />
-          ) : (
-            <Box
-              sx={{
-                border: "2px dashed #E7E5E4",
-                borderRadius: "16px",
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor: "#FAFAF9",
-              }}
-            >
-              <Typography sx={{ fontSize: 14, color: "#A8A29E" }}>
-                Select a document type to upload
-              </Typography>
-            </Box>
-          )}
+          <FileDropzone
+            file={
+              routeValidatorFormValues.file?.fileObject ??
+              (fileUploaded
+                ? ({ name: routeValidatorFormValues.file.fileName } as File)
+                : null)
+            }
+            status={dropzoneStatus}
+            progress={uploadProgress}
+            errorMessage={uploadError ?? undefined}
+            accept={selectedTypeConfig?.accept}
+            headline={selectedType ? `Drop your ${selectedTypeConfig?.name} file here` : "Drop your file here"}
+            formatHint={selectedTypeConfig?.formatHint ?? "PDF, ZIP, DOC, DOCX supported"}
+            fillHeight
+            onFileSelected={processFile}
+            onRemove={handleRemove}
+            onRetry={() => {
+              setUploadError(null);
+              setDropzoneStatus("idle");
+            }}
+          />
         </Box>
 
         {/* Right - Document Type Options */}
