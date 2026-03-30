@@ -75,8 +75,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
   );
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [fileProcessed, setFileProcessed] = useState(false);
-  // Gate: user must confirm before transcription starts
-  const [confirmed, setConfirmed] = useState(false);
+  // Auto-start transcription (no confirmation gate)
+  const [confirmed, setConfirmed] = useState(true);
   // Track cancellation
   const cancelledRef = useRef(false);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -813,6 +813,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
           setTranscriptionError(null);
           setConfirmed(false);
           transcriptionStartedForFileRef.current = null;
+          // Re-trigger after reset
+          setTimeout(() => setConfirmed(true), 0);
         }}
         secondaryLabel="Go Back"
         onSecondary={async () => {
