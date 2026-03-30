@@ -7,7 +7,7 @@ export const routeValidatorStepAtom = atom<RouteValidatorStep>({
 });
 
 const initialRouteValidatorValues: RouteValidatorFlow = {
-  documentType: "route",
+  documentType: "",
   file: {
     fileId: "",
     fileName: "",
