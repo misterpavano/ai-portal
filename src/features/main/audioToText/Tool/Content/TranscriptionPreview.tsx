@@ -159,77 +159,58 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
     setFileProcessed(false);
   }, [audioToTextFormValues.uploadedFile]);
 
-  // Transcribe the file ONLY after user confirms
+  // Demo mode: fake loading sequence then show mock transcript
   useEffect(() => {
     if (!confirmed) return;
+    if (!audioToTextFormValues.uploadedFile) return;
 
-    const transcribeFile = async () => {
-      if (!audioToTextFormValues.uploadedFile) {
-        transcriptionStartedForFileRef.current = null;
-        return;
+    const file = audioToTextFormValues.uploadedFile;
+    const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
+    if (transcriptionStartedForFileRef.current === fileKey) return;
+    transcriptionStartedForFileRef.current = fileKey;
+
+    cancelledRef.current = false;
+    setIsTranscribing(true);
+    setTranscriptionError(null);
+    setJobState("waiting");
+
+    // Walk through fake loading steps
+    const timers: NodeJS.Timeout[] = [];
+    timers.push(setTimeout(() => { if (!cancelledRef.current) setJobState("active"); }, 1500));
+    timers.push(setTimeout(() => { if (!cancelledRef.current) setJobState("completed"); }, 3500));
+    timers.push(setTimeout(() => {
+      if (cancelledRef.current) return;
+
+      const mockTranscript: TranscriptData = {
+        segments: [
+          { timestamp: "00:00", timestampSeconds: 0, speaker: "Speaker A", text: "Good morning everyone. Thank you for joining today's quarterly review meeting. We have a lot of ground to cover, so let's jump right in." },
+          { timestamp: "00:12", timestampSeconds: 12, speaker: "Speaker B", text: "Thanks for setting this up. I've prepared the deck with our Q1 numbers and some key takeaways from the campaign performance data." },
+          { timestamp: "00:24", timestampSeconds: 24, speaker: "Speaker A", text: "Perfect. Let's start with the overall engagement metrics. How did we perform against our targets this quarter?" },
+          { timestamp: "00:35", timestampSeconds: 35, speaker: "Speaker B", text: "Overall engagement was up 18% compared to last quarter. HCP reach exceeded our target by about 12%, which is a strong result. The digital campaigns in particular drove most of that growth." },
+          { timestamp: "00:52", timestampSeconds: 52, speaker: "Speaker C", text: "I'd like to add that the new segmentation strategy we implemented in February really started paying off in March. We saw a 25% improvement in click-through rates for the targeted physician segments." },
+          { timestamp: "01:10", timestampSeconds: 70, speaker: "Speaker A", text: "That's great to hear. What about the content performance? Were there any particular assets that stood out?" },
+          { timestamp: "01:22", timestampSeconds: 82, speaker: "Speaker B", text: "The clinical data summary we distributed through the e-detailing platform had the highest engagement rate at 34%. The video content also performed well, averaging about 72% completion rate." },
+          { timestamp: "01:40", timestampSeconds: 100, speaker: "Speaker C", text: "One thing to flag is that we noticed some compliance review bottlenecks that delayed two of our planned launches. We should discuss process improvements for next quarter." },
+          { timestamp: "01:55", timestampSeconds: 115, speaker: "Speaker A", text: "Absolutely. Let's make sure we address that in the action items. Any other highlights before we move to the regional breakdown?" },
+        ],
+        fullText: "Good morning everyone. Thank you for joining today's quarterly review meeting. We have a lot of ground to cover, so let's jump right in. Thanks for setting this up. I've prepared the deck with our Q1 numbers and some key takeaways from the campaign performance data. Perfect. Let's start with the overall engagement metrics. How did we perform against our targets this quarter? Overall engagement was up 18% compared to last quarter. HCP reach exceeded our target by about 12%, which is a strong result. The digital campaigns in particular drove most of that growth. I'd like to add that the new segmentation strategy we implemented in February really started paying off in March. We saw a 25% improvement in click-through rates for the targeted physician segments. That's great to hear. What about the content performance? Were there any particular assets that stood out? The clinical data summary we distributed through the e-detailing platform had the highest engagement rate at 34%. The video content also performed well, averaging about 72% completion rate. One thing to flag is that we noticed some compliance review bottlenecks that delayed two of our planned launches. We should discuss process improvements for next quarter. Absolutely. Let's make sure we address that in the action items. Any other highlights before we move to the regional breakdown?",
+      };
+
+      // Set mock summary if option was selected
+      if (audioToTextFormValues.transcriptionOptions.provideSummary) {
+        setAudioToTextFormValues((prev) => ({
+          ...prev,
+          summary: "**Quarterly Review Meeting Summary**\n\nThe team reviewed Q1 performance metrics, reporting an 18% increase in overall engagement and 12% above-target HCP reach. Digital campaigns were the primary growth driver. A new segmentation strategy implemented in February led to a 25% improvement in click-through rates for targeted physician segments.\n\n**Key highlights:**\n- Clinical data summary achieved 34% engagement rate via e-detailing\n- Video content averaged 72% completion rate\n- Compliance review bottlenecks delayed two planned launches\n\n**Action items:** Process improvements needed for compliance review workflow to prevent future launch delays.",
+        }));
       }
 
-      const file = audioToTextFormValues.uploadedFile;
-      const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
+      setTranscript(mockTranscript);
+      setTranscriptResetKey((k) => k + 1);
+      setIsTranscribing(false);
+      setIsProcessingFile(false);
+    }, 5000));
 
-      if (transcriptionStartedForFileRef.current === fileKey) {
-        return;
-      }
-      transcriptionStartedForFileRef.current = fileKey;
-
-      const fileType = file.type;
-      const isAudio =
-        fileType.startsWith("audio/") ||
-        fileType === "video/mp4" ||
-        fileType === "video/mpeg" ||
-        fileType === "video/quicktime" ||
-        fileType === "video/webm";
-
-      if (!isAudio) {
-        setTranscriptionError(
-          "Unsupported file type. Please upload an audio or video file that contains audio.",
-        );
-        return;
-      }
-
-      try {
-        cancelledRef.current = false;
-        setIsTranscribing(true);
-        setTranscriptionError(null);
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        if (audioToTextFormValues.transcriptionOptions.provideSummary) {
-          formData.append("provideSummary", "true");
-        }
-        if (audioToTextFormValues.transcriptionOptions.includeTimestamps) {
-          formData.append("includeTimestamps", "true");
-        }
-        if (
-          audioToTextFormValues.transcriptionOptions.includeSpeakerIdentifier
-        ) {
-          formData.append("includeSpeakerIdentifier", "true");
-        }
-
-        const { jobId } = await transcribeAudio(formData).unwrap();
-
-        if (cancelledRef.current) return;
-
-        setJobId(jobId);
-        setJobState("waiting");
-      } catch (error) {
-        if (cancelledRef.current) return;
-        console.error("Transcription failed:", error);
-        transcriptionStartedForFileRef.current = null;
-        setIsTranscribing(false);
-        setTranscriptionError(
-          "Failed to start transcription. Please try again.",
-        );
-      }
-    };
-
-    transcribeFile();
+    return () => { timers.forEach(clearTimeout); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmed, audioToTextFormValues.uploadedFile]);
 
