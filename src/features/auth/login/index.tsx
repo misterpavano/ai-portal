@@ -1,9 +1,6 @@
-import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
-import "@aws-amplify/ui-react/styles.css";
 import "./login-overrides.css";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button, TextField } from "@mui/material";
 import logo from "../../../assets/kalabria-logo.svg";
 
 const LOGIN_STYLES = {
@@ -69,21 +66,13 @@ const LOGIN_STYLES = {
   },
 } as const;
 
-// Inner component that handles redirect after auth
-function AuthRedirect() {
-  const { user } = useAuthenticator((context) => [context.user]);
+export default function LoginPage() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
-    }
-  }, [navigate, user]);
+  const handleSignIn = () => {
+    navigate("/dashboard");
+  };
 
-  return null;
-}
-
-export default function LoginPage() {
   return (
     <Box sx={LOGIN_STYLES.wrapper}>
       {/* Left brand panel */}
@@ -200,24 +189,73 @@ export default function LoginPage() {
             Sign in to your Kalabria account
           </Typography>
 
-          <Box sx={{ width: "100%" }}>
-            <Authenticator
-              hideSignUp={true}
-              formFields={{
-                signIn: {
-                  username: {
-                    placeholder: "Enter your email",
-                    label: "Email",
-                  },
-                  password: {
-                    placeholder: "Enter your password",
-                    label: "Password",
-                  },
+          <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <TextField
+              label="Email"
+              placeholder="Enter your email"
+              defaultValue="wally@mkg.com"
+              fullWidth
+              size="small"
+              InputProps={{ readOnly: true }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                  backgroundColor: "#fff",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                },
+                "& .MuiInputLabel-root": {
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: "#57534E",
+                },
+              }}
+            />
+
+            <TextField
+              label="Password"
+              placeholder="Enter your password"
+              defaultValue="••••••••"
+              type="password"
+              fullWidth
+              size="small"
+              InputProps={{ readOnly: true }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                  backgroundColor: "#fff",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                },
+                "& .MuiInputLabel-root": {
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: "#57534E",
+                },
+              }}
+            />
+
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handleSignIn}
+              sx={{
+                mt: 1,
+                py: 1.4,
+                borderRadius: "8px",
+                backgroundColor: "#1C1917",
+                color: "#fff",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: "15px",
+                fontWeight: 600,
+                textTransform: "none",
+                "&:hover": {
+                  backgroundColor: "#333",
                 },
               }}
             >
-              <AuthRedirect />
-            </Authenticator>
+              Sign in
+            </Button>
           </Box>
 
           <Typography
