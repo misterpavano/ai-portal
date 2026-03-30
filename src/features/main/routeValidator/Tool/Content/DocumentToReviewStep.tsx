@@ -269,81 +269,162 @@ const DocumentToReviewStep: React.FC = () => {
     await processFile(selectedFile);
   };
 
+  const mainFileInputRef = React.useRef<HTMLInputElement>(null);
+  const annotatedFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleAnnotatedFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setRouteValidatorFormValues((prev) => ({
+        ...prev,
+        annotatedFile: file as any,
+        useAnnotatedFile: true,
+      }));
+    }
+  };
+
+  const handleMainFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) processFileWithAutoDetect(file);
+  };
+
   return (
     <Box sx={{ px: 4, pt: 2, pb: 3 }}>
-      {/* Split layout: Upload Document left, Annotated File right */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 3,
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { md: "stretch" },
-        }}
-      >
-        {/* Left - Upload Document */}
-        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-          <Typography
-            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
-          >
+      <Box sx={{ display: "flex", gap: 2, flexDirection: { xs: "column", md: "row" } }}>
+        {/* Upload Document - compact bar */}
+        <Box sx={{ flex: 1 }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1 }}>
             Upload Document
           </Typography>
-
-          <FileDropzone
-            file={
-              routeValidatorFormValues.file?.fileObject ??
-              (fileUploaded
-                ? ({ name: routeValidatorFormValues.file.fileName } as File)
-                : null)
-            }
-            status={dropzoneStatus}
-            progress={uploadProgress}
-            errorMessage={uploadError ?? undefined}
+          <input
+            type="file"
+            ref={mainFileInputRef}
+            style={{ display: "none" }}
             accept=".pdf,.zip,.doc,.docx"
-            headline="Drop your file here"
-            formatHint="PDF, ZIP, DOC, DOCX supported"
-            fillHeight
-            onFileSelected={processFileWithAutoDetect}
-            onRemove={handleRemove}
-            onRetry={() => {
-              setUploadError(null);
-              setDropzoneStatus("idle");
-            }}
+            onChange={handleMainFileSelect}
           />
+          {fileUploaded ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 2,
+                py: 1.5,
+                borderRadius: "10px",
+                border: "1.5px solid #E86D5A",
+                bgcolor: "#FEF2F0",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+                <Box sx={{ width: 28, height: 28, borderRadius: "8px", bgcolor: "#E86D5A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <IconFileTypePdf color="#FFFFFF" size={14} />
+                </Box>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1C1917", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {routeValidatorFormValues.file?.fileName || routeValidatorFormValues.file?.fileObject?.name}
+                </Typography>
+              </Box>
+              <Box onClick={handleRemove} sx={{ cursor: "pointer", color: "#A8A29E", "&:hover": { color: "#E86D5A" }, flexShrink: 0, ml: 1 }}>
+                <Typography sx={{ fontSize: 12, fontWeight: 600 }}>Remove</Typography>
+              </Box>
+            </Box>
+          ) : (
+            <Box
+              onClick={() => mainFileInputRef.current?.click()}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 2,
+                py: 1.5,
+                borderRadius: "10px",
+                border: "1.5px dashed #D6D3D1",
+                bgcolor: "#FAFAF9",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+                "&:hover": { borderColor: "#E86D5A", bgcolor: "#FEF2F0" },
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <IconUpload color="#A8A29E" size={16} strokeWidth={1.5} />
+                <Typography sx={{ fontSize: 13, color: "#78716C" }}>
+                  PDF, ZIP, DOC, DOCX
+                </Typography>
+              </Box>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#E86D5A" }}>Browse</Typography>
+            </Box>
+          )}
         </Box>
 
-        {/* Right - Annotated File (optional) */}
-        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-          <Typography
-            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
-          >
+        {/* Annotated File - compact bar */}
+        <Box sx={{ flex: 1 }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1 }}>
             Annotated File <Box component="span" sx={{ fontWeight: 400, color: "#A8A29E" }}>(optional)</Box>
           </Typography>
-
-          <FileDropzone
-            file={routeValidatorFormValues.annotatedFile ?? null}
-            status={routeValidatorFormValues.annotatedFile ? "uploaded" : "idle"}
-            progress={0}
+          <input
+            type="file"
+            ref={annotatedFileInputRef}
+            style={{ display: "none" }}
             accept=".pdf,.doc,.docx"
-            headline="Drop annotated file here"
-            formatHint="PDF, DOC, DOCX supported"
-            fillHeight
-            onFileSelected={(selectedFile: File) => {
-              setRouteValidatorFormValues((prev) => ({
-                ...prev,
-                annotatedFile: selectedFile as any,
-                useAnnotatedFile: true,
-              }));
-            }}
-            onRemove={() => {
-              setRouteValidatorFormValues((prev) => ({
-                ...prev,
-                annotatedFile: null,
-                annotationData: undefined,
-                useAnnotatedFile: false,
-              }));
-            }}
-            onRetry={() => {}}
+            onChange={handleAnnotatedFileSelect}
           />
+          {routeValidatorFormValues.annotatedFile ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 2,
+                py: 1.5,
+                borderRadius: "10px",
+                border: "1.5px solid #E86D5A",
+                bgcolor: "#FEF2F0",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+                <Box sx={{ width: 28, height: 28, borderRadius: "8px", bgcolor: "#E86D5A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <IconFileTypePdf color="#FFFFFF" size={14} />
+                </Box>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "#1C1917", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {routeValidatorFormValues.annotatedFile.name}
+                </Typography>
+              </Box>
+              <Box
+                onClick={() => {
+                  setRouteValidatorFormValues((prev) => ({ ...prev, annotatedFile: null, annotationData: undefined, useAnnotatedFile: false }));
+                  if (annotatedFileInputRef.current) annotatedFileInputRef.current.value = "";
+                }}
+                sx={{ cursor: "pointer", color: "#A8A29E", "&:hover": { color: "#E86D5A" }, flexShrink: 0, ml: 1 }}
+              >
+                <Typography sx={{ fontSize: 12, fontWeight: 600 }}>Remove</Typography>
+              </Box>
+            </Box>
+          ) : (
+            <Box
+              onClick={() => annotatedFileInputRef.current?.click()}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 2,
+                py: 1.5,
+                borderRadius: "10px",
+                border: "1.5px dashed #D6D3D1",
+                bgcolor: "#FAFAF9",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+                "&:hover": { borderColor: "#E86D5A", bgcolor: "#FEF2F0" },
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <IconUpload color="#A8A29E" size={16} strokeWidth={1.5} />
+                <Typography sx={{ fontSize: 13, color: "#78716C" }}>
+                  PDF, DOC, DOCX
+                </Typography>
+              </Box>
+              <Typography sx={{ fontSize: 12, fontWeight: 600, color: "#E86D5A" }}>Browse</Typography>
+            </Box>
+          )}
         </Box>
       </Box>
     </Box>
