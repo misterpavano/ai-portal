@@ -281,8 +281,7 @@ const SectionDivider = styled(Divider)({
 });
 
 const CustomDivider = styled(Divider)({
-  borderColor: "rgba(255, 255, 255, 0.06)",
-  margin: "4px 10px",
+  display: "none",
 });
 
 const UserSection = styled(Box)<{ isSidebarOpen: boolean }>(
