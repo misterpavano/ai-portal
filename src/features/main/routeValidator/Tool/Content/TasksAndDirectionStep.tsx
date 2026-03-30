@@ -231,132 +231,142 @@ const TasksAndDirectionStep: React.FC = () => {
 
   return (
     <Box sx={{ px: 4, pt: 3, pb: 5 }}>
-      {/* ── Top: Annotated File Upload (full width) ── */}
-      <Box sx={{ mb: 3 }}>
-        <Typography
-          sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1 }}
-        >
-          Annotated File from Previous Round
-        </Typography>
-
-        {routeValidatorFormValues.annotatedFile ? (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              p: 2,
-              borderRadius: "10px",
-              border: "1.5px solid #E86D5A",
-              bgcolor: "#FEF2F0",
-            }}
+      {/* ── Split layout: Upload left, Tasks right (3x2 grid) ── */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 3,
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { md: "stretch" },
+          mb: 3,
+        }}
+      >
+        {/* Left: Annotated File Upload */}
+        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 320px" }, minWidth: 0, display: "flex", flexDirection: "column" }}>
+          <Typography
+            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
+            Annotated File
+          </Typography>
+
+          {routeValidatorFormValues.annotatedFile ? (
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1.5,
-                minWidth: 0,
+                justifyContent: "space-between",
+                p: 2,
+                borderRadius: "10px",
+                border: "1.5px solid #E86D5A",
+                bgcolor: "#FEF2F0",
+                flex: 1,
               }}
             >
               <Box
                 sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "10px",
-                  bgcolor: "#E86D5A",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
+                  gap: 1.5,
+                  minWidth: 0,
                 }}
               >
-                <IconFile color="#FFFFFF" size={16} />
-              </Box>
-              <Box sx={{ minWidth: 0 }}>
-                <Tooltip
-                  title={routeValidatorFormValues.annotatedFile.name}
-                  placement="top"
-                  arrow
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: "#1C1917",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {routeValidatorFormValues.annotatedFile.name}
-                  </Typography>
-                </Tooltip>
-                <Typography
-                  onClick={() => setShowReviewSummary(true)}
+                <Box
                   sx={{
-                    fontSize: 12,
-                    color: "#E86D5A",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    "&:hover": { textDecoration: "underline" },
+                    width: 36,
+                    height: 36,
+                    borderRadius: "10px",
+                    bgcolor: "#E86D5A",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
                   }}
                 >
-                  View annotation summary
-                </Typography>
+                  <IconFile color="#FFFFFF" size={16} />
+                </Box>
+                <Box sx={{ minWidth: 0 }}>
+                  <Tooltip
+                    title={routeValidatorFormValues.annotatedFile.name}
+                    placement="top"
+                    arrow
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "#1C1917",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {routeValidatorFormValues.annotatedFile.name}
+                    </Typography>
+                  </Tooltip>
+                  <Typography
+                    onClick={() => setShowReviewSummary(true)}
+                    sx={{
+                      fontSize: 12,
+                      color: "#E86D5A",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                  >
+                    View annotation summary
+                  </Typography>
+                </Box>
               </Box>
+              <Tooltip title="Remove" placement="top" arrow>
+                <Box
+                  onClick={handleRemoveFile}
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    "&:hover": { bgcolor: "rgba(232,109,90,0.15)" },
+                  }}
+                >
+                  <IconTrashFilled size={16} color="#A8A29E" />
+                </Box>
+              </Tooltip>
             </Box>
-            <Tooltip title="Remove" placement="top" arrow>
-              <Box
-                onClick={handleRemoveFile}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  "&:hover": { bgcolor: "rgba(232,109,90,0.15)" },
-                }}
-              >
-                <IconTrashFilled size={16} color="#A8A29E" />
-              </Box>
-            </Tooltip>
-          </Box>
-        ) : (
-          <Box
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onClick={() => fileInputRef.current?.click()}
-            sx={{
-              border: "1.5px dashed #D6D3D1",
-              borderRadius: "10px",
-              py: 2.5,
-              px: 3,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              bgcolor: "#FAFAF9",
-              transition: "all 0.15s ease",
-              "&:hover": {
-                borderColor: "#E86D5A",
-                bgcolor: "#FEF2F0",
-              },
-            }}
-          >
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleFileSelect}
-              accept=".pdf,.doc,.docx"
-            />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <IconUpload color="#A8A29E" size={18} strokeWidth={1.5} />
-              <Typography sx={{ fontSize: 13, color: "#78716C" }}>
+          ) : (
+            <Box
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={() => fileInputRef.current?.click()}
+              sx={{
+                border: "1.5px dashed #D6D3D1",
+                borderRadius: "10px",
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                bgcolor: "#FAFAF9",
+                transition: "all 0.15s ease",
+                "&:hover": {
+                  borderColor: "#E86D5A",
+                  bgcolor: "#FEF2F0",
+                },
+              }}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileSelect}
+                accept=".pdf,.doc,.docx"
+              />
+              <IconUpload color="#A8A29E" size={24} strokeWidth={1.5} />
+              <Typography sx={{ fontSize: 13, color: "#78716C", mt: 1.5, textAlign: "center" }}>
                 Drop an annotated file here or{" "}
                 <Box
                   component="span"
@@ -369,27 +379,29 @@ const TasksAndDirectionStep: React.FC = () => {
                   browse
                 </Box>
               </Typography>
+              <Typography sx={{ fontSize: 11, color: "#A8A29E", mt: 0.5 }}>
+                PDF, DOC, DOCX supported
+              </Typography>
             </Box>
-          </Box>
-        )}
-      </Box>
+          )}
+        </Box>
 
-      {/* ── Two-column: Tasks left, Notes right ── */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 3,
-          flexDirection: { xs: "column", md: "row" },
-        }}
-      >
-        {/* Left: Tasks */}
-        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 340px" }, minWidth: 0 }}>
+        {/* Right: Tasks (3x2 grid) */}
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Typography
-            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1 }}
+            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
             Tasks
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 2,
+              flex: 1,
+              alignContent: "space-between",
+            }}
+          >
             {taskConfig.map((task) => (
               <OptionCard
                 key={task.id}
@@ -461,42 +473,42 @@ const TasksAndDirectionStep: React.FC = () => {
             </Box>
           )}
         </Box>
+      </Box>
 
-        {/* Right: Additional Notes */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1 }}
-          >
-            Additional Notes
-          </Typography>
-          <TextareaAutosize
-            minRows={12}
-            maxRows={20}
-            value={routeValidatorFormValues.additionalNotes || ""}
-            onChange={handleAdditionalNotesChange}
-            placeholder='e.g. "Focus on the claims table in section 3" or "Check that all footnotes match their references"'
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              border: "1.5px solid #E7E5E4",
-              borderRadius: "10px",
-              fontSize: "14px",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              resize: "vertical",
-              lineHeight: 1.6,
-              color: "#1C1917",
-              boxSizing: "border-box",
-              transition: "border-color 0.15s ease",
-              outline: "none",
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = "#E86D5A";
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = "#E7E5E4";
-            }}
-          />
-        </Box>
+      {/* ── Full width: Additional Notes ── */}
+      <Box>
+        <Typography
+          sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1 }}
+        >
+          Additional Notes
+        </Typography>
+        <TextareaAutosize
+          minRows={4}
+          maxRows={8}
+          value={routeValidatorFormValues.additionalNotes || ""}
+          onChange={handleAdditionalNotesChange}
+          placeholder='e.g. "Focus on the claims table in section 3" or "Check that all footnotes match their references"'
+          style={{
+            width: "100%",
+            padding: "12px 14px",
+            border: "1.5px solid #E7E5E4",
+            borderRadius: "10px",
+            fontSize: "14px",
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            resize: "vertical",
+            lineHeight: 1.6,
+            color: "#1C1917",
+            boxSizing: "border-box",
+            transition: "border-color 0.15s ease",
+            outline: "none",
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = "#E86D5A";
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = "#E7E5E4";
+          }}
+        />
       </Box>
 
       {/* Review Summary Dialog */}
