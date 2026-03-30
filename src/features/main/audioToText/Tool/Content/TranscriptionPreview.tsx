@@ -214,8 +214,9 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmed, audioToTextFormValues.uploadedFile]);
 
-  // Poll for transcription status
+  // Poll for transcription status (disabled in demo mode)
   useEffect(() => {
+    return; // Demo mode: skip real API polling
     if (!jobId || jobState === "completed" || jobState === "failed") return;
 
     const interval = setInterval(async () => {
@@ -284,8 +285,9 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
     };
   }, [jobId, jobState, getTranscriptionStatus, cleanupResources]);
 
-  // File upload and summary generation after transcription completes
+  // File upload and summary generation after transcription completes (disabled in demo mode)
   useEffect(() => {
+    return; // Demo mode: skip real API calls
     const processFileAndGenerateSummary = async () => {
       if (
         !audioToTextFormValues.transcriptionOptions.provideSummary ||
