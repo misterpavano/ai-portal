@@ -137,8 +137,10 @@ const AudioToTextFooter = ({
             style={{
               borderRadius: "8px",
               height: 40,
-              width: 160,
+              paddingLeft: 24,
+              paddingRight: 24,
               fontSize: 13,
+              whiteSpace: "nowrap" as const,
             }}
           />
           <DefaultButton
@@ -148,8 +150,10 @@ const AudioToTextFooter = ({
             style={{
               borderRadius: "8px",
               height: 40,
-              width: 170,
+              paddingLeft: 24,
+              paddingRight: 24,
               fontSize: 13,
+              whiteSpace: "nowrap" as const,
             }}
           />
         </Box>
