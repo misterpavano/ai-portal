@@ -198,13 +198,13 @@ const AudioToTextUploads: React.FC<AudioToTextUploadsProps> = ({
         </Box>
 
         {/* Right - Options */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Typography
             sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
             Options
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, justifyContent: "space-between" }}>
             <OptionCard
               checked={initialValues.transcriptionOptions.provideSummary}
               onChange={(checked) =>
