@@ -9,6 +9,7 @@ import {
   IconFileTypePdf,
   IconFileZip,
   IconFileTypeDocx,
+  IconUpload,
 } from "@tabler/icons-react";
 import OptionCard from "../../../../../components/shared/OptionCard";
 import FileDropzone, {
