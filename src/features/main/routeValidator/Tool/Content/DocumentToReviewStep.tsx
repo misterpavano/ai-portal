@@ -251,23 +251,37 @@ const DocumentToReviewStep: React.FC = () => {
     setDropzoneStatus("idle");
   };
 
-  const selectedType = routeValidatorFormValues.documentType;
-  const selectedTypeConfig = documentTypes.find((t) => t.id === selectedType);
+  // Auto-detect document type from file extension
+  const autoDetectType = (file: File): string => {
+    const name = file.name.toLowerCase();
+    if (name.endsWith(".pdf")) return "route";
+    if (name.endsWith(".zip")) return "screenshots";
+    if (name.endsWith(".doc") || name.endsWith(".docx")) return "word";
+    return "route";
+  };
+
+  const processFileWithAutoDetect = async (selectedFile: File) => {
+    const detectedType = autoDetectType(selectedFile);
+    setRouteValidatorFormValues((prev) => ({
+      ...prev,
+      documentType: detectedType,
+    }));
+    await processFile(selectedFile);
+  };
 
   return (
-    <Box sx={{ px: 4, pt: 2, pb: 6 }}>
-      {/* Split layout: Upload left (40%), Document Type right (60%) */}
+    <Box sx={{ px: 4, pt: 2, pb: 3 }}>
+      {/* Split layout: Upload Document left, Annotated File right */}
       <Box
         sx={{
           display: "flex",
           gap: 3,
           flexDirection: { xs: "column", md: "row" },
           alignItems: { md: "stretch" },
-          mb: 4,
         }}
       >
-        {/* Left - Upload */}
-        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 320px" }, minWidth: 0, display: "flex", flexDirection: "column" }}>
+        {/* Left - Upload Document */}
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Typography
             sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
@@ -284,11 +298,11 @@ const DocumentToReviewStep: React.FC = () => {
             status={dropzoneStatus}
             progress={uploadProgress}
             errorMessage={uploadError ?? undefined}
-            accept={selectedTypeConfig?.accept}
-            headline={selectedType ? `Drop your ${selectedTypeConfig?.name} file here` : "Drop your file here"}
-            formatHint={selectedTypeConfig?.formatHint ?? "PDF, ZIP, DOC, DOCX supported"}
+            accept=".pdf,.zip,.doc,.docx"
+            headline="Drop your file here"
+            formatHint="PDF, ZIP, DOC, DOCX supported"
             fillHeight
-            onFileSelected={processFile}
+            onFileSelected={processFileWithAutoDetect}
             onRemove={handleRemove}
             onRetry={() => {
               setUploadError(null);
@@ -297,26 +311,39 @@ const DocumentToReviewStep: React.FC = () => {
           />
         </Box>
 
-        {/* Right - Document Type Options */}
+        {/* Right - Annotated File (optional) */}
         <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Typography
             sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
-            Document Type
+            Annotated File <Box component="span" sx={{ fontWeight: 400, color: "#A8A29E" }}>(optional)</Box>
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, justifyContent: "space-between" }}>
-            {documentTypes.map((type) => (
-              <OptionCard
-                key={type.id}
-                checked={selectedType === type.id}
-                onChange={() => handleDocumentTypeSelect(type.id)}
-                icon={type.icon}
-                title={type.name}
-                description={type.description}
-                disabled={type.disabled}
-              />
-            ))}
-          </Box>
+
+          <FileDropzone
+            file={routeValidatorFormValues.annotatedFile ?? null}
+            status={routeValidatorFormValues.annotatedFile ? "uploaded" : "idle"}
+            progress={0}
+            accept=".pdf,.doc,.docx"
+            headline="Drop annotated file here"
+            formatHint="PDF, DOC, DOCX supported"
+            fillHeight
+            onFileSelected={(selectedFile: File) => {
+              setRouteValidatorFormValues((prev) => ({
+                ...prev,
+                annotatedFile: selectedFile as any,
+                useAnnotatedFile: true,
+              }));
+            }}
+            onRemove={() => {
+              setRouteValidatorFormValues((prev) => ({
+                ...prev,
+                annotatedFile: null,
+                annotationData: undefined,
+                useAnnotatedFile: false,
+              }));
+            }}
+            onRetry={() => {}}
+          />
         </Box>
       </Box>
     </Box>

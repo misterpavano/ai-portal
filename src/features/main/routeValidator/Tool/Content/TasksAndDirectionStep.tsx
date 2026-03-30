@@ -230,164 +230,10 @@ const TasksAndDirectionStep: React.FC = () => {
   }, [showReviewSummary, routeValidatorFormValues.annotatedFile]);
 
   return (
-    <Box sx={{ px: 4, pt: 3, pb: 5 }}>
-      {/* ── Split layout: Upload left, Tasks right (3x2 grid) ── */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 3,
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { md: "stretch" },
-          mb: 3,
-        }}
-      >
-        {/* Left: Annotated File Upload */}
-        <Box sx={{ flex: { xs: "1 1 auto", md: "0 0 320px" }, minWidth: 0, display: "flex", flexDirection: "column" }}>
-          <Typography
-            sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
-          >
-            Annotated File
-          </Typography>
-
-          {routeValidatorFormValues.annotatedFile ? (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                p: 2,
-                borderRadius: "10px",
-                border: "1.5px solid #E86D5A",
-                bgcolor: "#FEF2F0",
-                flex: 1,
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  minWidth: 0,
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "10px",
-                    bgcolor: "#E86D5A",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <IconFile color="#FFFFFF" size={16} />
-                </Box>
-                <Box sx={{ minWidth: 0 }}>
-                  <Tooltip
-                    title={routeValidatorFormValues.annotatedFile.name}
-                    placement="top"
-                    arrow
-                  >
-                    <Typography
-                      sx={{
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: "#1C1917",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {routeValidatorFormValues.annotatedFile.name}
-                    </Typography>
-                  </Tooltip>
-                  <Typography
-                    onClick={() => setShowReviewSummary(true)}
-                    sx={{
-                      fontSize: 12,
-                      color: "#E86D5A",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      "&:hover": { textDecoration: "underline" },
-                    }}
-                  >
-                    View annotation summary
-                  </Typography>
-                </Box>
-              </Box>
-              <Tooltip title="Remove" placement="top" arrow>
-                <Box
-                  onClick={handleRemoveFile}
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    "&:hover": { bgcolor: "rgba(232,109,90,0.15)" },
-                  }}
-                >
-                  <IconTrashFilled size={16} color="#A8A29E" />
-                </Box>
-              </Tooltip>
-            </Box>
-          ) : (
-            <Box
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={() => fileInputRef.current?.click()}
-              sx={{
-                border: "1.5px dashed #D6D3D1",
-                borderRadius: "10px",
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                bgcolor: "#FAFAF9",
-                transition: "all 0.15s ease",
-                "&:hover": {
-                  borderColor: "#E86D5A",
-                  bgcolor: "#FEF2F0",
-                },
-              }}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleFileSelect}
-                accept=".pdf,.doc,.docx"
-              />
-              <IconUpload color="#A8A29E" size={24} strokeWidth={1.5} />
-              <Typography sx={{ fontSize: 13, color: "#78716C", mt: 1.5, textAlign: "center" }}>
-                Drop an annotated file here or{" "}
-                <Box
-                  component="span"
-                  sx={{
-                    color: "#E86D5A",
-                    fontWeight: 600,
-                    "&:hover": { textDecoration: "underline" },
-                  }}
-                >
-                  browse
-                </Box>
-              </Typography>
-              <Typography sx={{ fontSize: 11, color: "#A8A29E", mt: 0.5 }}>
-                PDF, DOC, DOCX supported
-              </Typography>
-            </Box>
-          )}
-        </Box>
-
-        {/* Right: Tasks (3x2 grid) */}
-        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+    <Box sx={{ px: 4, pt: 0, pb: 3 }}>
+      {/* ── Tasks (3x2 grid, full width) ── */}
+      <Box sx={{ mb: 3 }}>
+        <Box>
           <Typography
             sx={{ fontSize: 13, fontWeight: 700, color: "#1C1917", mb: 1.5 }}
           >
@@ -396,7 +242,7 @@ const TasksAndDirectionStep: React.FC = () => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
               gap: 2,
               flex: 1,
               alignContent: "space-between",
