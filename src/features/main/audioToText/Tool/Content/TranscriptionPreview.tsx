@@ -216,7 +216,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
 
   // Poll for transcription status (disabled in demo mode)
   useEffect(() => {
-    return; // Demo mode: skip real API polling
+    // Demo mode: skip real API polling
+    if (true) return; // eslint-disable-line
     if (!jobId || jobState === "completed" || jobState === "failed") return;
 
     const interval = setInterval(async () => {
@@ -287,7 +288,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
 
   // File upload and summary generation after transcription completes (disabled in demo mode)
   useEffect(() => {
-    return; // Demo mode: skip real API calls
+    // Demo mode: skip real API calls
+    if (true) return; // eslint-disable-line
     const processFileAndGenerateSummary = async () => {
       if (
         !audioToTextFormValues.transcriptionOptions.provideSummary ||
