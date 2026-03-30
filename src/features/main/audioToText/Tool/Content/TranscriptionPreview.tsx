@@ -76,7 +76,7 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [fileProcessed, setFileProcessed] = useState(false);
   // Auto-start transcription (no confirmation gate)
-  const [confirmed, setConfirmed] = useState(true);
+  const [confirmed, setConfirmed] = useState(false);
   // Track cancellation
   const cancelledRef = useRef(false);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -159,16 +159,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
     setFileProcessed(false);
   }, [audioToTextFormValues.uploadedFile]);
 
-  // Demo mode: fake loading sequence then show mock transcript
+  // Demo mode: auto-start fake loading on mount
   useEffect(() => {
-    if (!confirmed) return;
-    if (!audioToTextFormValues.uploadedFile) return;
-
-    const file = audioToTextFormValues.uploadedFile;
-    const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
-    if (transcriptionStartedForFileRef.current === fileKey) return;
-    transcriptionStartedForFileRef.current = fileKey;
-
     cancelledRef.current = false;
     setIsTranscribing(true);
     setTranscriptionError(null);
@@ -212,7 +204,7 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
 
     return () => { timers.forEach(clearTimeout); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [confirmed, audioToTextFormValues.uploadedFile]);
+  }, []); // Run once on mount
 
   // Poll for transcription status (disabled in demo mode)
   useEffect(() => {
@@ -434,8 +426,8 @@ const TranscriptionPreview: React.FC<TranscriptionPreviewProps> = ({
     fileProcessed,
   ]);
 
-  // ── Confirmation screen ──
-  if (!confirmed) {
+  // ── Confirmation screen (disabled - auto-start) ──
+  if (false) {
     const file = audioToTextFormValues.uploadedFile;
     const opts = audioToTextFormValues.transcriptionOptions;
     const selectedOptions = [
