@@ -17,15 +17,15 @@ export const prototypeRoutes: GeneralRoute[] = [
       />
     ),
   },
-  {
-    title: "Audio to Text",
-    path: "/audio-to-text",
-    renderIcon: (isActive: boolean) => (
-      <IconBroadcast
-        width={18}
-        height={18}
-        color={isActive ? activeRouteColor : inactiveRouteColor}
-      />
-    ),
-  },
+  // {
+  //   title: "Audio to Text",
+  //   path: "/audio-to-text",
+  //   renderIcon: (isActive: boolean) => (
+  //     <IconBroadcast
+  //       width={18}
+  //       height={18}
+  //       color={isActive ? activeRouteColor : inactiveRouteColor}
+  //     />
+  //   ),
+  // },
 ];
