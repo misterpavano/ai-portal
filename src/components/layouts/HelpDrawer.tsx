@@ -33,7 +33,7 @@ interface HelpEntry {
 const helpEntries: HelpEntry[] = [
   {
     key: "route-assistant",
-    label: "Route Assistant",
+    label: "Extra Editor",
     route: "/route-assistant",
     component: RouteValidatorHelp,
   },

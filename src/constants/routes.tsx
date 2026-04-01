@@ -7,7 +7,7 @@ const inactiveRouteColor = "rgba(255, 255, 255, 0.5)";
 
 export const prototypeRoutes: GeneralRoute[] = [
   {
-    title: "Route Assistant",
+    title: "Extra Editor",
     path: "/route-assistant",
     renderIcon: (isActive: boolean) => (
       <IconProgressCheck

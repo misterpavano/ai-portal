@@ -51,7 +51,7 @@ export const dashboardStats: DashboardStat[] = [
 
 export const quickActions: QuickAction[] = [
   {
-    title: "Route Assistant",
+    title: "Extra Editor",
     description:
       "Validate and review route documents with AI-powered analysis.",
     path: "/route-assistant",
@@ -69,7 +69,7 @@ export const quickActions: QuickAction[] = [
 export const recentActivity: ActivityItem[] = [
   {
     action: "Route document validated",
-    tool: "Route Assistant",
+    tool: "Extra Editor",
     time: "2 hours ago",
   },
   {
@@ -79,7 +79,7 @@ export const recentActivity: ActivityItem[] = [
   },
   {
     action: "Route review completed",
-    tool: "Route Assistant",
+    tool: "Extra Editor",
     time: "Yesterday",
   },
   {

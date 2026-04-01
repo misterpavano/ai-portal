@@ -25,7 +25,7 @@ const RouteValidator = () => {
   return (
     <>
       <HeaderTitle
-        title="Route Assistant"
+        title="Extra Editor"
         subtitle="Validate and review documents"
         icon={<IconRoute width={18} height={18} color={"#FFFFFF"} />}
         breadcrumb={breadcrumb}
